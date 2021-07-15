@@ -67,12 +67,16 @@ const fields = [
 const Tables = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const componentDidMount = (limit = 0) => {
+  const componentDidMount = (limit = 1) => {
+    // .range(
+    //   limit !== 0 ? limit - 1 * 10 : limit,
+    //   limit !== 0 ? limit * 10 : 10
+    // )
     setLoading(true);
     supabase
       .from("User")
       .select("*")
-      .range(limit !== 0 ? limit - 1 * 5 : limit, limit !== 0 ? limit * 5 : 5)
+      .limit(limit * 5 + 1)
       .then((snapshot) => {
         setUsers(snapshot.data);
         setLoading(false);
@@ -94,7 +98,10 @@ const Tables = () => {
                 items={users}
                 fields={fields}
                 itemsPerPage={5}
-                onPageChange={componentDidMount}
+                onPageChange={(number) => {
+                  console.log(number);
+                  componentDidMount(number);
+                }}
                 loading={loading}
                 pagination
                 scopedSlots={{
