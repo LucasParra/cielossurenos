@@ -37,6 +37,8 @@ const Typography = React.lazy(() => import('./views/theme/typography/Typography'
 const Widgets = React.lazy(() => import('./views/widgets/Widgets'));
 const Users = React.lazy(() => import('./views/users/Users'));
 const User = React.lazy(() => import('./views/users/User'));
+const Form = React.lazy(() => import("./views/buttons/form/Form"));
+
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
@@ -66,6 +68,7 @@ const routes = [
   { path: '/buttons/button-dropdowns', name: 'Dropdowns', component: ButtonDropdowns },
   { path: '/buttons/button-groups', name: 'Button Groups', component: ButtonGroups },
   { path: '/buttons/brand-buttons', name: 'Brand Buttons', component: BrandButtons },
+  { path: '/buttons/form', name: 'Form', component: Form},
   { path: '/charts', name: 'Charts', component: Charts },
   { path: '/icons', exact: true, name: 'Icons', component: CoreUIIcons },
   { path: '/icons/coreui-icons', name: 'CoreUI Icons', component: CoreUIIcons },

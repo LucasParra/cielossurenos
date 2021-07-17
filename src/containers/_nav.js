@@ -145,7 +145,12 @@ const _nav =  [
         _tag: 'CSidebarNavItem',
         name: 'Dropdowns',
         to: '/buttons/button-dropdowns',
-      }
+      },      
+      {
+        _tag: 'CSidebarNavItem',
+        name: 'User Form',
+        to: '/buttons/form',
+      },
     ],
   },
   {
@@ -249,7 +254,7 @@ const _nav =  [
       },
       {
         _tag: 'CSidebarNavItem',
-        name: 'Error 500',
+        name: '',
         to: '/500',
       },
     ],
