@@ -9,13 +9,15 @@ import {
   CLabel,
   CSelect,
   CRow,
+  CButton,
+  CIcon
 } from '@coreui/react'
 import { DocsLink } from 'src/reusable'
 
 const Forms = () => {
   return (
     <>
-    
+
       <CRow>
         <CCol xs="12" sm="9">
           <CCard>
@@ -46,13 +48,13 @@ const Forms = () => {
                 <CCol xs="9">
                   <CFormGroup>
                     <CLabel htmlFor="phone-number">Número de Teléfono 1</CLabel>
-                    <CInput id="phone1" placeholder="Ingresa tu número de teléfono - Ejemplo: 934532244" />
+                    <CInput id="phone1" placeholder="Ejemplo: 934532244" />
                   </CFormGroup>
                 </CCol>
                 <CCol xs="9">
                   <CFormGroup>
                     <CLabel htmlFor="phone-number">Número de Teléfono 2</CLabel>
-                    <CInput id="phone2" placeholder="Ingresa tu número de teléfono - Ejemplo: 934532244" />
+                    <CInput id="phone2" placeholder="Ejemplo: 934532244" />
                   </CFormGroup>
                 </CCol>
               </CFormGroup>
@@ -64,7 +66,7 @@ const Forms = () => {
                 <CLabel htmlFor="zone">Zona Horaria</CLabel>
                   <CCol xs="8" md="8">
                     <CSelect custom name="zone" id="zone">
-                      <option value="0">Porfavor Selecciona Zona o Localidad</option>
+                      <option value="0">Selecciona Zona o Localidad</option>
                       <option value="1">Zone 1</option>
                       <option value="2">Zone 2</option>
                       <option value="3">Zone 3</option>
@@ -82,7 +84,7 @@ const Forms = () => {
                 <CLabel htmlFor="sucursal">Sucursal</CLabel>
                   <CCol xs="12" md="8">
                     <CSelect custom name="select" id="select">
-                      <option value="0">Porfavor Selecciona Sucursal</option>
+                      <option value="0">Selecciona Sucursal</option>
                       <option value="1">Viña del Mar</option>
                       <option value="2">Temuco</option>
                     </CSelect>
@@ -178,6 +180,10 @@ const Forms = () => {
                     <CLabel htmlFor="ccyear">Fecha de nacimiento</CLabel>
                     <CInput type="date" id="date-input" name="date-input" placeholder="date" />
                   </CCol>
+                </CFormGroup>
+                <CFormGroup>
+                  <CButton type="submit" size="sm" color="primary"><CLabel name="cil-scrubber" /> Submit</CButton>
+                  <CButton type="reset" size="sm" color="danger"><CLabel name="cil-ban" /> Reset</CButton>
                 </CFormGroup>
             </CCardBody>
           </CCard>
