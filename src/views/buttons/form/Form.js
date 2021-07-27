@@ -1,4 +1,5 @@
-import React from 'react'
+import React from 'react';
+import { useState } from "react";
 import {
   CCard,
   CCardBody,
@@ -10,14 +11,46 @@ import {
   CSelect,
   CRow,
   CButton,
-  CIcon
+  CForm
 } from '@coreui/react'
 import { DocsLink } from 'src/reusable'
 
 const Forms = () => {
-  return (
-    <>
+  const [validated, setValidated] = useState(false)
+  const [addressList, setInputList] = useState([{ address: ""}]);
 
+  const handleInputChange = (e, index) => {
+    const {  value } = e.target;
+    const list = [...addressList];
+    list[index].address = value;
+    setInputList(list);
+  };
+
+  const handleRemoveClick = index => {
+    const list = [...addressList];
+    list.splice(index, 1);
+    setInputList(list);
+  };
+
+  const handleAddClick = () => {
+    setInputList([...addressList, { address: ""}]);
+  };
+
+  const handleSubmit = event => {
+    const form = event.currentTarget
+    if (form.checkValidity() === false) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
+    setValidated(true)
+  }
+  return (
+    <CForm
+      className="was-validated"
+      noValidate
+      validated={validated}
+      onSubmit={handleSubmit}
+    >
       <CRow>
         <CCol xs="12" sm="9">
           <CCard>
@@ -28,39 +61,65 @@ const Forms = () => {
             <CCardBody>
               <CFormGroup>
                 <CLabel htmlFor="full name">Nombre Completo</CLabel>
-                <CInput id="fullname" placeholder="Ingresa tu Nombre Completo" />
+                <CInput id="fullname" placeholder="Ingresa tu Nombre Completo" required />
               </CFormGroup>
               <CFormGroup>
                 <CLabel htmlFor="dni">Rut</CLabel>
-                <CInput id="dni" placeholder=" Ejemplo:18.123.678-3" />
+                <CInput id="dni" placeholder=" Ejemplo:18.123.678-3" required />
               </CFormGroup>
+              {addressList.map((currentAddress, i) => (
               <CFormGroup>
-                <CLabel htmlFor="address">Dirección</CLabel>
-                <CInput id="address" placeholder="Ingresa tu dirección 1" />
+                <CCol xs="14" md="14">
+                  <CLabel htmlFor="address">Dirección</CLabel>
+                  <CInput 
+                    id="address" 
+                    placeholder="Ingresa tu dirección"
+                    value={currentAddress.address}
+                    onChange={e => handleInputChange(e, i)}
+                    required 
+                  />
+                  {addressList.length !== 1 && 
+                  <CButton
+                    className="mr10"
+                    onClick={() => handleRemoveClick(i)}
+                    type="button" 
+                    color="secondary" 
+                    variant="ghost"
+                  >
+                  Eliminar
+                  </CButton>
+                  }
+                  {addressList.length - 1 === i && currentAddress.address.length > 0 &&
+                  <CButton 
+                    onClick={handleAddClick} 
+                    type="button" 
+                    color="secondary" 
+                    variant="ghost"
+                    value="Input"
+                  >
+                  Añadir
+                  </CButton>
+                  }
+                </CCol>
               </CFormGroup>
-              <CFormGroup>
-                <CInput id="address" placeholder="Ingresa tu dirección 2" />
-              </CFormGroup>
-              <CFormGroup>
-                <CInput id="address" placeholder="Ingresa tu dirección 3" />
-              </CFormGroup>
+              ))}
               <CFormGroup row className="my-0">
                 <CCol xs="9">
                   <CFormGroup>
                     <CLabel htmlFor="phone-number">Número de Teléfono 1</CLabel>
-                    <CInput id="phone1" placeholder="Ejemplo: 934532244" />
+                    <CInput id="phone1" placeholder="Ejemplo: 934532244" required />
                   </CFormGroup>
                 </CCol>
                 <CCol xs="9">
                   <CFormGroup>
                     <CLabel htmlFor="phone-number">Número de Teléfono 2</CLabel>
-                    <CInput id="phone2" placeholder="Ejemplo: 934532244" />
+                    <CInput id="phone2" placeholder="Ejemplo: 934532244" required />
                   </CFormGroup>
                 </CCol>
               </CFormGroup>
               <CFormGroup>
                 <CLabel htmlFor="email">Correo</CLabel>
-                <CInput id="email" placeholder="Ingresa tu email" />
+                <CInput id="correo" placeholder="Ingresa tu email" required />
               </CFormGroup> 
                 <CFormGroup row>
                 <CLabel htmlFor="zone">Zona Horaria</CLabel>
@@ -84,112 +143,34 @@ const Forms = () => {
                 <CLabel htmlFor="sucursal">Sucursal</CLabel>
                   <CCol xs="12" md="8">
                     <CSelect custom name="select" id="select">
-                      <option value="0">Selecciona Sucursal</option>
-                      <option value="1">Viña del Mar</option>
-                      <option value="2">Temuco</option>
+                      <option disabled>Selecciona Sucursal</option>
+                      <option disabled>Viña del Mar</option>
+                      <option disabled>Temuco</option>
                     </CSelect>
                   </CCol>
               </CFormGroup>
-              <CCard>
-                <CCardBody>
-                  <CRow>
-                  <CLabel htmlFor="">Fecha Ingreso o Antiguedad</CLabel>                
-                    <CCol xs="4">
-                      <CFormGroup>
-                        <CLabel htmlFor="day">Día</CLabel>
-                        <CSelect custom name="day" id="day">
-                          <option>1</option>
-                          <option>2</option>
-                          <option>3</option>
-                          <option>3</option>
-                          <option>4</option>
-                          <option>5</option>
-                          <option>6</option>
-                          <option>7</option>
-                          <option>8</option>
-                          <option>9</option>
-                          <option>10</option>
-                          <option>11</option>
-                          <option>12</option>
-                          <option>13</option>
-                          <option>14</option>
-                          <option>15</option>
-                          <option>16</option>
-                          <option>17</option>
-                          <option>18</option>
-                          <option>19</option>
-                          <option>20</option>
-                          <option>21</option>
-                          <option>22</option>
-                          <option>23</option>
-                          <option>24</option>
-                          <option>25</option>
-                          <option>26</option>
-                          <option>27</option>
-                          <option>28</option>
-                          <option>29</option>
-                          <option>30</option>
-                          <option>31</option>
-                        </CSelect>
-                      </CFormGroup>
-                    </CCol>
-                    <CCol xs="4">
-                      <CFormGroup>
-                        <CLabel htmlFor="ccmonth">Mes</CLabel>
-                          <CSelect custom name="ccmonth" id="ccmonth">
-                            <option value="January">Enero</option>
-                            <option value="February">Febrero</option>
-                            <option value="March">Marzo</option>
-                            <option value="April">Abril</option>
-                            <option value="May">Mayo</option>
-                            <option value="June">Junio</option>
-                            <option value="July">Julio</option>
-                            <option value="August">Agosto</option>
-                            <option value="September">Septiembre</option>
-                            <option value="October">Octubre</option>
-                            <option value="November">Noviembre</option>
-                            <option value="December">Deciembre</option>
-                          </CSelect>
-                        </CFormGroup>
-                      </CCol>
-                      <CCol xs="4">
-                        <CFormGroup>
-                          <CLabel htmlFor="ccyear">Año</CLabel>
-                          <CSelect custom name="ccyear" id="ccyear">
-                            <option>2010</option>
-                            <option>2011</option>
-                            <option>2012</option>
-                            <option>2013</option>
-                            <option>2014</option>
-                            <option>2015</option>
-                            <option>2016</option>
-                            <option>2017</option>
-                            <option>2018</option>
-                            <option>2019</option>
-                            <option>2020</option>
-                            <option>2021</option>
-                            <option>2022</option>
-                          </CSelect>
-                        </CFormGroup>
-                      </CCol>
-                    </CRow>
-                  </CCardBody>
-                </CCard>
+              <CFormGroup row>
+                  <CCol xs="12" md="6">
+                    <CLabel htmlFor="ccyear">Fecha de Ingreso o Antiguedad</CLabel>
+                    <CInput type="date" id="date-input" name="date-input" placeholder="date" required />
+                  </CCol>
+                </CFormGroup>
                 <CFormGroup row>
                   <CCol xs="12" md="6">
                     <CLabel htmlFor="ccyear">Fecha de nacimiento</CLabel>
-                    <CInput type="date" id="date-input" name="date-input" placeholder="date" />
+                    <CInput type="date" id="date-input" name="date-input" placeholder="date" required />
                   </CCol>
                 </CFormGroup>
-                <CFormGroup>
-                  <CButton type="submit" size="sm" color="primary"><CLabel name="cil-scrubber" /> Submit</CButton>
-                  <CButton type="reset" size="sm" color="danger"><CLabel name="cil-ban" /> Reset</CButton>
-                </CFormGroup>
-            </CCardBody>
+                <CCol xs="12" md="5">
+                  <CButton type="submit" className="btn btn-primary" onClick={(e) => handleSubmit(e)} color="primary">
+                    Submit
+                  </CButton>
+                </CCol>
+            </CCardBody> 
           </CCard>
         </CCol>
       </CRow>
-    </>
+    </CForm>
   )
 }
 
