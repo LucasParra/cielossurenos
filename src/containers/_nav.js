@@ -7,6 +7,10 @@ const _nav = [
     name: "Dashboard",
     to: "/dashboard",
     icon: <CIcon name="cil-speedometer" customClasses="c-sidebar-nav-icon" />,
+    badge: {
+      color: "info",
+      text: "NEW",
+    },
   },
   {
     _tag: "CSidebarNavTitle",
@@ -106,6 +110,11 @@ const _nav = [
       },
       {
         _tag: "CSidebarNavItem",
+        name: "Productos",
+        to: "/base/products",
+      },
+      {
+        _tag: "CSidebarNavItem",
         name: "Tabs",
         to: "/base/tabs",
       },
@@ -160,6 +169,10 @@ const _nav = [
         _tag: "CSidebarNavItem",
         name: "CoreUI Free",
         to: "/icons/coreui-icons",
+        badge: {
+          color: "success",
+          text: "NEW",
+        },
       },
       {
         _tag: "CSidebarNavItem",
@@ -206,6 +219,10 @@ const _nav = [
     name: "Widgets",
     to: "/widgets",
     icon: "cil-calculator",
+    badge: {
+      color: "info",
+      text: "NEW",
+    },
   },
   {
     _tag: "CSidebarNavDivider",
@@ -246,6 +263,10 @@ const _nav = [
     _tag: "CSidebarNavItem",
     name: "Disabled",
     icon: "cil-ban",
+    badge: {
+      color: "secondary",
+      text: "NEW",
+    },
     addLinkClass: "c-disabled",
     disabled: true,
   },
