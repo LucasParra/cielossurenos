@@ -147,9 +147,14 @@ const _nav = [
         to: "/buttons/button-groups",
       },
       {
-        _tag: "CSidebarNavItem",
-        name: "Dropdowns",
-        to: "/buttons/button-dropdowns",
+        _tag: 'CSidebarNavItem',
+        name: 'Dropdowns',
+        to: '/buttons/button-dropdowns',
+      },      
+      {
+        _tag: 'CSidebarNavItem',
+        name: 'User Form',
+        to: '/buttons/form',
       },
     ],
   },

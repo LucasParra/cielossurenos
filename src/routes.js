@@ -29,8 +29,8 @@ const Popovers = React.lazy(() => import("./views/base/popovers/Popovers"));
 const ProgressBar = React.lazy(() =>
   import("./views/base/progress-bar/ProgressBar")
 );
-const Switches = React.lazy(() => import("./views/base/switches/Switches"));
 
+const Switches = React.lazy(() => import("./views/base/switches/Switches"));
 const Tabs = React.lazy(() => import("./views/base/tabs/Tabs"));
 const Tooltips = React.lazy(() => import("./views/base/tooltips/Tooltips"));
 const BrandButtons = React.lazy(() =>
@@ -43,6 +43,7 @@ const ButtonGroups = React.lazy(() =>
   import("./views/buttons/button-groups/ButtonGroups")
 );
 const Buttons = React.lazy(() => import("./views/buttons/buttons/Buttons"));
+const Form = React.lazy(() => import("./views/buttons/form/Form"));
 const Charts = React.lazy(() => import("./views/charts/Charts"));
 const Dashboard = React.lazy(() => import("./views/dashboard/Dashboard"));
 const CoreUIIcons = React.lazy(() =>
@@ -80,6 +81,7 @@ const routes = [
   { path: "/base/paginations", name: "Paginations", component: Paginations },
   { path: "/base/popovers", name: "Popovers", component: Popovers },
   { path: "/base/progress-bar", name: "Progress Bar", component: ProgressBar },
+  
   { path: "/base/switches", name: "Switches", component: Switches },
   { path: "/base/tables", name: "Tables", component: Tables },
   { path: "/base/products", name: "Products", component: Products },
@@ -102,6 +104,7 @@ const routes = [
     name: "Brand Buttons",
     component: BrandButtons,
   },
+  { path: '/buttons/form', name: 'Form', component: Form},
   { path: "/charts", name: "Charts", component: Charts },
   { path: "/icons", exact: true, name: "Icons", component: CoreUIIcons },
   { path: "/icons/coreui-icons", name: "CoreUI Icons", component: CoreUIIcons },
