@@ -2,8 +2,6 @@ import React, { Component } from "react";
 import { HashRouter } from "react-router-dom";
 import "./scss/style.scss";
 
-import { Provider } from "react-supabase";
-import { supabase } from "./config/configSupabase";
 import AppRouter from "./router/AppRouter";
 
 const loading = (
@@ -24,11 +22,10 @@ const loading = (
 class App extends Component {
   render() {
     return (
-      <Provider value={supabase}>
-        <HashRouter>
-          <React.Suspense fallback={loading}>
-            <AppRouter />
-            {/* <Switch>
+      <HashRouter>
+        <React.Suspense fallback={loading}>
+          <AppRouter />
+          {/* <Switch>
               <Route
                 exact
                 path="/login"
@@ -59,9 +56,8 @@ class App extends Component {
                 render={(props) => <TheLayout {...props} />}
               />
             </Switch> */}
-          </React.Suspense>
-        </HashRouter>
-      </Provider>
+        </React.Suspense>
+      </HashRouter>
     );
   }
 }

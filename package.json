@@ -52,8 +52,8 @@
     "react-scripts": "^4.0.3"
   },
   "scripts": {
-    "start": "react-dotenv && react-scripts start", 
-    "build": "react-dotenv && react-scripts build", 
+    "start": "react-dotenv && react-scripts start",
+    "build": "react-dotenv && react-scripts build",
     "test": "react-scripts test",
     "test:cov": "npm test -- --coverage --watchAll=false",
     "test:debug": "react-scripts --inspect-brk test --runInBand",
@@ -72,6 +72,11 @@
     "not ie <= 10",
     "not op_mini all"
   ],
+  "react-dotenv": {
+    "whitelist": [
+      "SUPABASE_KEY"
+    ]
+  },
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx}",

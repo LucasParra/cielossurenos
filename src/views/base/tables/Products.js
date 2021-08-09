@@ -106,7 +106,13 @@ const Products = () => {
 
       <CModal
         show={modalVisible}
-        onClose={() => setModalVisible(!modalVisible)}
+        onClose={() => {
+          setProduct({
+            Name: "",
+            BasePrice: 0,
+          });
+          setModalVisible(!modalVisible);
+        }}
         size="sm"
       >
         <CModalHeader closeButton>
@@ -152,7 +158,13 @@ const Products = () => {
           </CButton>{" "}
           <CButton
             color="secondary"
-            onClick={() => setModalVisible(!modalVisible)}
+            onClick={() => {
+              setProduct({
+                Name: "",
+                BasePrice: 0,
+              });
+              setModalVisible(!modalVisible);
+            }}
           >
             Cancelar
           </CButton>
