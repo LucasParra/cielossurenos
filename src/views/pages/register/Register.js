@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from "react";
 import {
   CButton,
   CCard,
@@ -11,11 +11,32 @@ import {
   CInputGroup,
   CInputGroupPrepend,
   CInputGroupText,
-  CRow
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
+  CRow,
+} from "@coreui/react";
+import CIcon from "@coreui/icons-react";
+import { supabase } from "src/config/configSupabase";
 
 const Register = () => {
+  const [registerForm, setRegisterForm] = useState({
+    userName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const handleRegister = () => {
+    supabase.auth
+      .signUp({
+        email: registerForm.email,
+        password: registerForm.password,
+      })
+      .then(() =>
+        supabase.auth.signIn({
+          email: registerForm.email,
+          password: registerForm.password,
+        })
+      );
+  };
   return (
     <div className="c-app c-default-layout flex-row align-items-center">
       <CContainer>
@@ -32,13 +53,29 @@ const Register = () => {
                         <CIcon name="cil-user" />
                       </CInputGroupText>
                     </CInputGroupPrepend>
-                    <CInput type="text" placeholder="Username" autoComplete="username" />
+                    <CInput
+                      type="text"
+                      placeholder="Username"
+                      autoComplete="username"
+                      value={registerForm.userName}
+                      onChange={({ target: { value } }) =>
+                        setRegisterForm({ ...registerForm, userName: value })
+                      }
+                    />
                   </CInputGroup>
                   <CInputGroup className="mb-3">
                     <CInputGroupPrepend>
                       <CInputGroupText>@</CInputGroupText>
                     </CInputGroupPrepend>
-                    <CInput type="text" placeholder="Email" autoComplete="email" />
+                    <CInput
+                      type="text"
+                      placeholder="Email"
+                      autoComplete="email"
+                      value={registerForm.email}
+                      onChange={({ target: { value } }) =>
+                        setRegisterForm({ ...registerForm, email: value })
+                      }
+                    />
                   </CInputGroup>
                   <CInputGroup className="mb-3">
                     <CInputGroupPrepend>
@@ -46,7 +83,15 @@ const Register = () => {
                         <CIcon name="cil-lock-locked" />
                       </CInputGroupText>
                     </CInputGroupPrepend>
-                    <CInput type="password" placeholder="Password" autoComplete="new-password" />
+                    <CInput
+                      type="password"
+                      placeholder="Password"
+                      autoComplete="new-password"
+                      value={registerForm.password}
+                      onChange={({ target: { value } }) =>
+                        setRegisterForm({ ...registerForm, password: value })
+                      }
+                    />
                   </CInputGroup>
                   <CInputGroup className="mb-4">
                     <CInputGroupPrepend>
@@ -54,18 +99,35 @@ const Register = () => {
                         <CIcon name="cil-lock-locked" />
                       </CInputGroupText>
                     </CInputGroupPrepend>
-                    <CInput type="password" placeholder="Repeat password" autoComplete="new-password" />
+                    <CInput
+                      type="password"
+                      placeholder="Repeat password"
+                      autoComplete="new-password"
+                      value={registerForm.confirmPassword}
+                      onChange={({ target: { value } }) =>
+                        setRegisterForm({
+                          ...registerForm,
+                          confirmPassword: value,
+                        })
+                      }
+                    />
                   </CInputGroup>
-                  <CButton color="success" block>Create Account</CButton>
+                  <CButton color="success" block onClick={handleRegister}>
+                    Create Account
+                  </CButton>
                 </CForm>
               </CCardBody>
               <CCardFooter className="p-4">
                 <CRow>
                   <CCol xs="12" sm="6">
-                    <CButton className="btn-facebook mb-1" block><span>facebook</span></CButton>
+                    <CButton className="btn-facebook mb-1" block>
+                      <span>facebook</span>
+                    </CButton>
                   </CCol>
                   <CCol xs="12" sm="6">
-                    <CButton className="btn-twitter mb-1" block><span>twitter</span></CButton>
+                    <CButton className="btn-twitter mb-1" block>
+                      <span>twitter</span>
+                    </CButton>
                   </CCol>
                 </CRow>
               </CCardFooter>
@@ -74,7 +136,7 @@ const Register = () => {
         </CRow>
       </CContainer>
     </div>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;
