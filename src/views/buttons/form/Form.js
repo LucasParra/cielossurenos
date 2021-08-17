@@ -30,7 +30,7 @@ import {
 } from "src/state/querys/Users";
 import moment from "moment";
 import { createAddress } from "src/state/querys/Address";
-import { format } from "rut.js";
+import { clean, format, getCheckDigit } from "rut.js";
 
 const initUser = {
   Names: "",
@@ -162,9 +162,20 @@ const Forms = () => {
                     </CLabel>
                     <CInput
                       id="Rut"
-                      value={formUser.Rut}
+                      value={format(formUser.Rut)}
                       onBlur={() => {
-                        getUserByRut(formUser.Rut).then((response) =>
+                        getUserByRut(
+                          `${clean(formUser.Rut).substr(
+                            0,
+                            clean(formUser.Rut).length - 1
+                          )}-${clean(formUser.Rut).substr(
+                            clean(formUser.Rut).substr(
+                              0,
+                              clean(formUser.Rut).length - 1
+                            ).length,
+                            clean(formUser.Rut).length - 1
+                          )}`
+                        ).then((response) =>
                           setValidatedRut(response.length > 0)
                         );
                       }}
@@ -172,7 +183,7 @@ const Forms = () => {
                       required
                       maxLength={12}
                       onChange={({ target: { value } }) => {
-                        setFormUser({ ...formUser, Rut: format(value) });
+                        setFormUser({ ...formUser, Rut: value });
                       }}
                     />
                   </CCol>
@@ -240,14 +251,15 @@ const Forms = () => {
                       }}
                     />
                   </CCol>
-                  <CCol style={{ marginBottom: 8 }} xs="12" sm="3">
+                  <CCol style={{ marginBottom: 8 }} xs="12" sm="4">
                     <CLabel htmlFor="FechCon">Fecha Contratacion</CLabel>
+
                     <CInput
                       id="FechCon"
                       type="date"
                       placeholder=""
                       required
-                      value={formUser.FechCon}
+                      value={moment(formUser.FechCon).format("YYYY-MM-DD")}
                       onChange={({ target: { value } }) =>
                         setFormUser({
                           ...formUser,
