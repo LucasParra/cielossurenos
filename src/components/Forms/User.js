@@ -5,7 +5,6 @@ import {
   CCardBody,
   CCardHeader,
   CCol,
-  CFormGroup,
   CInput,
   CLabel,
   CSelect,
@@ -68,7 +67,7 @@ const initAddress = [
     AddressArea: "",
   },
 ];
-const Forms = () => {
+const UserForm = () => {
   const [formUser, setFormUser] = useState(initUser);
   const [formsAddress, setFormsAddress] = useState(initAddress);
   const [formsProducts, setFormsProducts] = useState([]);
@@ -488,4 +487,4 @@ const Forms = () => {
   );
 };
 
-export default Forms;
+export default UserForm;

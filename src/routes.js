@@ -65,6 +65,10 @@ const User = React.lazy(() => import("./views/users/User"));
 const routes = [
   { path: "/", exact: true, name: "Home" },
   { path: "/dashboard", name: "Dashboard", component: Dashboard },
+
+  { path: "/menu/products", name: "Products", component: Products },
+  { path: "/menu/usuarios", name: "Usuarios", component: Tables },
+
   { path: "/theme", name: "Theme", component: Colors, exact: true },
   { path: "/theme/colors", name: "Colors", component: Colors },
   { path: "/theme/typography", name: "Typography", component: Typography },
@@ -81,10 +85,9 @@ const routes = [
   { path: "/base/paginations", name: "Paginations", component: Paginations },
   { path: "/base/popovers", name: "Popovers", component: Popovers },
   { path: "/base/progress-bar", name: "Progress Bar", component: ProgressBar },
-  
+
   { path: "/base/switches", name: "Switches", component: Switches },
   { path: "/base/tables", name: "Tables", component: Tables },
-  { path: "/base/products", name: "Products", component: Products },
   { path: "/base/tabs", name: "Tabs", component: Tabs },
   { path: "/base/tooltips", name: "Tooltips", component: Tooltips },
   { path: "/buttons", name: "Buttons", component: Buttons, exact: true },
@@ -104,7 +107,7 @@ const routes = [
     name: "Brand Buttons",
     component: BrandButtons,
   },
-  { path: '/buttons/form', name: 'Form', component: Form},
+  { path: "/buttons/form", name: "Form", component: Form },
   { path: "/charts", name: "Charts", component: Charts },
   { path: "/icons", exact: true, name: "Icons", component: CoreUIIcons },
   { path: "/icons/coreui-icons", name: "CoreUI Icons", component: CoreUIIcons },

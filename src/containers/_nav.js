@@ -14,6 +14,22 @@ const _nav = [
   },
   {
     _tag: "CSidebarNavTitle",
+    _children: ["Menu"],
+  },
+  {
+    _tag: "CSidebarNavItem",
+    name: "Productos",
+    to: "/menu/products",
+    icon: "cil-3d",
+  },
+  {
+    _tag: "CSidebarNavItem",
+    name: "Usuarios",
+    to: "/menu/usuarios",
+    icon: "cil-3d",
+  },
+  {
+    _tag: "CSidebarNavTitle",
     _children: ["Theme"],
   },
   {
@@ -110,11 +126,6 @@ const _nav = [
       },
       {
         _tag: "CSidebarNavItem",
-        name: "Productos",
-        to: "/base/products",
-      },
-      {
-        _tag: "CSidebarNavItem",
         name: "Tabs",
         to: "/base/tabs",
       },
@@ -147,14 +158,14 @@ const _nav = [
         to: "/buttons/button-groups",
       },
       {
-        _tag: 'CSidebarNavItem',
-        name: 'Dropdowns',
-        to: '/buttons/button-dropdowns',
-      },      
+        _tag: "CSidebarNavItem",
+        name: "Dropdowns",
+        to: "/buttons/button-dropdowns",
+      },
       {
-        _tag: 'CSidebarNavItem',
-        name: 'User Form',
-        to: '/buttons/form',
+        _tag: "CSidebarNavItem",
+        name: "User Form",
+        to: "/buttons/form",
       },
     ],
   },

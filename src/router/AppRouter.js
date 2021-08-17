@@ -16,13 +16,19 @@ const Register = React.lazy(() => import("../views/pages/register/Register"));
 const AppRouter = () => {
   const [session, setSession] = useState(null);
   const componentDidMount = () => {
-    supabase.auth.onAuthStateChange((event, session) => {
+    const a = supabase.auth.onAuthStateChange((_, session) => {
       setSession(session);
     });
+    setSession(
+      supabase?.auth?.currentSession?.user?.id
+        ? supabase?.auth?.currentSession
+        : false
+    );
+    return () => a.data.unsubscribe();
   };
   useEffect(componentDidMount, []);
 
-  return (
+  return session === null ? null : (
     <Router>
       <Switch>
         <PublicRoute
@@ -45,7 +51,6 @@ const AppRouter = () => {
           component={TheLayout}
           isAuthenticated={session}
         />
-        {/* <Redirect to="/login" /> */}
       </Switch>
     </Router>
   );

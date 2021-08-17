@@ -1,10 +1,9 @@
 import React, { Suspense } from "react";
-import { Switch } from "react-router-dom";
+import { Switch, Route } from "react-router-dom";
 import { CContainer, CFade } from "@coreui/react";
 
 // routes config
 import routes from "../routes";
-import { PrivateRoute } from "src/router/PrivateRouter";
 
 const loading = (
   <div className="pt-3 text-center">
@@ -12,26 +11,31 @@ const loading = (
   </div>
 );
 
+const Comp = (props) => {
+  return (
+    <CFade>
+      <props.route.component {...props} />
+    </CFade>
+  );
+};
+
 const TheContent = () => {
   return (
     <main className="c-main">
       <CContainer fluid>
         <Suspense fallback={loading}>
           <Switch>
-            {routes.map((route, idx) => {
+            {routes.map((route) => {
               return (
                 route.component && (
-                  <PrivateRoute
-                    key={idx}
+                  <Route
+                    key={route.path}
                     path={route.path}
                     exact={route.exact}
                     name={route.name}
-                    component={(props) => (
-                      <CFade>
-                        <route.component {...props} />
-                      </CFade>
+                    component={() => (
+                      <Comp route={route} component={route.component} />
                     )}
-                    isAuthenticated={true}
                   />
                 )
               );

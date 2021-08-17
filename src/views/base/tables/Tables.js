@@ -7,11 +7,13 @@ import {
   CCol,
   CDataTable,
   CRow,
+  CButton,
 } from "@coreui/react";
-import { DocsLink } from "src/reusable";
 
 // import users from "../../users/users";
 import { supabase } from "src/config/configSupabase";
+import { UserForm } from "src/components/Forms";
+import CIcon from "@coreui/icons-react";
 
 const getBadge = (status) => {
   switch (status) {
@@ -65,6 +67,7 @@ const fields = [
 ];
 
 const Tables = () => {
+  const [creatingUser, setCreatingUser] = useState(false);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const componentDidMount = (limit = 1) => {
@@ -87,167 +90,57 @@ const Tables = () => {
   return (
     <>
       <CRow>
-        <CCol xs="12" lg="6">
-          <CCard>
-            <CCardHeader>
-              Simple Table
-              <DocsLink name="CModal" />
-            </CCardHeader>
-            <CCardBody>
-              <CDataTable
-                items={users}
-                fields={fields}
-                itemsPerPage={5}
-                onPageChange={(number) => {
-                  console.log(number);
-                  componentDidMount(number);
-                }}
-                loading={loading}
-                pagination
-                scopedSlots={{
-                  status: (item) => (
-                    <td>
-                      <CBadge color={getBadge(item.status)}>
-                        {item.status}
-                      </CBadge>
-                    </td>
-                  ),
-                }}
-              />
-            </CCardBody>
-          </CCard>
-        </CCol>
-
-        <CCol xs="12" lg="6">
-          <CCard>
-            <CCardHeader>Striped Table</CCardHeader>
-            <CCardBody>
-              <CDataTable
-                items={users}
-                fields={fields}
-                striped
-                itemsPerPage={5}
-                pagination
-                scopedSlots={{
-                  status: (item) => (
-                    <td>
-                      <CBadge color={getBadge(item.status)}>
-                        {item.status}
-                      </CBadge>
-                    </td>
-                  ),
-                }}
-              />
-            </CCardBody>
-          </CCard>
-        </CCol>
-      </CRow>
-
-      <CRow>
-        <CCol xs="12" lg="6">
-          <CCard>
-            <CCardHeader>Condensed Table</CCardHeader>
-            <CCardBody>
-              <CDataTable
-                items={users}
-                fields={fields}
-                size="sm"
-                itemsPerPage={5}
-                pagination
-                scopedSlots={{
-                  status: (item) => (
-                    <td>
-                      <CBadge color={getBadge(item.status)}>
-                        {item.status}
-                      </CBadge>
-                    </td>
-                  ),
-                }}
-              />
-            </CCardBody>
-          </CCard>
-        </CCol>
-
-        <CCol xs="12" lg="6">
-          <CCard>
-            <CCardHeader>Bordered Table</CCardHeader>
-            <CCardBody>
-              <CDataTable
-                items={users}
-                fields={fields}
-                bordered
-                itemsPerPage={5}
-                pagination
-                scopedSlots={{
-                  status: (item) => (
-                    <td>
-                      <CBadge color={getBadge(item.status)}>
-                        {item.status}
-                      </CBadge>
-                    </td>
-                  ),
-                }}
-              />
-            </CCardBody>
-          </CCard>
-        </CCol>
-      </CRow>
-
-      <CRow>
-        <CCol>
-          <CCard>
-            <CCardHeader>Combined All Table</CCardHeader>
-            <CCardBody>
-              <CDataTable
-                items={users}
-                fields={fields}
-                hover
-                striped
-                bordered
-                size="sm"
-                itemsPerPage={10}
-                pagination
-                scopedSlots={{
-                  status: (item) => (
-                    <td>
-                      <CBadge color={getBadge(item.status)}>
-                        {item.status}
-                      </CBadge>
-                    </td>
-                  ),
-                }}
-              />
-            </CCardBody>
-          </CCard>
-        </CCol>
-      </CRow>
-      <CRow>
-        <CCol>
-          <CCard>
-            <CCardHeader>Combined All dark Table</CCardHeader>
-            <CCardBody>
-              <CDataTable
-                items={users}
-                fields={fields}
-                dark
-                hover
-                striped
-                bordered
-                size="sm"
-                itemsPerPage={10}
-                pagination
-                scopedSlots={{
-                  status: (item) => (
-                    <td>
-                      <CBadge color={getBadge(item.status)}>
-                        {item.status}
-                      </CBadge>
-                    </td>
-                  ),
-                }}
-              />
-            </CCardBody>
-          </CCard>
+        <CCol xs="12" lg="12">
+          {creatingUser ? (
+            <CButton
+              color="primary"
+              style={{ marginBottom: 10 }}
+              onClick={() => setCreatingUser(false)}
+            >
+              <CIcon color="white" name="cil-arrow-left" />
+              Volver
+            </CButton>
+          ) : (
+            <CButton
+              onClick={() => setCreatingUser(true)}
+              style={{ marginBottom: 10 }}
+              size="md"
+              color="primary"
+            >
+              <CIcon color="white" name="cil-plus" />
+              Crear Usuario
+            </CButton>
+          )}
+          <div style={{ display: creatingUser ? "none" : "block" }}>
+            <CCard>
+              <CCardHeader>Usuarios</CCardHeader>
+              <CCardBody>
+                <CDataTable
+                  items={users}
+                  fields={fields}
+                  itemsPerPage={5}
+                  onPageChange={(number) => {
+                    console.log(number);
+                    componentDidMount(number);
+                  }}
+                  loading={loading}
+                  pagination
+                  scopedSlots={{
+                    status: (item) => (
+                      <td>
+                        <CBadge color={getBadge(item.status)}>
+                          {item.status}
+                        </CBadge>
+                      </td>
+                    ),
+                  }}
+                />
+              </CCardBody>
+            </CCard>
+          </div>
+          <div style={{ display: !creatingUser ? "none" : "block" }}>
+            <UserForm />
+          </div>
         </CCol>
       </CRow>
     </>
