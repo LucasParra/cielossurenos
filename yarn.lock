@@ -10023,6 +10023,11 @@ run-queue@^1.0.0, run-queue@^1.0.3:
   dependencies:
     aproba "^1.1.1"
 
+rut.js@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/rut.js/-/rut.js-2.0.0.tgz#ffcf13f203e1efc263df423f5bac93f9fdcf3e0b"
+  integrity sha512-jqDtBMeekxHBirCWGXFNFabLoihLXfhkDhGPgABQjpVdTAj1aEgt7AzXraDZ3MUXW5+aRmlk/2zjjKEryhXkzg==
+
 safe-buffer@5.1.2, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.1.2.tgz#991ec69d296e0313747d59bdfd2b745c35f8828d"

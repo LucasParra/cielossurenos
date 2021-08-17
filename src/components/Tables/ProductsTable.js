@@ -13,11 +13,21 @@ import { getProducts } from "src/state/querys/Product";
 const ProductTable = ({ type, productsSelected, setProductsSelected }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const fields = ["ID", "Name", "BasePrice", "opciones"];
+  const fields = [
+    "Nombre",
+    "Precio",
+    "activo",
+    type === "select" && "personalizar_precio",
+  ];
   const productEffect = (limit) => {
     setLoading(true);
     getProducts(limit).then((productsApi) => {
-      setProducts(productsApi);
+      setProducts(
+        productsApi.map((product) => ({
+          Nombre: product.Name,
+          Precio: product.BasePrice,
+        }))
+      );
       setLoading(false);
     });
   };
@@ -32,7 +42,27 @@ const ProductTable = ({ type, productsSelected, setProductsSelected }) => {
       loading={loading}
       pagination
       scopedSlots={{
-        opciones: (item, index) => (
+        personalizar_precio: (item) =>
+          type === "select" && (
+            <td className="py-2">
+              <CCol col="4" xs="4" sm="4" md="4" className="mb-2 mb-xl-0">
+                <CInput
+                  placeholder="10.000"
+                  defaultValue={item.BasePrice}
+                  onChange={({ target: { value } }) =>
+                    setProductsSelected(
+                      productsSelected.map((product) =>
+                        product.ProductID === item.ID
+                          ? { ...product, Price: value }
+                          : { ...product }
+                      )
+                    )
+                  }
+                />
+              </CCol>
+            </td>
+          ),
+        activo: (item, index) => (
           <td className="py-2">
             {type === "select" ? (
               <CRow className="align-items-center" key={item.ID}>
@@ -64,21 +94,6 @@ const ProductTable = ({ type, productsSelected, setProductsSelected }) => {
                     }}
                   />
                 </CCol>{" "}
-                <CCol col="4" xs="4" sm="4" md="4" className="mb-2 mb-xl-0">
-                  <CInput
-                    placeholder="10.000"
-                    defaultValue={item.BasePrice}
-                    onChange={({ target: { value } }) =>
-                      setProductsSelected(
-                        productsSelected.map((product) =>
-                          product.ProductID === item.ID
-                            ? { ...product, Price: value }
-                            : { ...product }
-                        )
-                      )
-                    }
-                  />
-                </CCol>
               </CRow>
             ) : (
               <CRow className="align-items-center">

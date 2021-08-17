@@ -30,6 +30,7 @@ import {
 } from "src/state/querys/Users";
 import moment from "moment";
 import { createAddress } from "src/state/querys/Address";
+import { format, validate } from "rut.js";
 
 const initUser = {
   Names: "",
@@ -169,9 +170,10 @@ const Forms = () => {
                       }}
                       placeholder=" Ejemplo:18.123.678-3"
                       required
-                      onChange={({ target: { value } }) =>
-                        setFormUser({ ...formUser, Rut: value })
-                      }
+                      maxLength={12}
+                      onChange={({ target: { value } }) => {
+                        setFormUser({ ...formUser, Rut: format(value) });
+                      }}
                     />
                   </CCol>
                   <CCol style={{ marginBottom: 8 }} xs="12" sm="6">
@@ -229,9 +231,13 @@ const Forms = () => {
                       placeholder=""
                       required
                       value={formUser.Conections}
-                      onChange={({ target: { value } }) =>
-                        setFormUser({ ...formUser, Conections: value })
-                      }
+                      onChange={({ target: { value } }) => {
+                        if (value > 0 || value === "")
+                          return setFormUser({
+                            ...formUser,
+                            Conections: value,
+                          });
+                      }}
                     />
                   </CCol>
                   <CCol style={{ marginBottom: 8 }} xs="12" sm="3">

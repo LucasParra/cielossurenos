@@ -6,7 +6,7 @@ const TechniciansTable = ({ setTechnicianID, TechnicianID }) => {
   const [technicians, setTechnicians] = useState([]);
   const [loading, setLoading] = useState(false);
   const fields = ["Names", "LastName", "opciones"];
-  const techniciansEffect = (limit) => {
+  const techniciansEffect = () => {
     setLoading(true);
     getTechnicians().then((techniciansApi) => {
       setTechnicians(techniciansApi);
@@ -33,6 +33,7 @@ const TechniciansTable = ({ setTechnicianID, TechnicianID }) => {
                   variant={"3d"}
                   color={"success"}
                   value={TechnicianID === item.ID}
+                  checked={TechnicianID === item.ID}
                   onChange={() => setTechnicianID(item.ID)}
                 />
               </CCol>
