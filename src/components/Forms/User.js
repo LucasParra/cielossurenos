@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import {
   CCard,
@@ -67,7 +67,7 @@ const initAddress = [
     AddressArea: "",
   },
 ];
-const UserForm = () => {
+const UserForm = ({ user }) => {
   const [formUser, setFormUser] = useState(initUser);
   const [formsAddress, setFormsAddress] = useState(initAddress);
   const [formsProducts, setFormsProducts] = useState([]);
@@ -116,6 +116,12 @@ const UserForm = () => {
 
     return null;
   };
+  const userEffect = () => {
+    if (!user.Names) return;
+
+    setFormUser(user);
+  };
+  useEffect(userEffect, [user]);
 
   return (
     <>

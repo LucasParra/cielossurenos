@@ -64,17 +64,30 @@ const fields = [
   "AltaTec",
   "BajaTec",
   "A_FE_REPAC",
+  "editar",
 ];
 
 const Tables = () => {
   const [creatingUser, setCreatingUser] = useState(false);
   const [users, setUsers] = useState([]);
+  const [user, setUser] = useState({});
   const [loading, setLoading] = useState(false);
+  const handleSearchUser = (value) => {
+    if (value === "") return componentDidMount();
+
+    setLoading(true);
+    supabase
+      .from("User")
+      .select("*")
+      .ilike("Names", `%${value}%`)
+      .limit(5)
+      .then((snapshot) => {
+        setUsers(snapshot.data);
+        setLoading(false);
+      })
+      .catch(console.error);
+  };
   const componentDidMount = (limit = 1) => {
-    // .range(
-    //   limit !== 0 ? limit - 1 * 10 : limit,
-    //   limit !== 0 ? limit * 10 : 10
-    // )
     setLoading(true);
     supabase
       .from("User")
@@ -125,7 +138,32 @@ const Tables = () => {
                   }}
                   loading={loading}
                   pagination
+                  tableFilter
+                  onTableFilterChange={handleSearchUser}
                   scopedSlots={{
+                    editar: (item) => (
+                      <CCol
+                        col="2"
+                        xs="2"
+                        sm="2"
+                        md="2"
+                        className="mb-2 mb-xl-0"
+                      >
+                        <CButton
+                          color="primary"
+                          onClick={() => {
+                            setCreatingUser(true);
+                            setUser(item);
+                          }}
+                        >
+                          <CIcon
+                            name="cil-pencil"
+                            style={{ paddingLeft: 10 }}
+                            customClasses="c-sidebar-nav-icon"
+                          />
+                        </CButton>
+                      </CCol>
+                    ),
                     status: (item) => (
                       <td>
                         <CBadge color={getBadge(item.status)}>
@@ -139,7 +177,7 @@ const Tables = () => {
             </CCard>
           </div>
           <div style={{ display: !creatingUser ? "none" : "block" }}>
-            <UserForm />
+            <UserForm user={user} />
           </div>
         </CCol>
       </CRow>
