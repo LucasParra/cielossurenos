@@ -74,12 +74,12 @@ const Tables = () => {
   const [loading, setLoading] = useState(false);
   const handleSearchUser = (value) => {
     if (value === "") return componentDidMount();
-
+    // .ilike("Names", `%${value}%`)
     setLoading(true);
     supabase
       .from("User")
       .select("*")
-      .ilike("Names", `%${value}%`)
+      .or(`Names.eq.${value},LastName.eq.${value},Rut.eq.${value}`)
       .limit(5)
       .then((snapshot) => {
         setUsers(snapshot.data);
