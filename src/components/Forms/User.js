@@ -29,13 +29,13 @@ import {
 } from "src/state/querys/Users";
 import moment from "moment";
 import { createAddress } from "src/state/querys/Address";
-import { format } from "rut.js";
+import { clean, format } from "rut.js";
 
 const initUser = {
   Names: "",
   LastName: "",
   Rut: "",
-  JobID: 0,
+  JobID: "",
   PhoneNumber: "",
   JobPhoneNumber: "",
   TechnicianID: 0,
@@ -161,9 +161,20 @@ const UserForm = () => {
                     </CLabel>
                     <CInput
                       id="Rut"
-                      value={formUser.Rut}
+                      value={format(formUser.Rut)}
                       onBlur={() => {
-                        getUserByRut(formUser.Rut).then((response) =>
+                        getUserByRut(
+                          `${clean(formUser.Rut).substr(
+                            0,
+                            clean(formUser.Rut).length - 1
+                          )}-${clean(formUser.Rut).substr(
+                            clean(formUser.Rut).substr(
+                              0,
+                              clean(formUser.Rut).length - 1
+                            ).length,
+                            clean(formUser.Rut).length - 1
+                          )}`
+                        ).then((response) =>
                           setValidatedRut(response.length > 0)
                         );
                       }}
@@ -171,7 +182,7 @@ const UserForm = () => {
                       required
                       maxLength={12}
                       onChange={({ target: { value } }) => {
-                        setFormUser({ ...formUser, Rut: format(value) });
+                        setFormUser({ ...formUser, Rut: value });
                       }}
                     />
                   </CCol>
@@ -207,7 +218,7 @@ const UserForm = () => {
                       placeholder=""
                       value={formUser.JobID}
                       onChange={({ target: { value } }) =>
-                        setFormUser({ ...formUser, JobID: parseInt(value) })
+                        setFormUser({ ...formUser, JobID: value })
                       }
                     />
                   </CCol>
@@ -239,14 +250,14 @@ const UserForm = () => {
                       }}
                     />
                   </CCol>
-                  <CCol style={{ marginBottom: 8 }} xs="12" sm="3">
+                  <CCol style={{ marginBottom: 8 }} xs="12" sm="4">
                     <CLabel htmlFor="FechCon">Fecha Contratacion</CLabel>
                     <CInput
                       id="FechCon"
                       type="date"
                       placeholder=""
                       required
-                      value={formUser.FechCon}
+                      value={moment(formUser.FechCon).format("YYYY-MM-DD")}
                       onChange={({ target: { value } }) =>
                         setFormUser({
                           ...formUser,
