@@ -108,7 +108,10 @@ const Tables = () => {
             <CButton
               color="primary"
               style={{ marginBottom: 10 }}
-              onClick={() => setCreatingUser(false)}
+              onClick={() => {
+                setUser({});
+                setCreatingUser(false);
+              }}
             >
               <CIcon color="white" name="cil-arrow-left" />
               Volver
@@ -177,7 +180,14 @@ const Tables = () => {
             </CCard>
           </div>
           <div style={{ display: !creatingUser ? "none" : "block" }}>
-            <UserForm user={user} />
+            <UserForm
+              user={user}
+              onClose={() => {
+                setUser({});
+                componentDidMount();
+                setCreatingUser(false);
+              }}
+            />
           </div>
         </CCol>
       </CRow>

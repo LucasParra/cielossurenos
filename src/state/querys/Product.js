@@ -8,4 +8,12 @@ const getProducts = (limit) =>
     .then((snapshot) => snapshot.data)
     .catch(console.error);
 
-export { getProducts };
+const getProductByIDUser = (UserID) =>
+  supabase
+    .from("UserProduct")
+    .select("*")
+    .eq("UserID", UserID)
+    .then((snapshot) => snapshot.data)
+    .catch(console.error);
+
+export { getProducts, getProductByIDUser };

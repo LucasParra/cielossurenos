@@ -34,10 +34,28 @@ const createUserProduct = (userProductData) =>
     .insert(userProductData)
     .then((snapshot) => snapshot.data[0].ID);
 
+const updateUserID = (userData) =>
+  supabase.from("User").update(userData).eq("ID", userData.ID);
+
+const updateUserAddress = (userAddressData) =>
+  supabase
+    .from("UserAddress")
+    .update(userAddressData)
+    .eq("ID", userAddressData.ID);
+
+const updateUserProduct = (userProductData) =>
+  supabase
+    .from("UserProduct")
+    .update(userProductData)
+    .eq("ID", userProductData.ID);
+
 export {
   getTechnicians,
   createUser,
   createUserAddress,
   createUserProduct,
   getUserByRut,
+  updateUserID,
+  updateUserProduct,
+  updateUserAddress,
 };

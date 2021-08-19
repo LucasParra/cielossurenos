@@ -26,10 +26,18 @@ import {
   createUserAddress,
   createUserProduct,
   getUserByRut,
+  updateUserAddress,
+  updateUserID,
+  updateUserProduct,
 } from "src/state/querys/Users";
 import moment from "moment";
-import { createAddress } from "src/state/querys/Address";
+import {
+  createAddress,
+  getAddressByUserID,
+  updateAddress,
+} from "src/state/querys/Address";
 import { clean, format } from "rut.js";
+import { getProductByIDUser } from "src/state/querys/Product";
 
 const initUser = {
   Names: "",
@@ -67,7 +75,7 @@ const initAddress = [
     AddressArea: "",
   },
 ];
-const UserForm = ({ user }) => {
+const UserForm = ({ user, onClose }) => {
   const [formUser, setFormUser] = useState(initUser);
   const [formsAddress, setFormsAddress] = useState(initAddress);
   const [formsProducts, setFormsProducts] = useState([]);
@@ -92,33 +100,79 @@ const UserForm = ({ user }) => {
     )
       return setValidated(true);
 
-    createUser(formUser).then((newUserID) => {
-      Promise.all([
-        formsProducts.map((product) =>
-          createUserProduct({ ...product, UserID: newUserID })
-        ),
-        formsAddress.map((address, index) => {
-          createAddress(address).then((newaddressID) => {
-            createUserAddress({
-              AddressID: newaddressID,
-              UserID: newUserID,
+    if (user.ID) {
+      updateUserID({ ...formUser }).then(() => {
+        Promise.all([
+          formsProducts.map((product) =>
+            product.ID
+              ? updateUserProduct({ ...product, UserID: user.ID })
+              : createUserProduct({ ...product, UserID: user.ID })
+          ),
+          formsAddress.map((address, index) => {
+            address.ID
+              ? updateAddress(address).then((newaddressID) => {
+                  updateUserAddress({
+                    AddressID: newaddressID,
+                    UserID: user.ID,
+                  });
+
+                  if (index + 1 === formsAddress.length) {
+                    setFormUser(initUser);
+                    setFormsAddress(initAddress);
+                    setValidated(false);
+                    onClose();
+                  }
+                })
+              : createAddress(address).then((newaddressID) => {
+                  createUserAddress({
+                    AddressID: newaddressID,
+                    UserID: user.ID,
+                  });
+
+                  if (index + 1 === formsAddress.length) {
+                    setFormUser(initUser);
+                    setFormsAddress(initAddress);
+                    onClose();
+                    setValidated(false);
+                  }
+                });
+          }),
+        ]);
+      });
+    } else
+      return createUser(formUser).then((newUserID) => {
+        Promise.all([
+          formsProducts.map((product) =>
+            createUserProduct({ ...product, UserID: newUserID })
+          ),
+          formsAddress.map((address, index) => {
+            createAddress(address).then((newaddressID) => {
+              createUserAddress({
+                AddressID: newaddressID,
+                UserID: newUserID,
+              });
+
+              if (index + 1 === formsAddress.length) {
+                setFormUser(initUser);
+                setFormsAddress(initAddress);
+                setValidated(false);
+              }
             });
-
-            if (index + 1 === formsAddress.length) {
-              setFormUser(initUser);
-              setFormsAddress(initAddress);
-              setValidated(false);
-            }
-          });
-        }),
-      ]);
-    });
-
+          }),
+        ]);
+      });
     return null;
   };
   const userEffect = () => {
-    if (!user.Names) return;
-
+    if (!user.Names) {
+      setFormsProducts([]);
+      setFormsAddress(initAddress);
+      return setFormUser(initUser);
+    }
+    getAddressByUserID(user.ID).then((address) =>
+      setFormsAddress(address.map(({ Address }) => ({ ...Address })))
+    );
+    getProductByIDUser(user.ID).then(setFormsProducts);
     setFormUser(user);
   };
   useEffect(userEffect, [user]);
@@ -453,7 +507,7 @@ const UserForm = ({ user }) => {
                   size="lg"
                   block
                 >
-                  Crear
+                  {!user.Names ? "Crear" : "Editar"}
                 </CButton>
               </CCardBody>
             </CCard>

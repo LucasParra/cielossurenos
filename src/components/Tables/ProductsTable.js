@@ -26,6 +26,7 @@ const ProductTable = ({ type, productsSelected, setProductsSelected }) => {
         productsApi.map((product) => ({
           Nombre: product.Name,
           Precio: product.BasePrice,
+          ID: product.ID,
         }))
       );
       setLoading(false);
@@ -73,8 +74,13 @@ const ProductTable = ({ type, productsSelected, setProductsSelected }) => {
                     color={"success"}
                     value={
                       productsSelected.filter(
-                        (product) => item.ID === product.ID
-                      ).lenght === 1
+                        (product) => item.ID === product.ProductID
+                      ).length === 1
+                    }
+                    checked={
+                      productsSelected.filter(
+                        (product) => item.ID === product.ProductID
+                      ).length === 1
                     }
                     onChange={({ target: { checked } }) => {
                       checked
