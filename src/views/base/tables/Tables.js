@@ -35,11 +35,11 @@ const fields = [
   "Names",
   "Rut",
   "JobID",
-  "AddressName",
-  "AddressNumber",
-  "AddressBlockNumber",
-  "AddressFloorNumber",
-  "AddressApartmentNumber",
+  // "AddressName",
+  // "AddressNumber",
+  // "AddressBlockNumber",
+  // "AddressFloorNumber",
+  // "AddressApartmentNumber",
   "PhoneNumber",
   "JobPhoneNumber",
   "AddressZoneID",
@@ -79,7 +79,9 @@ const Tables = () => {
     supabase
       .from("User")
       .select("*")
-      .or(`Names.eq.${value},LastName.eq.${value},Rut.eq.${value}`)
+      .or(
+        `Names.ilike.%${value}%,LastName.ilike.%${value}%,Rut.ilike.%${value}%`
+      )
       .limit(5)
       .then((snapshot) => {
         setUsers(snapshot.data);
@@ -91,7 +93,7 @@ const Tables = () => {
     setLoading(true);
     supabase
       .from("User")
-      .select("*")
+      .select("*,Address(*)")
       .limit(limit * 5 + 1)
       .then((snapshot) => {
         setUsers(snapshot.data);
@@ -136,7 +138,6 @@ const Tables = () => {
                   fields={fields}
                   itemsPerPage={5}
                   onPageChange={(number) => {
-                    console.log(number);
                     componentDidMount(number);
                   }}
                   loading={loading}
