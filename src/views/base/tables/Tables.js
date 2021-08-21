@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   CBadge,
   CCard,
@@ -13,6 +13,7 @@ import {
 // import users from "../../users/users";
 import { supabase } from "src/config/configSupabase";
 import { UserForm } from "src/components/Forms";
+import _ from "lodash";
 import CIcon from "@coreui/icons-react";
 
 const getBadge = (status) => {
@@ -71,10 +72,13 @@ const Tables = () => {
   const [creatingUser, setCreatingUser] = useState(false);
   const [users, setUsers] = useState([]);
   const [user, setUser] = useState({});
+  const [searchText, setSearchText] = useState("");
   const [loading, setLoading] = useState(false);
-  const handleSearchUser = (value) => {
-    if (value === "") return componentDidMount();
-    // .ilike("Names", `%${value}%`)
+
+  const handleSearchUser = (value, limit = 1) => {
+    setSearchText(value);
+    if (value === undefined || value === "") return componentDidMount();
+
     setLoading(true);
     supabase
       .from("User")
@@ -82,7 +86,7 @@ const Tables = () => {
       .or(
         `Names.ilike.%${value}%,LastName.ilike.%${value}%,Rut.ilike.%${value}%`
       )
-      .limit(5)
+      .limit(limit * 5 + 1)
       .then((snapshot) => {
         setUsers(snapshot.data);
         setLoading(false);
@@ -101,6 +105,8 @@ const Tables = () => {
       })
       .catch(console.error);
   };
+  const debounceFilter = useCallback(_.debounce(handleSearchUser, 1000), []);
+
   useEffect(componentDidMount, []);
   return (
     <>
@@ -138,12 +144,16 @@ const Tables = () => {
                   fields={fields}
                   itemsPerPage={5}
                   onPageChange={(number) => {
-                    componentDidMount(number);
+                    if (searchText === "") return componentDidMount(number);
+                    else return handleSearchUser(searchText, number);
                   }}
                   loading={loading}
                   pagination
-                  tableFilter
-                  onTableFilterChange={handleSearchUser}
+                  tableFilter={{
+                    placeholder: "nombre,rut o apellido",
+                    label: "Filtrar",
+                  }}
+                  onTableFilterChange={debounceFilter}
                   scopedSlots={{
                     editar: (item) => (
                       <CCol

@@ -25,7 +25,10 @@ const ProductTable = ({ type, productsSelected, setProductsSelected }) => {
       setProducts(
         productsApi.map((product) => ({
           Nombre: product.Name,
-          Precio: product.BasePrice,
+          Precio: new Intl.NumberFormat("es-CL", {
+            currency: "CLP",
+            style: "currency",
+          }).format(product.BasePrice),
           ID: product.ID,
         }))
       );

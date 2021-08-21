@@ -170,7 +170,9 @@ const UserForm = ({ user, onClose }) => {
       return setFormUser(initUser);
     }
     getAddressByUserID(user.ID).then((address) =>
-      setFormsAddress(address.map(({ Address }) => ({ ...Address })))
+      address.length === 0
+        ? setFormsAddress(initAddress)
+        : setFormsAddress(address.map(({ Address }) => ({ ...Address })))
     );
     getProductByIDUser(user.ID).then(setFormsProducts);
     setFormUser(user);
@@ -222,7 +224,8 @@ const UserForm = ({ user, onClose }) => {
                     <CInput
                       id="Rut"
                       value={format(formUser.Rut)}
-                      onBlur={() => {
+                      onBlur={() =>
+                        !user.Names &&
                         getUserByRut(
                           `${clean(formUser.Rut).substr(
                             0,
@@ -236,8 +239,8 @@ const UserForm = ({ user, onClose }) => {
                           )}`
                         ).then((response) =>
                           setValidatedRut(response.length > 0)
-                        );
-                      }}
+                        )
+                      }
                       placeholder=" Ejemplo:18.123.678-3"
                       required
                       maxLength={12}
