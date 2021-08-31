@@ -16,20 +16,6 @@ import { UserForm } from "src/components/Forms";
 import _ from "lodash";
 import CIcon from "@coreui/icons-react";
 
-const getBadge = (status) => {
-  switch (status) {
-    case "Active":
-      return "success";
-    case "Inactive":
-      return "secondary";
-    case "Pending":
-      return "warning";
-    case "Banned":
-      return "danger";
-    default:
-      return "primary";
-  }
-};
 const fields = [
   "ID",
   "LastName",
@@ -65,6 +51,7 @@ const fields = [
   "AltaTec",
   "BajaTec",
   "A_FE_REPAC",
+  "estado",
   "editar",
 ];
 
@@ -105,6 +92,23 @@ const Tables = () => {
       })
       .catch(console.error);
   };
+  const getBadge = (status) => {
+    switch (status) {
+      case "1":
+        return "success";
+      case "2":
+        return "danger";
+      default:
+        return "primary";
+    }
+  };
+  const changeStateUser = (state, userID) =>
+    supabase
+      .from("User")
+      .update({ StateID: state === "1" ? "2" : "1" })
+      .eq("ID", userID)
+      .then(() => handleSearchUser(searchText));
+
   const debounceFilter = useCallback(_.debounce(handleSearchUser, 1000), []);
 
   useEffect(componentDidMount, []);
@@ -156,32 +160,59 @@ const Tables = () => {
                   onTableFilterChange={debounceFilter}
                   scopedSlots={{
                     editar: (item) => (
-                      <CCol
-                        col="2"
-                        xs="2"
-                        sm="2"
-                        md="2"
-                        className="mb-2 mb-xl-0"
-                      >
-                        <CButton
-                          color="primary"
-                          onClick={() => {
-                            setCreatingUser(true);
-                            setUser(item);
-                          }}
+                      <CRow>
+                        <CCol
+                          col="2"
+                          xs="2"
+                          sm="2"
+                          md="2"
+                          className="mb-2 mb-xl-0"
                         >
-                          <CIcon
-                            name="cil-pencil"
-                            style={{ paddingLeft: 10 }}
-                            customClasses="c-sidebar-nav-icon"
-                          />
-                        </CButton>
-                      </CCol>
+                          <CButton
+                            color="primary"
+                            onClick={() => {
+                              setCreatingUser(true);
+                              setUser(item);
+                            }}
+                          >
+                            <CIcon
+                              name="cil-pencil"
+                              style={{ paddingLeft: 10 }}
+                              customClasses="c-sidebar-nav-icon"
+                            />
+                          </CButton>
+                        </CCol>
+                        <CCol
+                          col="2"
+                          xs="2"
+                          sm="2"
+                          md="2"
+                          className="mb-2 mb-xl-0"
+                          style={{ marginLeft: 20 }}
+                        >
+                          <CButton
+                            color={item.StateID === "1" ? "danger" : "success"}
+                            onClick={() => {
+                              changeStateUser(item.StateID, item.ID);
+                            }}
+                          >
+                            <CIcon
+                              name="cil-user"
+                              style={{ paddingLeft: 10 }}
+                              customClasses="c-sidebar-nav-icon"
+                            />
+                          </CButton>
+                        </CCol>
+                      </CRow>
                     ),
-                    status: (item) => (
+                    estado: (item) => (
                       <td>
-                        <CBadge color={getBadge(item.status)}>
-                          {item.status}
+                        <CBadge color={getBadge(item.StateID)}>
+                          {item.StateID === "1"
+                            ? "Activado"
+                            : item.StateID === "2"
+                            ? "De baja"
+                            : "Indefinido"}
                         </CBadge>
                       </td>
                     ),
