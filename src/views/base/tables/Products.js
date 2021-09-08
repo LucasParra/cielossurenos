@@ -22,6 +22,7 @@ import { DocsLink } from "src/reusable";
 // import users from "../../users/users";
 import { supabase } from "src/config/configSupabase";
 import CIcon from "@coreui/icons-react";
+import { freeSet } from "@coreui/icons";
 
 const getBadge = (status) => {
   switch (status) {
@@ -232,11 +233,7 @@ const Products = () => {
                               setModalVisible(true);
                             }}
                           >
-                            <CIcon
-                              name="cil-pencil"
-                              style={{ paddingLeft: 10 }}
-                              customClasses="c-sidebar-nav-icon"
-                            />
+                            <CIcon content={freeSet.cilPencil} size="xl" />
                           </CButton>
                         </CCol>
                         <CCol
@@ -253,11 +250,7 @@ const Products = () => {
                               setDeleteModal(true);
                             }}
                           >
-                            <CIcon
-                              name="cil-trash"
-                              style={{ paddingLeft: 10 }}
-                              customClasses="c-sidebar-nav-icon"
-                            />
+                            <CIcon content={freeSet.cilTrash} size="xl" />
                           </CButton>
                         </CCol>
                       </CRow>

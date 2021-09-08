@@ -15,6 +15,7 @@ import { supabase } from "src/config/configSupabase";
 import { UserForm } from "src/components/Forms";
 import _ from "lodash";
 import CIcon from "@coreui/icons-react";
+import { freeSet } from "@coreui/icons";
 
 const fields = [
   "ID",
@@ -175,11 +176,7 @@ const Tables = () => {
                               setUser(item);
                             }}
                           >
-                            <CIcon
-                              name="cil-pencil"
-                              style={{ paddingLeft: 10 }}
-                              customClasses="c-sidebar-nav-icon"
-                            />
+                            <CIcon content={freeSet.cilPencil} size="xl" />
                           </CButton>
                         </CCol>
                         <CCol
@@ -188,7 +185,7 @@ const Tables = () => {
                           sm="2"
                           md="2"
                           className="mb-2 mb-xl-0"
-                          style={{ marginLeft: 20 }}
+                          style={{ marginLeft: 30 }}
                         >
                           <CButton
                             color={item.StateID === "1" ? "danger" : "success"}
@@ -197,9 +194,8 @@ const Tables = () => {
                             }}
                           >
                             <CIcon
-                              name="cil-user"
-                              style={{ paddingLeft: 10 }}
-                              customClasses="c-sidebar-nav-icon"
+                              content={freeSet.cilPowerStandby}
+                              size="xl"
                             />
                           </CButton>
                         </CCol>

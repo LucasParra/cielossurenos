@@ -38,6 +38,7 @@ import {
 } from "src/state/querys/Address";
 import { clean, format } from "rut.js";
 import { getProductByIDUser } from "src/state/querys/Product";
+import { createTask } from "src/state/querys/Tasks";
 
 const initUser = {
   Names: "",
@@ -145,6 +146,12 @@ const UserForm = ({ user, onClose }) => {
           formsProducts.map((product) =>
             createUserProduct({ ...product, UserID: newUserID })
           ),
+          createTask({
+            TypeID: 1,
+            AssignedID: formUser.TechnicianID,
+            // DeadLine:moment().toDate(),
+            ClientID: newUserID,
+          }),
           formsAddress.map((address, index) => {
             createAddress(address).then((newaddressID) => {
               createUserAddress({
