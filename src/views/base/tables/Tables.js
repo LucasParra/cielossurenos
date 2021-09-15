@@ -25,6 +25,7 @@ import _ from "lodash";
 import CIcon from "@coreui/icons-react";
 import { freeSet } from "@coreui/icons";
 import Discounts from "./Discounts";
+import Charges from "./Charges";
 
 const fields = [
   "ID",
@@ -61,9 +62,10 @@ const fields = [
   "AltaTec",
   "BajaTec",
   "A_FE_REPAC",
-  "descuento",
   "estado",
-  "editar",
+  "descuento",
+  "cargo",
+  "opciones",
 ];
 
 const Tables = () => {
@@ -72,7 +74,8 @@ const Tables = () => {
   const [user, setUser] = useState({});
   const [searchText, setSearchText] = useState("");
   const [loading, setLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisibleDiscounts, setModalVisible] = useState(false);
+  const [modalVisibleCharges, setModalVisibleCharges] = useState(false);
 
   const handleSearchUser = (value, limit = 1) => {
     setSearchText(value);
@@ -171,43 +174,50 @@ const Tables = () => {
                   }}
                   onTableFilterChange={debounceFilter}
                   scopedSlots={{
-                    editar: (item) => (
-                      <CRow>
-                        <CCol
-                          col="2"
-                          xs="2"
-                          sm="2"
-                          md="2"
-                          className="mb-2 mb-xl-0"
-                        >
-                          <CButton
-                            color="primary"
-                            onClick={() => {
-                              setCreatingUser(true);
-                              setUser(item);
-                            }}
+                    opciones: (item) => (
+                      <td>
+                        <CRow>
+                          <CCol
+                            col="2"
+                            xs="2"
+                            sm="2"
+                            md="2"
+                            className="mb-2 mb-xl-0"
                           >
-                            <CIcon content={freeSet.cilPencil} size="l" />
-                          </CButton>
-                        </CCol>
-                        <CCol
-                          col="2"
-                          xs="2"
-                          sm="2"
-                          md="2"
-                          className="mb-2 mb-xl-0"
-                          style={{ marginLeft: 20 }}
-                        >
-                          <CButton
-                            color={item.StateID === "1" ? "danger" : "success"}
-                            onClick={() => {
-                              changeStateUser(item.StateID, item.ID);
-                            }}
+                            <CButton
+                              color="primary"
+                              onClick={() => {
+                                setCreatingUser(true);
+                                setUser(item);
+                              }}
+                            >
+                              <CIcon content={freeSet.cilPencil} size="l" />
+                            </CButton>
+                          </CCol>
+                          <CCol
+                            col="2"
+                            xs="2"
+                            sm="2"
+                            md="2"
+                            className="mb-2 mb-xl-0"
+                            style={{ marginLeft: 20 }}
                           >
-                            <CIcon content={freeSet.cilPowerStandby} size="l" />
-                          </CButton>
-                        </CCol>
-                      </CRow>
+                            <CButton
+                              color={
+                                item.StateID === "1" ? "danger" : "success"
+                              }
+                              onClick={() => {
+                                changeStateUser(item.StateID, item.ID);
+                              }}
+                            >
+                              <CIcon
+                                content={freeSet.cilSwapVertical}
+                                size="l"
+                              />
+                            </CButton>
+                          </CCol>
+                        </CRow>
+                      </td>
                     ),
                     estado: (item) => (
                       <td>
@@ -221,23 +231,46 @@ const Tables = () => {
                       </td>
                     ),
                     descuento: (item) => (
-                      <CCol
-                        col="2"
-                        xs="2"
-                        sm="2"
-                        md="2"
-                        className="mb-2 mb-xl-0"
-                      >
-                        <CButton
-                          color={"success"}
-                          onClick={() => {
-                            setModalVisible(true);
-                            setUser(item);
-                          }}
+                      <td>
+                        <CCol
+                          col="2"
+                          xs="2"
+                          sm="2"
+                          md="2"
+                          className="mb-2 mb-xl-0"
                         >
-                          <CIcon content={freeSet.cilDollar} size="l" />
-                        </CButton>
-                      </CCol>
+                          <CButton
+                            color={"success"}
+                            onClick={() => {
+                              setModalVisible(true);
+                              setUser(item);
+                            }}
+                          >
+                            <CIcon content={freeSet.cilDollar} size="l" />
+                          </CButton>
+                        </CCol>
+                      </td>
+                    ),
+                    cargo: (item) => (
+                      <td>
+                        <CCol
+                          col="2"
+                          xs="2"
+                          sm="2"
+                          md="2"
+                          className="mb-2 mb-xl-0"
+                        >
+                          <CButton
+                            color={"success"}
+                            onClick={() => {
+                              setModalVisibleCharges(true);
+                              setUser(item);
+                            }}
+                          >
+                            <CIcon content={freeSet.cilList} size="l" />
+                          </CButton>
+                        </CCol>
+                      </td>
                     ),
                   }}
                 />
@@ -256,10 +289,17 @@ const Tables = () => {
           </div>
         </CCol>
       </CRow>
-      {!creatingUser && modalVisible && (
+      {!creatingUser && modalVisibleDiscounts && (
         <Discounts
-          isVisible={modalVisible}
+          isVisible={modalVisibleDiscounts}
           setModalVisible={setModalVisible}
+          userID={user.ID}
+        />
+      )}
+      {!creatingUser && modalVisibleCharges && (
+        <Charges
+          isVisible={modalVisibleCharges}
+          setModalVisible={setModalVisibleCharges}
           userID={user.ID}
         />
       )}
