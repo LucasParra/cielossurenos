@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { freeSet } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
 import {
+  CBadge,
   CButton,
   CCol,
   CDataTable,
@@ -19,17 +20,27 @@ import {
 } from "@coreui/react";
 import { supabase } from "src/config/configSupabase";
 import {
+  chargeMount,
   createCharge,
   deleteCharge,
   updateCharge,
 } from "src/state/querys/Charges";
 import moment from "moment";
 
-const fields = ["ID", "nombre", "cargo", "editar", "eliminar"];
+const fields = [
+  "ID",
+  "nombre",
+  "cargo",
+  "restante",
+  "estado",
+  "editar",
+  "eliminar",
+];
 
 const Charges = ({ isVisible, setModalVisible, userID }) => {
   const [charges, setCharges] = useState([]);
   const [amount, setAmount] = useState(0);
+  const [ispayment, setIspayment] = useState(false);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [edit, setEdit] = useState("");
@@ -47,7 +58,11 @@ const Charges = ({ isVisible, setModalVisible, userID }) => {
         chargesApi.map((charge) => ({
           ID: charge.ID,
           nombre: charge.Name,
-          cargo: charge.Charge,
+          cargo: new Intl.NumberFormat("es-CL", {
+            currency: "CLP",
+            style: "currency",
+          }).format(charge.Charge),
+          ...charge,
         }))
       );
       setLoading(false);
@@ -59,13 +74,15 @@ const Charges = ({ isVisible, setModalVisible, userID }) => {
       Created_at: moment().toDate(),
       Charge: amount,
       ClientID: userID,
+      State: false,
+      Remaining: 0,
     }).then(() => {
       componentDidMount();
       setName(0);
       setAmount(0);
     });
 
-  const handleEditcharge = (ID) =>
+  const handleEditcharge = () =>
     updateCharge(
       {
         Name: name,
@@ -92,13 +109,31 @@ const Charges = ({ isVisible, setModalVisible, userID }) => {
     >
       <CModalHeader closeButton>
         <CRow>
-          <CCol col="12">
+          <CCol col="10">
             <CModalTitle>Cargos</CModalTitle>
           </CCol>
         </CRow>
       </CModalHeader>
       <CModalBody>
-        <CRow style={{ margin: 10 }}>
+        <CRow>
+          <CCol col="2">
+            <CButton color="danger" onClick={() => setIspayment(false)}>
+              Crear Cargo
+            </CButton>
+          </CCol>
+          <CCol col="2">
+            <CButton
+              color="success"
+              onClick={() => {
+                setIspayment(true);
+                setAmount(0);
+              }}
+            >
+              Crear Pago
+            </CButton>
+          </CCol>
+        </CRow>
+        <CRow style={{ margin: 10 }} className="align-items-center">
           <CCol col="2">
             <CLabel htmlFor="amount">Monto</CLabel>
             <div className="controls">
@@ -109,26 +144,38 @@ const Charges = ({ isVisible, setModalVisible, userID }) => {
                 <CInput
                   id="amount"
                   size="16"
-                  type="text"
-                  onChange={({ target: { value } }) => setAmount(value)}
+                  type="number"
+                  onChange={({ target: { value } }) =>
+                    setAmount(parseInt(value))
+                  }
                   value={amount}
                 />
               </CInputGroup>
             </div>
           </CCol>
-          <CCol col="2">
-            <CLabel htmlFor="name">Nombre</CLabel>
-            <CInput
-              id="name"
-              name="name"
-              value={name}
-              onChange={({ target: { value } }) => setName(value)}
-            />
-          </CCol>
-          <CCol col="2">
+          {!ispayment && (
+            <CCol col="2">
+              <CLabel htmlFor="name">Nombre</CLabel>
+              <CInput
+                id="name"
+                name="name"
+                value={name}
+                onChange={({ target: { value } }) => setName(value)}
+              />
+            </CCol>
+          )}
+          <CCol col="2" style={{ paddingTop: 30 }}>
             <CButton
               color={"success"}
               onClick={() => {
+                if (ispayment)
+                  return chargeMount(userID, amount, componentDidMount).then(
+                    () => {
+                      setAmount(0);
+                      componentDidMount();
+                    }
+                  );
+
                 if (edit === "") {
                   handleAddCharge();
                 } else {
@@ -136,7 +183,11 @@ const Charges = ({ isVisible, setModalVisible, userID }) => {
                 }
               }}
             >
-              {edit !== "" ? "Editar Cargo" : "Añadir Cargo"}
+              {!ispayment
+                ? edit !== ""
+                  ? "Editar Cargo"
+                  : "Añadir Cargo"
+                : "Crear Pago"}
             </CButton>
           </CCol>
         </CRow>
@@ -166,6 +217,22 @@ const Charges = ({ isVisible, setModalVisible, userID }) => {
                   </CRow>
                 </td>
               ),
+
+              estado: (item) => (
+                <td>
+                  <CBadge color={item.State ? "success" : "danger"}>
+                    {item.State ? "Pagado" : "Deuda"}
+                  </CBadge>
+                </td>
+              ),
+              restante: (item) => (
+                <td>
+                  {new Intl.NumberFormat("es-CL", {
+                    currency: "CLP",
+                    style: "currency",
+                  }).format(item.Remaining)}
+                </td>
+              ),
               editar: (item) => (
                 <td className="py-2">
                   <CRow className="align-items-center">
@@ -173,6 +240,7 @@ const Charges = ({ isVisible, setModalVisible, userID }) => {
                       <CButton
                         color="primary"
                         onClick={() => {
+                          setIspayment(false);
                           setName(item.nombre);
                           setAmount(item.cargo);
                           setEdit(item.ID);
@@ -180,6 +248,16 @@ const Charges = ({ isVisible, setModalVisible, userID }) => {
                       >
                         <CIcon content={freeSet.cilPencil} size="xl" />
                       </CButton>
+
+                      {/* <CButton
+                        color="primary"
+                        onClick={() => {
+                          chargeMount(userID);
+                          // setEdit(item.ID);
+                        }}
+                      >
+                        <CIcon content={freeSet.cilCheck} size="xl" />
+                      </CButton> */}
                     </CCol>
                   </CRow>
                 </td>
