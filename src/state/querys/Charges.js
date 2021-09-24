@@ -60,7 +60,7 @@ const chargeAutomatic = () => {
   supabase
     .from("User")
     .select("*")
-    .limit(2)
+    .eq("ID", 42)
     .then((snapshot) => {
       const users = snapshot.data;
       users.map((user) =>
@@ -68,16 +68,18 @@ const chargeAutomatic = () => {
           .from("UserProduct")
           .select("Product(*)")
           .eq("UserID", user.ID)
-          .then((produtosSnapshot) => {
-            const productos = produtosSnapshot.data;
+          .then((productSnapshot) => {
+            const productos = productSnapshot.data;
             let amount = 0;
-            productos.map(
-              ({ Product: { BasePrice } }) => (amount = BasePrice + amount)
-            );
+            let IDProducts = "";
+            productos.map(({ Product: { BasePrice, ID } }, index) => {
+              IDProducts = `${IDProducts} ${index === 0 ? "" : ","} ${ID}`;
+              amount = BasePrice + amount;
+              return null;
+            });
             if (amount === 0) return;
-
             createCharge({
-              Name: "Cobro Mensual",
+              Name: `Cobro Mensual | ${IDProducts}`,
               CreatedAt: moment().toDate(),
               Charge: amount,
               ClientID: user.ID,

@@ -14,8 +14,8 @@ import {
   CRow,
 } from "@coreui/react";
 import { supabase } from "src/config/configSupabase";
+import _ from "lodash";
 import {
-  chargeAutomatic,
   chargeMount,
   createCharge,
   deleteCharge,
@@ -56,7 +56,7 @@ const Charges = ({ userID }) => {
       setCharges(
         chargesApi.map((charge) => ({
           ID: charge.ID,
-          nombre: charge.Name,
+          nombre: _.split(charge.Name, "|", 1),
           cargo: new Intl.NumberFormat("es-CL", {
             currency: "CLP",
             style: "currency",
