@@ -125,14 +125,14 @@ const Charges = ({ userID }) => {
           >
             Crear Pago
           </CButton>
-          <CButton
+          {/* <CButton
             color="success"
             onClick={() => {
               chargeAutomatic();
             }}
           >
             cobro automatico
-          </CButton>
+          </CButton> */}
         </CCol>
       </CRow>
       <CRow
