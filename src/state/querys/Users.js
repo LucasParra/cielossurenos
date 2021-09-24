@@ -49,6 +49,13 @@ const updateUserProduct = (userProductData) =>
     .update(userProductData)
     .eq("ID", userProductData.ID);
 
+const getUserByID = (ID) =>
+  supabase
+    .from("User")
+    .select("*")
+    .eq("ID", ID)
+    .then((snapshot) => snapshot.data[0])
+    .catch(console.error);
 export {
   getTechnicians,
   createUser,
@@ -58,4 +65,5 @@ export {
   updateUserID,
   updateUserProduct,
   updateUserAddress,
+  getUserByID,
 };

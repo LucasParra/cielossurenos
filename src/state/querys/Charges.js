@@ -1,3 +1,5 @@
+import moment from "moment";
+
 const { supabase } = require("src/config/configSupabase");
 
 const createCharge = (chargesData) =>
@@ -28,6 +30,7 @@ const chargeMount = (userID, mount, refresh) =>
     .select("*")
     .eq("ClientID", userID)
     .eq("State", false)
+    .order("CreatedAt", { ascending: true })
     .then((snapshot) => {
       let rest = mount;
       return snapshot.data.map((charge, index) => {
@@ -53,4 +56,44 @@ const chargeMount = (userID, mount, refresh) =>
       });
     });
 
-export { createCharge, deleteCharge, updateCharge, chargeMount };
+const chargeAutomatic = () => {
+  supabase
+    .from("User")
+    .select("*")
+    .limit(2)
+    .then((snapshot) => {
+      const users = snapshot.data;
+      users.map((user) =>
+        supabase
+          .from("UserProduct")
+          .select("Product(*)")
+          .eq("UserID", user.ID)
+          .then((produtosSnapshot) => {
+            const productos = produtosSnapshot.data;
+            let amount = 0;
+            productos.map(
+              ({ Product: { BasePrice } }) => (amount = BasePrice + amount)
+            );
+            if (amount === 0) return;
+
+            createCharge({
+              Name: "Cobro Mensual",
+              CreatedAt: moment().toDate(),
+              Charge: amount,
+              ClientID: user.ID,
+              State: false,
+              Remaining: 0,
+            });
+          })
+      );
+    })
+    .catch(console.error);
+};
+
+export {
+  createCharge,
+  deleteCharge,
+  updateCharge,
+  chargeMount,
+  chargeAutomatic,
+};

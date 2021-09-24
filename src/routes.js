@@ -70,6 +70,12 @@ const routes = [
   { path: "/menu/products", name: "Products", component: Products },
   { path: "/menu/usuarios", name: "Usuarios", component: Tables },
   { path: "/menu/tareas", name: "tareas", component: Tasks },
+  {
+    path: "/menu/user/:id",
+    exact: true,
+    name: "Usuario",
+    component: User,
+  },
 
   { path: "/theme", name: "Theme", component: Colors, exact: true },
   { path: "/theme/colors", name: "Colors", component: Colors },
@@ -127,7 +133,6 @@ const routes = [
   { path: "/notifications/toaster", name: "Toaster", component: Toaster },
   { path: "/widgets", name: "Widgets", component: Widgets },
   { path: "/users", exact: true, name: "Users", component: Users },
-  { path: "/users/:id", exact: true, name: "User Details", component: User },
 ];
 
 export default routes;

@@ -26,6 +26,7 @@ import CIcon from "@coreui/icons-react";
 import { freeSet } from "@coreui/icons";
 import Discounts from "./Discounts";
 import Charges from "./Charges";
+import { useHistory } from "react-router";
 
 const fields = [
   "ID",
@@ -63,12 +64,11 @@ const fields = [
   "BajaTec",
   "A_FE_REPAC",
   "estado",
-  "descuento",
-  "cargo",
   "opciones",
 ];
 
 const Tables = () => {
+  const history = useHistory();
   const [creatingUser, setCreatingUser] = useState(false);
   const [users, setUsers] = useState([]);
   const [user, setUser] = useState({});
@@ -172,6 +172,9 @@ const Tables = () => {
                     placeholder: "nombre,rut o apellido",
                     label: "Filtrar",
                   }}
+                  hover
+                  striped
+                  onRowClick={(item) => history.push(`/menu/user/${item.ID}`)}
                   onTableFilterChange={debounceFilter}
                   scopedSlots={{
                     opciones: (item) => (
@@ -183,6 +186,7 @@ const Tables = () => {
                             sm="2"
                             md="2"
                             className="mb-2 mb-xl-0"
+                            style={{ zIndex: 999 }}
                           >
                             <CButton
                               color="primary"
@@ -194,7 +198,7 @@ const Tables = () => {
                               <CIcon content={freeSet.cilPencil} size="l" />
                             </CButton>
                           </CCol>
-                          <CCol
+                          {/* <CCol
                             col="2"
                             xs="2"
                             sm="2"
@@ -215,7 +219,7 @@ const Tables = () => {
                                 size="l"
                               />
                             </CButton>
-                          </CCol>
+                          </CCol> */}
                         </CRow>
                       </td>
                     ),
@@ -228,48 +232,6 @@ const Tables = () => {
                             ? "De baja"
                             : "Indefinido"}
                         </CBadge>
-                      </td>
-                    ),
-                    descuento: (item) => (
-                      <td>
-                        <CCol
-                          col="2"
-                          xs="2"
-                          sm="2"
-                          md="2"
-                          className="mb-2 mb-xl-0"
-                        >
-                          <CButton
-                            color={"success"}
-                            onClick={() => {
-                              setModalVisible(true);
-                              setUser(item);
-                            }}
-                          >
-                            <CIcon content={freeSet.cilDollar} size="l" />
-                          </CButton>
-                        </CCol>
-                      </td>
-                    ),
-                    cargo: (item) => (
-                      <td>
-                        <CCol
-                          col="2"
-                          xs="2"
-                          sm="2"
-                          md="2"
-                          className="mb-2 mb-xl-0"
-                        >
-                          <CButton
-                            color={"success"}
-                            onClick={() => {
-                              setModalVisibleCharges(true);
-                              setUser(item);
-                            }}
-                          >
-                            <CIcon content={freeSet.cilList} size="l" />
-                          </CButton>
-                        </CCol>
                       </td>
                     ),
                   }}
