@@ -16,6 +16,7 @@ import {
 import { supabase } from "src/config/configSupabase";
 import _ from "lodash";
 import {
+  chargeAutomatic,
   chargeMount,
   createCharge,
   deleteCharge,

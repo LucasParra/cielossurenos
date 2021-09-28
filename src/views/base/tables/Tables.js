@@ -30,41 +30,42 @@ import { useHistory } from "react-router";
 
 const fields = [
   "ID",
-  "LastName",
-  "Names",
+  "nombres",
+  "apellidos",
   "Rut",
-  "JobID",
+  // "JobID",
   // "AddressName",
   // "AddressNumber",
   // "AddressBlockNumber",
   // "AddressFloorNumber",
   // "AddressApartmentNumber",
-  "PhoneNumber",
-  "JobPhoneNumber",
-  "AddressZoneID",
-  "AddressArea",
-  "UnsuscribeReason",
-  "SellerID",
-  "TechnicianID",
-  "A_N_BOCAS",
-  "A_COEFICIE",
-  "StateID",
-  "A_REPACTAD",
-  "A_RECONNCET",
-  "A_FE_RECON",
-  "A_CONDONAD",
-  "A_PROMOCIO",
-  "A_FE_PROMO",
-  "A_D_PLAZO",
-  "D_8",
-  "FechCon",
-  "AltaAdm",
-  "BajaAdm",
-  "AltaTec",
-  "BajaTec",
-  "A_FE_REPAC",
+  "contacto",
+  // "JobPhoneNumber",
+  // "AddressZoneID",
+  // "AddressArea",
+  // "UnsuscribeReason",
+  // "SellerID",
+  // "TechnicianID",
+  // "A_N_BOCAS",
+  // "A_COEFICIE",
+  // "StateID",
+  // "A_REPACTAD",
+  // "A_RECONNCET",
+  // "A_FE_RECON",
+  // "A_CONDONAD",
+  // "A_PROMOCIO",
+  // "A_FE_PROMO",
+  // "A_D_PLAZO",
+  // "D_8",
+  // "FechCon",
+  // "AltaAdm",
+  // "BajaAdm",
+  // "AltaTec",
+  // "BajaTec",
+  // "A_FE_REPAC",
   "estado",
-  "opciones",
+  "editar",
+  "datos",
 ];
 
 const Tables = () => {
@@ -90,7 +91,14 @@ const Tables = () => {
       )
       .limit(limit * 5 + 1)
       .then((snapshot) => {
-        setUsers(snapshot.data);
+        setUsers(
+          snapshot.data.map((user) => ({
+            ...user,
+            nombres: user.Names,
+            apellidos: user.LastName,
+            contacto: user.PhoneNumber,
+          }))
+        );
         setLoading(false);
       })
       .catch(console.error);
@@ -102,7 +110,14 @@ const Tables = () => {
       .select("*,Address(*)")
       .limit(limit * 5 + 1)
       .then((snapshot) => {
-        setUsers(snapshot.data);
+        setUsers(
+          snapshot.data.map((user) => ({
+            ...user,
+            nombres: user.Names,
+            apellidos: user.LastName,
+            contacto: user.PhoneNumber,
+          }))
+        );
         setLoading(false);
       })
       .catch(console.error);
@@ -172,12 +187,10 @@ const Tables = () => {
                     placeholder: "nombre,rut o apellido",
                     label: "Filtrar",
                   }}
-                  hover
                   striped
-                  onRowClick={(item) => history.push(`/menu/user/${item.ID}`)}
                   onTableFilterChange={debounceFilter}
                   scopedSlots={{
-                    opciones: (item) => (
+                    editar: (item) => (
                       <td>
                         <CRow>
                           <CCol
@@ -198,28 +211,29 @@ const Tables = () => {
                               <CIcon content={freeSet.cilPencil} size="l" />
                             </CButton>
                           </CCol>
-                          {/* <CCol
+                        </CRow>
+                      </td>
+                    ),
+                    datos: (item) => (
+                      <td>
+                        <CRow>
+                          <CCol
                             col="2"
                             xs="2"
                             sm="2"
                             md="2"
                             className="mb-2 mb-xl-0"
-                            style={{ marginLeft: 20 }}
+                            style={{ zIndex: 999 }}
                           >
                             <CButton
-                              color={
-                                item.StateID === "1" ? "danger" : "success"
+                              color="primary"
+                              onClick={() =>
+                                history.push(`/menu/user/${item.ID}`)
                               }
-                              onClick={() => {
-                                changeStateUser(item.StateID, item.ID);
-                              }}
                             >
-                              <CIcon
-                                content={freeSet.cilSwapVertical}
-                                size="l"
-                              />
+                              <CIcon content={freeSet.cilUser} size="l" />
                             </CButton>
-                          </CCol> */}
+                          </CCol>
                         </CRow>
                       </td>
                     ),

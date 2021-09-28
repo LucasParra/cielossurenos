@@ -16,14 +16,7 @@ import React, { useEffect, useState } from "react";
 import { freeSet } from "@coreui/icons";
 import { supabase } from "src/config/configSupabase";
 
-const fields = [
-  "ID",
-  "TypeID",
-  "AssignedID",
-  "DeadLine",
-  "ClientID",
-  "opciones",
-];
+const fields = ["ID", "tipo", "AssignedID", "DeadLine", "ClientID", "opciones"];
 
 const Tasks = () => {
   const [loading, setLoading] = useState(false);
@@ -36,10 +29,16 @@ const Tasks = () => {
     setLoading(true);
     supabase
       .from("Task")
-      .select("*")
+      .select("*,TypeID(Name)")
       .limit(limit * 5 + 1)
       .then((snapshot) => {
-        setTasks(snapshot.data);
+        console.log(snapshot.data);
+        setTasks(
+          snapshot.data.map((task) => ({
+            ...task,
+            tipo: task.TypeID.Name,
+          }))
+        );
         setLoading(false);
       })
       .catch(console.error);

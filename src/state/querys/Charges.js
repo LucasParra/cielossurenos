@@ -66,15 +66,15 @@ const chargeAutomatic = () => {
       users.map((user) =>
         supabase
           .from("UserProduct")
-          .select("Product(*)")
+          .select("Product(*),ID,Price")
           .eq("UserID", user.ID)
           .then((productSnapshot) => {
             const productos = productSnapshot.data;
             let amount = 0;
             let IDProducts = "";
-            productos.map(({ Product: { BasePrice, ID } }, index) => {
+            productos.map(({ ID, Price }, index) => {
               IDProducts = `${IDProducts} ${index === 0 ? "" : ","} ${ID}`;
-              amount = BasePrice + amount;
+              amount = Price + amount;
               return null;
             });
             if (amount === 0) return;
