@@ -13,6 +13,7 @@ import Charges from "../base/tables/Charges";
 import { getUserByID } from "src/state/querys/Users";
 import CIcon from "@coreui/icons-react";
 import { freeSet } from "@coreui/icons";
+import { supabase } from "src/config/configSupabase";
 
 const User = () => {
   const history = useHistory();
@@ -22,6 +23,12 @@ const User = () => {
   const componentDidMount = () => {
     getUserByID(id).then(setUser);
   };
+  const changeStateUser = (state, userID) =>
+    supabase
+      .from("User")
+      .update({ StateID: state === "1" ? "2" : "1" })
+      .eq("ID", userID)
+      .then(() => history.goBack());
 
   useEffect(componentDidMount, []);
   return (
@@ -44,10 +51,10 @@ const User = () => {
             </CButton>
             Usuario
             <CButton
-              color={!user.StateID ? "danger" : "success"}
-              onClick={() => false}
+              color={user.StateID === "2" ? "danger" : "success"}
+              onClick={() => changeStateUser(user.StateID, user.ID)}
             >
-              {!user.StateID ? "Dar de baja" : "Activar"}
+              {user.StateID === "2" ? "Dar de baja" : "Activar"}
             </CButton>
           </CCardHeader>
           <CCardBody

@@ -56,7 +56,7 @@ const chargeMount = (userID, mount, refresh) =>
       });
     });
 
-const chargeAutomatic = () => {
+const chargeAutomatic = () =>
   supabase
     .from("User")
     .select("*")
@@ -90,7 +90,6 @@ const chargeAutomatic = () => {
       );
     })
     .catch(console.error);
-};
 
 export {
   createCharge,

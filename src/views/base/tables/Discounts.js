@@ -118,7 +118,7 @@ const Discounts = ({ userID }) => {
           <CLabel htmlFor="DiscountType">Descuento</CLabel>
           <CInputGroup>
             <CDropdown className="input-group-prepend">
-              <CDropdownToggle caret color="primary">
+              <CDropdownToggle caret color="secondary">
                 {type}
               </CDropdownToggle>
               <CDropdownMenu>
@@ -153,6 +153,22 @@ const Discounts = ({ userID }) => {
             {edit !== "" ? "Editar Descuento" : "Añadir Descuento"}
           </CButton>
         </CCol>
+        {edit !== "" && (
+          <CCol col="2">
+            <CButton
+              color={"danger"}
+              style={{ marginTop: 28 }}
+              onClick={() => {
+                componentDidMount();
+                setTypeSelected("0");
+                setDiscount(0);
+                setEdit("");
+              }}
+            >
+              Cancelar edicion
+            </CButton>
+          </CCol>
+        )}
       </CRow>
       <CRow>
         <CDataTable
@@ -182,7 +198,7 @@ const Discounts = ({ userID }) => {
                 <CRow className="align-items-center">
                   <CCol col="2" xs="2" sm="2" md="2" className="mb-2 mb-xl-0">
                     <CButton
-                      color="primary"
+                      color="info"
                       onClick={() => {
                         setEdit(item.ID);
                         setType(item.IsPercentage ? "%" : "$");

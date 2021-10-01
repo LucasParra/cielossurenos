@@ -1,4 +1,5 @@
 import { supabase } from "src/config/configSupabase";
+import { createClientOffice } from "./Office";
 
 const getTechnicians = () =>
   supabase
@@ -56,6 +57,34 @@ const getUserByID = (ID) =>
     .eq("ID", ID)
     .then((snapshot) => snapshot.data[0])
     .catch(console.error);
+
+const queryUserToClient = () =>
+  supabase
+    .from("User")
+    .select("*")
+    .range(0, 1000)
+    .is("RolID", null)
+    .then((snapshot) => {
+      console.log(snapshot.data);
+      // snapshot.data.map((user) => {
+      //   updateUserID({ ...user, RolID: 2 }).then((response) =>
+      //     console.log(response)
+      //   );
+      // });
+    });
+
+// const queryClientToOffice = () =>
+//   supabase
+//     .from("User")
+//     .select("*")
+//     .range(4001, 5000)
+//     .eq("RolID", 2)
+//     .then((snapshot) => {
+//       // snapshot.data.map((user) =>
+//       //   createClientOffice(user.ID).then(() => console.log("hola"))
+//       // );
+//     });
+
 export {
   getTechnicians,
   createUser,
@@ -66,4 +95,6 @@ export {
   updateUserProduct,
   updateUserAddress,
   getUserByID,
+  queryUserToClient,
+  // queryClientToOffice,
 };

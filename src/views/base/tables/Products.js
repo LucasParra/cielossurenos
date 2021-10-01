@@ -38,7 +38,7 @@ const getBadge = (status) => {
       return "primary";
   }
 };
-const fields = ["ID", "Name", "BasePrice", "show_details"];
+const fields = ["ID", "Name", "BasePrice", "editar", "eliminar"];
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -97,7 +97,7 @@ const Products = () => {
   useEffect(componentDidMount, []);
   return (
     <>
-      <CRow className="align-items-center">
+      <CRow className="align-items-center" style={{ marginBottom: 16 }}>
         <CCol col="2" xs="2" sm="2" md="2" className="mb-3 mb-xl-0">
           <CButton block color="primary" onClick={() => setModalVisible(true)}>
             Crear Productos
@@ -154,7 +154,7 @@ const Products = () => {
           </CRow>
         </CModalBody>
         <CModalFooter>
-          <CButton color="primary" onClick={createProduct}>
+          <CButton color="success" onClick={createProduct}>
             Crear
           </CButton>{" "}
           <CButton
@@ -216,44 +216,30 @@ const Products = () => {
                       </CBadge>
                     </td>
                   ),
-                  show_details: (item, index) => (
+                  editar: (item) => (
+                    <td>
+                      <CButton
+                        color="info"
+                        onClick={() => {
+                          setProduct(item);
+                          setModalVisible(true);
+                        }}
+                      >
+                        <CIcon content={freeSet.cilPencil} size="xl" />
+                      </CButton>
+                    </td>
+                  ),
+                  eliminar: (item) => (
                     <td className="py-2">
-                      <CRow className="align-items-center">
-                        <CCol
-                          col="2"
-                          xs="2"
-                          sm="2"
-                          md="2"
-                          className="mb-2 mb-xl-0"
-                        >
-                          <CButton
-                            color="primary"
-                            onClick={() => {
-                              setProduct(item);
-                              setModalVisible(true);
-                            }}
-                          >
-                            <CIcon content={freeSet.cilPencil} size="xl" />
-                          </CButton>
-                        </CCol>
-                        <CCol
-                          col="2"
-                          xs="2"
-                          sm="2"
-                          md="2"
-                          className="mb-2 mb-xl-0"
-                        >
-                          <CButton
-                            color="danger"
-                            onClick={() => {
-                              setProduct(item);
-                              setDeleteModal(true);
-                            }}
-                          >
-                            <CIcon content={freeSet.cilTrash} size="xl" />
-                          </CButton>
-                        </CCol>
-                      </CRow>
+                      <CButton
+                        color="danger"
+                        onClick={() => {
+                          setProduct(item);
+                          setDeleteModal(true);
+                        }}
+                      >
+                        <CIcon content={freeSet.cilTrash} size="xl" />
+                      </CButton>
                     </td>
                   ),
                 }}

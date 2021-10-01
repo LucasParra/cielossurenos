@@ -1,4 +1,5 @@
 import React from "react";
+import Office from "./views/base/tables/Office";
 
 const Toaster = React.lazy(() =>
   import("./views/notifications/toaster/Toaster")
@@ -70,6 +71,7 @@ const routes = [
   { path: "/menu/products", name: "Products", component: Products },
   { path: "/menu/usuarios", name: "Usuarios", component: Tables },
   { path: "/menu/tareas", name: "tareas", component: Tasks },
+  { path: "/menu/sucursal", name: "sucursal", component: Office },
   {
     path: "/menu/user/:id",
     exact: true,

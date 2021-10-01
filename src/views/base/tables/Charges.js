@@ -126,14 +126,6 @@ const Charges = ({ userID }) => {
           >
             Crear Pago
           </CButton>
-          {/* <CButton
-            color="success"
-            onClick={() => {
-              chargeAutomatic();
-            }}
-          >
-            cobro automatico
-          </CButton> */}
         </CCol>
       </CRow>
       <CRow
@@ -194,6 +186,22 @@ const Charges = ({ userID }) => {
               : "Crear Pago"}
           </CButton>
         </CCol>
+
+        {!ispayment && edit !== "" && (
+          <CCol col="2" style={{ paddingTop: 30 }}>
+            <CButton
+              color={"danger"}
+              onClick={() => {
+                componentDidMount();
+                setName(0);
+                setAmount(0);
+                setEdit("");
+              }}
+            >
+              Cancelar Edicion
+            </CButton>
+          </CCol>
+        )}
       </CRow>
       <CRow>
         <CDataTable
@@ -244,7 +252,7 @@ const Charges = ({ userID }) => {
                 <CRow className="align-items-center">
                   <CCol col="2" xs="2" sm="2" md="2" className="mb-2 mb-xl-0">
                     <CButton
-                      color="primary"
+                      color="info"
                       onClick={() => {
                         setIspayment(false);
                         setName(item.nombre);
@@ -254,16 +262,6 @@ const Charges = ({ userID }) => {
                     >
                       <CIcon content={freeSet.cilPencil} size="xl" />
                     </CButton>
-
-                    {/* <CButton
-                        color="primary"
-                        onClick={() => {
-                          chargeMount(userID);
-                          // setEdit(item.ID);
-                        }}
-                      >
-                        <CIcon content={freeSet.cilCheck} size="xl" />
-                      </CButton> */}
                   </CCol>
                 </CRow>
               </td>

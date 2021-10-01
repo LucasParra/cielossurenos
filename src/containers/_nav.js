@@ -35,6 +35,12 @@ const _nav = [
     icon: "cil-3d",
   },
   {
+    _tag: "CSidebarNavItem",
+    name: "Sucursal",
+    to: "/menu/sucursal",
+    icon: "cil-3d",
+  },
+  {
     _tag: "CSidebarNavTitle",
     _children: ["Theme"],
   },

@@ -39,6 +39,12 @@ import {
 import { clean, format } from "rut.js";
 import { getProductByIDUser } from "src/state/querys/Product";
 import { createTask } from "src/state/querys/Tasks";
+import OfficesTable from "../Tables/OfficesTable";
+import {
+  createClientOffice,
+  getOfficesToUserID,
+  updateOfficeToClient,
+} from "src/state/querys/Office";
 
 const initUser = {
   Names: "",
@@ -83,6 +89,8 @@ const UserForm = ({ user, onClose }) => {
   const [modalProduct, setModalProduct] = useState(false);
   const [validated, setValidated] = useState(false);
   const [modalTechnicians, setModalTechnicians] = useState(false);
+  const [modalOffice, setModalOffice] = useState(false);
+  const [officeID, setOfficeID] = useState("");
   const [validatedRut, setValidatedRut] = useState(false);
 
   const handleCreateUser = () => {
@@ -102,44 +110,47 @@ const UserForm = ({ user, onClose }) => {
       return setValidated(true);
 
     if (user.ID) {
-      updateUserID({ ...formUser }).then(() => {
-        Promise.all([
-          formsProducts.map((product) =>
-            product.ID
-              ? updateUserProduct({ ...product, UserID: user.ID })
-              : createUserProduct({ ...product, UserID: user.ID })
-          ),
-          formsAddress.map((address, index) => {
-            address.ID
-              ? updateAddress(address).then((newaddressID) => {
-                  updateUserAddress({
-                    AddressID: newaddressID,
-                    UserID: user.ID,
-                  });
+      updateUserID(_.omit(formUser, "apellidos", "nombres", "contacto")).then(
+        () => {
+          Promise.all([
+            formsProducts.map((product) =>
+              product.ID
+                ? updateUserProduct({ ...product, UserID: user.ID })
+                : createUserProduct({ ...product, UserID: user.ID })
+            ),
+            updateOfficeToClient(user.ID, officeID),
+            formsAddress.map((address, index) => {
+              address.ID
+                ? updateAddress(address).then((newaddressID) => {
+                    updateUserAddress({
+                      AddressID: newaddressID,
+                      UserID: user.ID,
+                    });
 
-                  if (index + 1 === formsAddress.length) {
-                    setFormUser(initUser);
-                    setFormsAddress(initAddress);
-                    setValidated(false);
-                    onClose();
-                  }
-                })
-              : createAddress(address).then((newaddressID) => {
-                  createUserAddress({
-                    AddressID: newaddressID,
-                    UserID: user.ID,
-                  });
+                    if (index + 1 === formsAddress.length) {
+                      setFormUser(initUser);
+                      setFormsAddress(initAddress);
+                      setValidated(false);
+                      onClose();
+                    }
+                  })
+                : createAddress(address).then((newaddressID) => {
+                    createUserAddress({
+                      AddressID: newaddressID,
+                      UserID: user.ID,
+                    });
 
-                  if (index + 1 === formsAddress.length) {
-                    setFormUser(initUser);
-                    setFormsAddress(initAddress);
-                    onClose();
-                    setValidated(false);
-                  }
-                });
-          }),
-        ]);
-      });
+                    if (index + 1 === formsAddress.length) {
+                      setFormUser(initUser);
+                      setFormsAddress(initAddress);
+                      onClose();
+                      setValidated(false);
+                    }
+                  });
+            }),
+          ]);
+        }
+      );
     } else
       return createUser(formUser).then((newUserID) => {
         Promise.all([
@@ -152,6 +163,7 @@ const UserForm = ({ user, onClose }) => {
             // DeadLine:.toDate(),
             ClientID: newUserID,
           }),
+          createClientOffice(newUserID, officeID),
           formsAddress.map((address, index) => {
             createAddress(address).then((newaddressID) => {
               createUserAddress({
@@ -162,6 +174,7 @@ const UserForm = ({ user, onClose }) => {
               if (index + 1 === formsAddress.length) {
                 setFormUser(initUser);
                 setFormsAddress(initAddress);
+                onClose();
                 setValidated(false);
               }
             });
@@ -174,6 +187,7 @@ const UserForm = ({ user, onClose }) => {
     if (!user.Names) {
       setFormsProducts([]);
       setFormsAddress(initAddress);
+      setOfficeID("");
       return setFormUser(initUser);
     }
     getAddressByUserID(user.ID).then((address) =>
@@ -182,8 +196,10 @@ const UserForm = ({ user, onClose }) => {
         : setFormsAddress(address.map(({ Address }) => ({ ...Address })))
     );
     getProductByIDUser(user.ID).then(setFormsProducts);
+    getOfficesToUserID(user.ID).then(setOfficeID);
     setFormUser(user);
   };
+
   useEffect(userEffect, [user]);
 
   return (
@@ -301,6 +317,17 @@ const UserForm = ({ user, onClose }) => {
                       block
                     >
                       Tecnicos
+                    </CButton>
+                  </CCol>
+                  <CCol style={{ marginBottom: 8 }} xs="12" sm="3">
+                    <CLabel htmlFor="TechnicianID">Sucursal</CLabel>
+                    <CButton
+                      variant="outline"
+                      color="success"
+                      onClick={() => setModalOffice(true)}
+                      block
+                    >
+                      Sucursales
                     </CButton>
                   </CCol>
 
@@ -524,7 +551,20 @@ const UserForm = ({ user, onClose }) => {
           </CCol>
         </CRow>
       </CForm>
-
+      {/* modal Office */}
+      <CModal show={modalOffice} onClose={setModalOffice}>
+        <CModalHeader closeButton>
+          <CModalTitle>Selecciona la sucursal del usuario</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <OfficesTable setOfficeID={setOfficeID} officeID={officeID} />
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="success" onClick={() => setModalOffice(false)}>
+            Aceptar
+          </CButton>
+        </CModalFooter>
+      </CModal>
       {/* modal technicians */}
       <CModal show={modalTechnicians} onClose={setModalTechnicians}>
         <CModalHeader closeButton>

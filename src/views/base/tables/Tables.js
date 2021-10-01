@@ -27,6 +27,7 @@ import { freeSet } from "@coreui/icons";
 import Discounts from "./Discounts";
 import Charges from "./Charges";
 import { useHistory } from "react-router";
+import { chargeAutomatic } from "src/state/querys/Charges";
 
 const fields = [
   "ID",
@@ -71,6 +72,7 @@ const fields = [
 const Tables = () => {
   const history = useHistory();
   const [creatingUser, setCreatingUser] = useState(false);
+  const [chargesAutomaticModal, setChargesAutomaticModal] = useState(false);
   const [users, setUsers] = useState([]);
   const [user, setUser] = useState({});
   const [searchText, setSearchText] = useState("");
@@ -129,15 +131,9 @@ const Tables = () => {
       case "2":
         return "danger";
       default:
-        return "primary";
+        return "info";
     }
   };
-  const changeStateUser = (state, userID) =>
-    supabase
-      .from("User")
-      .update({ StateID: state === "1" ? "2" : "1" })
-      .eq("ID", userID)
-      .then(() => handleSearchUser(searchText));
 
   const debounceFilter = useCallback(_.debounce(handleSearchUser, 1000), []);
 
@@ -159,15 +155,28 @@ const Tables = () => {
               Volver
             </CButton>
           ) : (
-            <CButton
-              onClick={() => setCreatingUser(true)}
-              style={{ marginBottom: 10 }}
-              size="md"
-              color="primary"
-            >
-              <CIcon color="white" name="cil-plus" />
-              Crear Usuario
-            </CButton>
+            <CRow>
+              <CCol>
+                <CButton
+                  onClick={() => setCreatingUser(true)}
+                  style={{ marginBottom: 10 }}
+                  size="md"
+                  color="primary"
+                >
+                  Crear Usuario
+                </CButton>
+              </CCol>
+              <CCol>
+                <CButton
+                  onClick={() => setChargesAutomaticModal(true)}
+                  style={{ marginBottom: 10 }}
+                  size="md"
+                  color="success"
+                >
+                  Crear Cobro automatico
+                </CButton>
+              </CCol>
+            </CRow>
           )}
           <div style={{ display: creatingUser ? "none" : "block" }}>
             <CCard>
@@ -202,7 +211,7 @@ const Tables = () => {
                             style={{ zIndex: 999 }}
                           >
                             <CButton
-                              color="primary"
+                              color="info"
                               onClick={() => {
                                 setCreatingUser(true);
                                 setUser(item);
@@ -226,7 +235,7 @@ const Tables = () => {
                             style={{ zIndex: 999 }}
                           >
                             <CButton
-                              color="primary"
+                              color="secondary"
                               onClick={() =>
                                 history.push(`/menu/user/${item.ID}`)
                               }
@@ -279,6 +288,36 @@ const Tables = () => {
           userID={user.ID}
         />
       )}
+
+      <CModal
+        show={chargesAutomaticModal}
+        onClose={setChargesAutomaticModal}
+        size="sm"
+        color="info"
+      >
+        <CModalHeader style={{ justifyContent: "center" }}>
+          <CModalTitle style={{ textAlign: "center" }}>
+            Estas seguro?
+          </CModalTitle>
+        </CModalHeader>
+
+        <CModalFooter style={{ justifyContent: "center" }}>
+          <CButton
+            color="success"
+            onClick={() =>
+              chargeAutomatic().then(() => setChargesAutomaticModal(false))
+            }
+          >
+            Aceptar
+          </CButton>
+          <CButton
+            color="danger"
+            onClick={() => setChargesAutomaticModal(false)}
+          >
+            Cancelar
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </>
   );
 };
