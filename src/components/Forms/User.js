@@ -16,7 +16,6 @@ import {
   CModalTitle,
   CModalBody,
   CModalFooter,
-  CInvalidFeedback,
 } from "@coreui/react";
 import _ from "lodash";
 import ProductTable from "src/components/Tables/ProductsTable";

@@ -36,6 +36,12 @@ const _nav = [
   },
   {
     _tag: "CSidebarNavItem",
+    name: "Tareas Pendientes",
+    to: "/menu/pendientes",
+    icon: "cil-3d",
+  },
+  {
+    _tag: "CSidebarNavItem",
     name: "Sucursal",
     to: "/menu/sucursal",
     icon: "cil-3d",

@@ -6,7 +6,11 @@ const Toaster = React.lazy(() =>
 );
 const Tables = React.lazy(() => import("./views/base/tables/Tables"));
 const Products = React.lazy(() => import("./views/base/tables/Products"));
+
 const Tasks = React.lazy(() => import("./views/base/tables/Tasks"));
+const TaskPending = React.lazy(() =>
+  import("./views/base/tables/TasksPending")
+);
 
 const Breadcrumbs = React.lazy(() =>
   import("./views/base/breadcrumbs/Breadcrumbs")
@@ -71,6 +75,11 @@ const routes = [
   { path: "/menu/products", name: "Products", component: Products },
   { path: "/menu/usuarios", name: "Usuarios", component: Tables },
   { path: "/menu/tareas", name: "tareas", component: Tasks },
+  {
+    path: "/menu/pendientes",
+    name: "pendientes",
+    component: TaskPending,
+  },
   { path: "/menu/sucursal", name: "sucursal", component: Office },
   {
     path: "/menu/user/:id",

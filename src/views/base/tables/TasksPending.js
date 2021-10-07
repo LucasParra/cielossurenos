@@ -9,14 +9,19 @@ import {
   CCollapse,
   CDataTable,
   CModal,
+  CModalBody,
   CModalFooter,
   CModalHeader,
   CModalTitle,
   CRow,
+  CSelect,
 } from "@coreui/react";
 import React, { useEffect, useState } from "react";
 import { freeSet } from "@coreui/icons";
 import { supabase } from "src/config/configSupabase";
+import { createTask, getTypesTasks } from "src/state/querys/Tasks";
+import TechniciansTable from "src/components/Tables/TechniciansTable";
+import ClientsTable from "src/components/Tables/ClientsTables";
 
 const fields = [
   "ID",
@@ -25,26 +30,39 @@ const fields = [
   "expiracion",
   "estado",
   "cliente",
-  "cambiar_estado",
+  "aprobar",
 ];
 
-const Tasks = () => {
+const TaskPending = () => {
   const [loading, setLoading] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
+  const [modalTechnicians, setModalTechnicians] = useState(false);
+  const [modalClient, setModalClient] = useState(false);
   const [details, setDetails] = useState([]);
   const [taskSelected, setTaskSelected] = useState({});
-
+  const [taskForm, setTaskForm] = useState({
+    TypeID: "",
+    AssignedID: "",
+    ClientID: "",
+    StateID: 1,
+  });
+  const [types, setTypes] = useState([]);
   const [tasks, setTasks] = useState([]);
+  const [createTaskVisible, setCreateTaskVisible] = useState(false);
   const admin = false;
 
   const componentDidMount = (limit = 1) => {
+    if (limit === 1) {
+      getTypesTasks().then(setTypes);
+    }
+
     setLoading(true);
     supabase
       .from("Task")
       .select("*,TypeID(Name),ClientID(*)")
       .limit(limit * 5 + 1)
       .order("ID", { ascending: true })
-      .match({ StateID: 3 })
+      .eq("StateID", 1)
       .then((snapshot) => {
         setTasks(
           snapshot.data.map((task) => ({
@@ -102,10 +120,84 @@ const Tasks = () => {
   useEffect(componentDidMount, []);
   return (
     <>
+      <CRow style={{ paddingLeft: 20 }}>
+        <CButton
+          color="info"
+          onClick={() => setCreateTaskVisible(!createTaskVisible)}
+          style={{ marginBottom: 10 }}
+        >
+          Crear Tarea
+        </CButton>
+        <CCol xs="12" lg="12">
+          <CCollapse show={createTaskVisible}>
+            <CRow>
+              <CCol xs="3" lg="3">
+                <h4>Tipo</h4>
+                <CSelect
+                  custom
+                  size="xl"
+                  name="DiscountType"
+                  id="DiscountType"
+                  value={taskForm.TypeID}
+                  onChange={({ target: { value } }) =>
+                    setTaskForm({ ...taskForm, TypeID: parseInt(value) })
+                  }
+                >
+                  <option value={""}>selecciona un tipo</option>
+                  {types.map((type) => (
+                    <option key={type.ID} value={type.ID}>
+                      {type.Name}
+                    </option>
+                  ))}
+                </CSelect>
+              </CCol>
+              <CCol xs="3" lg="3">
+                <h4>Tecnico Encargado</h4>
+                <CButton
+                  color="info"
+                  onClick={() => setModalTechnicians(true)}
+                  style={{ marginBottom: 10 }}
+                >
+                  Tecnico
+                </CButton>
+              </CCol>
+              <CCol xs="3" lg="3">
+                <h4>Usuario asignado</h4>
+                <CButton
+                  color="info"
+                  onClick={() => setModalClient(true)}
+                  style={{ marginBottom: 10 }}
+                >
+                  Cliente
+                </CButton>
+              </CCol>
+              <CCol xs="3" lg="3" style={{ paddingTop: 10 }}>
+                <CButton
+                  color="success"
+                  onClick={() =>
+                    createTask(taskForm).then(() => {
+                      setTaskForm({
+                        TypeID: "",
+                        AssignedID: "",
+                        ClientID: "",
+                        StateID: 1,
+                      });
+                      componentDidMount();
+                    })
+                  }
+                  style={{ marginBottom: 10 }}
+                >
+                  Crear
+                </CButton>
+              </CCol>
+            </CRow>
+          </CCollapse>
+        </CCol>
+      </CRow>
       <CRow>
         <CCol xs="12" lg="12">
           <CCard>
-            <CCardHeader>Tareas</CCardHeader>
+            <CCardHeader>Tareas Pendiente Aprobacion</CCardHeader>
             <CCardBody>
               <CDataTable
                 items={tasks}
@@ -128,11 +220,11 @@ const Tasks = () => {
                   estado: (item) => (
                     <td>
                       <CBadge color={getBadge(item.StateID)}>
-                        {item.StateID === 2 ? "Finalizada" : "En Proceso..."}
+                        Pendiente...
                       </CBadge>
                     </td>
                   ),
-                  cambiar_estado: (item) => (
+                  aprobar: (item) => (
                     <td className="py-2">
                       <CRow className="align-items-center">
                         <CCol
@@ -143,15 +235,15 @@ const Tasks = () => {
                           className="mb-2 mb-xl-0"
                         >
                           <CButton
-                            color={item.StateID === 2 ? "success" : "secondary"}
+                            color="success"
                             onClick={() =>
                               changeStateTask({
                                 ID: item.ID,
-                                StateID: item.StateID === 2 ? 1 : 2,
+                                StateID: 3,
                               })
                             }
                           >
-                            <CIcon content={freeSet.cilSync} size="xl" />
+                            <CIcon content={freeSet.cilCheck} size="xl" />
                           </CButton>
                         </CCol>
                         {admin && (
@@ -220,8 +312,56 @@ const Tasks = () => {
           </CButton>
         </CModalFooter>
       </CModal>
+
+      {/* modal technicians */}
+      <CModal
+        show={modalTechnicians}
+        onClose={setModalTechnicians}
+        color="info"
+      >
+        <CModalHeader closeButton>
+          <CModalTitle>Selecciona el tecnico encargado</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <TechniciansTable
+            setTechnicianID={(value) =>
+              setTaskForm({ ...taskForm, AssignedID: value })
+            }
+            TechnicianID={taskForm.AssignedID}
+          />
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="info" onClick={() => setModalTechnicians(false)}>
+            Aceptar
+          </CButton>
+        </CModalFooter>
+      </CModal>
+      {/* modal client */}
+      <CModal
+        show={modalClient}
+        onClose={setModalClient}
+        color="info"
+        size="lg"
+      >
+        <CModalHeader closeButton>
+          <CModalTitle>Selecciona el Cliente</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <ClientsTable
+            setClientID={(value) =>
+              setTaskForm({ ...taskForm, ClientID: value })
+            }
+            ClientID={taskForm.ClientID}
+          />
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="info" onClick={() => setModalClient(false)}>
+            Aceptar
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </>
   );
 };
 
-export default Tasks;
+export default TaskPending;

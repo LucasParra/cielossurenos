@@ -6,4 +6,10 @@ const createTask = (taskData) =>
     .insert(taskData)
     .then((snapshot) => snapshot.data[0].ID);
 
-export { createTask };
+const getTypesTasks = () =>
+  supabase
+    .from("TaskType")
+    .select("*")
+    .then(({ data }) => data);
+
+export { createTask, getTypesTasks };

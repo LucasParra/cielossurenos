@@ -72,6 +72,14 @@ const queryUserToClient = () =>
       //   );
       // });
     });
+const getClients = (limit) =>
+  supabase
+    .from("User")
+    .select("*")
+    .eq("RolID", 2)
+    .limit(limit * 5 + 1)
+    .then(({ data }) => data)
+    .catch(console.error);
 
 // const queryClientToOffice = () =>
 //   supabase
@@ -96,5 +104,6 @@ export {
   updateUserAddress,
   getUserByID,
   queryUserToClient,
+  getClients,
   // queryClientToOffice,
 };
