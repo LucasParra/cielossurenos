@@ -12,4 +12,13 @@ const getTypesTasks = () =>
     .select("*")
     .then(({ data }) => data);
 
-export { createTask, getTypesTasks };
+const getTaskByUserID = (UserID) =>
+  supabase
+    .from("Task")
+    .select("*,TypeID(Name)")
+    .order("ID", { ascending: true })
+    .eq("ClientID", UserID)
+    .then((snapshot) => snapshot.data)
+    .catch(console.error);
+
+export { createTask, getTypesTasks, getTaskByUserID };

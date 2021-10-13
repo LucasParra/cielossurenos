@@ -10,6 +10,7 @@ const TheLayout = React.lazy(() => import("../containers/TheLayout"));
 // Pages
 const Login = React.lazy(() => import("../views/pages/login/Login"));
 const Register = React.lazy(() => import("../views/pages/register/Register"));
+const Client = React.lazy(() => import("../views/pages/user/Client"));
 // const Page404 = React.lazy(() => import("./views/pages/page404/Page404"));
 // const Page500 = React.lazy(() => import("./views/pages/page500/Page500"));
 
@@ -43,6 +44,13 @@ const AppRouter = () => {
           path="/register"
           name="Register Page"
           component={Register}
+          isAuthenticated={session}
+        />
+        <PublicRoute
+          exact
+          path="/client"
+          name="cliente"
+          component={Client}
           isAuthenticated={session}
         />
         <PrivateRoute

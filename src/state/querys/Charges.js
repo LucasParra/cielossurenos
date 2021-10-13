@@ -8,7 +8,6 @@ const createCharge = (chargesData) =>
     .insert(chargesData)
     .then((snapshot) => snapshot.data)
     .catch(console.error);
-
 const deleteCharge = (ID) =>
   supabase
     .from("Charge")
@@ -91,10 +90,28 @@ const chargeAutomatic = () =>
     })
     .catch(console.error);
 
+const getChargeUserID = (UserID) =>
+  supabase
+    .from("Charge")
+    .select("*")
+    .eq("ClientID", UserID)
+    .eq("State", false)
+    .then(({ data }) => data);
+
+const getAllChargeUserID = (UserID) =>
+  supabase
+    .from("Charge")
+    .select("*")
+    .eq("ClientID", UserID)
+    .order("CreatedAt", { ascending: true })
+    .then((snapshot) => snapshot.data);
+
 export {
   createCharge,
   deleteCharge,
   updateCharge,
   chargeMount,
   chargeAutomatic,
+  getChargeUserID,
+  getAllChargeUserID,
 };

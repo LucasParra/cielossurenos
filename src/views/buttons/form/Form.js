@@ -30,7 +30,7 @@ import {
 } from "src/state/querys/Users";
 import moment from "moment";
 import { createAddress } from "src/state/querys/Address";
-import { clean, format, getCheckDigit } from "rut.js";
+import { clean, format } from "rut.js";
 
 const initUser = {
   Names: "",

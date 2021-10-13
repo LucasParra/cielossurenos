@@ -11,7 +11,7 @@ const getProducts = (limit) =>
 const getProductByIDUser = (UserID) =>
   supabase
     .from("UserProduct")
-    .select("*")
+    .select("*,ProductID(Name)")
     .eq("UserID", UserID)
     .then((snapshot) => snapshot.data)
     .catch(console.error);

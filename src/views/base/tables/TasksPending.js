@@ -22,6 +22,7 @@ import { supabase } from "src/config/configSupabase";
 import { createTask, getTypesTasks } from "src/state/querys/Tasks";
 import TechniciansTable from "src/components/Tables/TechniciansTable";
 import ClientsTable from "src/components/Tables/ClientsTables";
+import { getChargeUserID } from "src/state/querys/Charges";
 
 const fields = [
   "ID",
@@ -349,7 +350,13 @@ const TaskPending = () => {
         <CModalBody>
           <ClientsTable
             setClientID={(value) =>
-              setTaskForm({ ...taskForm, ClientID: value })
+              getChargeUserID(value).then((data) =>
+                setTaskForm({
+                  ...taskForm,
+                  ClientID: value,
+                  StateID: data.length !== 0 ? 1 : 3,
+                })
+              )
             }
             ClientID={taskForm.ClientID}
           />

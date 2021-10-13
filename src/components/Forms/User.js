@@ -194,7 +194,15 @@ const UserForm = ({ user, onClose }) => {
         ? setFormsAddress(initAddress)
         : setFormsAddress(address.map(({ Address }) => ({ ...Address })))
     );
-    getProductByIDUser(user.ID).then(setFormsProducts);
+    getProductByIDUser(user.ID).then((products) =>
+      setFormsProducts(
+        products.map(({ ID, Name, BasePrice }) => ({
+          ID,
+          Name,
+          BasePrice,
+        }))
+      )
+    );
     getOfficesToUserID(user.ID).then(setOfficeID);
     setFormUser(user);
   };
