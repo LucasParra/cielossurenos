@@ -17,12 +17,12 @@ import {
 import React, { useEffect, useState } from "react";
 import { freeSet } from "@coreui/icons";
 import { supabase } from "src/config/configSupabase";
-
+import _ from "lodash";
 const fields = [
   "ID",
   "tipo",
   "AssignedID",
-  "expiracion",
+  "Agendada",
   "estado",
   "cliente",
   "cambiar_estado",
@@ -47,11 +47,14 @@ const Tasks = () => {
       .match({ StateID: 3 })
       .then((snapshot) => {
         setTasks(
-          snapshot.data.map((task) => ({
-            ...task,
-            tipo: task.TypeID.Name,
-            expiracion: task.DeadLine,
-          }))
+          _.groupBy(
+            snapshot.data.map((task) => ({
+              ...task,
+              tipo: task.TypeID.Name,
+              Agendada: task.DeadLine,
+            })),
+            "Agendada"
+          )
         );
         setLoading(false);
       })
@@ -103,58 +106,41 @@ const Tasks = () => {
   return (
     <>
       <CRow>
-        <CCol xs="12" lg="12">
-          <CCard>
-            <CCardHeader>Tareas</CCardHeader>
-            <CCardBody>
-              <CDataTable
-                items={tasks}
-                fields={fields}
-                itemsPerPage={5}
-                onPageChange={componentDidMount}
-                loading={loading}
-                pagination
-                scopedSlots={{
-                  cliente: (item, index) => (
-                    <td className="py-2">
-                      <CButton
-                        color={!details.includes(index) ? "info" : "secondary"}
-                        onClick={() => toggleDetails(index)}
-                      >
-                        <CIcon content={freeSet.cilUser} size="xl" />
-                      </CButton>
-                    </td>
-                  ),
-                  estado: (item) => (
-                    <td>
-                      <CBadge color={getBadge(item.StateID)}>
-                        {item.StateID === 2 ? "Finalizada" : "En Proceso..."}
-                      </CBadge>
-                    </td>
-                  ),
-                  cambiar_estado: (item) => (
-                    <td className="py-2">
-                      <CRow className="align-items-center">
-                        <CCol
-                          col="2"
-                          xs="2"
-                          sm="2"
-                          md="2"
-                          className="mb-2 mb-xl-0"
+        {Object.keys(tasks).map((date) => (
+          <CCol xs="12" lg="6" key={date}>
+            <CCard>
+              <CCardHeader>Tareas: {date}</CCardHeader>
+              <CCardBody>
+                <CDataTable
+                  items={tasks[date]}
+                  fields={fields}
+                  itemsPerPage={5}
+                  onPageChange={componentDidMount}
+                  loading={loading}
+                  pagination
+                  scopedSlots={{
+                    cliente: (item, index) => (
+                      <td className="py-2">
+                        <CButton
+                          color={
+                            !details.includes(index) ? "info" : "secondary"
+                          }
+                          onClick={() => toggleDetails(index)}
                         >
-                          <CButton
-                            color={item.StateID === 2 ? "success" : "secondary"}
-                            onClick={() =>
-                              changeStateTask({
-                                ID: item.ID,
-                                StateID: item.StateID === 2 ? 1 : 2,
-                              })
-                            }
-                          >
-                            <CIcon content={freeSet.cilSync} size="xl" />
-                          </CButton>
-                        </CCol>
-                        {admin && (
+                          <CIcon content={freeSet.cilUser} size="xl" />
+                        </CButton>
+                      </td>
+                    ),
+                    estado: (item) => (
+                      <td>
+                        <CBadge color={getBadge(item.StateID)}>
+                          {item.StateID === 2 ? "Finalizada" : "En Proceso..."}
+                        </CBadge>
+                      </td>
+                    ),
+                    cambiar_estado: (item) => (
+                      <td className="py-2">
+                        <CRow className="align-items-center">
                           <CCol
                             col="2"
                             xs="2"
@@ -163,35 +149,58 @@ const Tasks = () => {
                             className="mb-2 mb-xl-0"
                           >
                             <CButton
-                              color="danger"
-                              onClick={() => {
-                                setDeleteModal(true);
-                                setTaskSelected(item);
-                              }}
+                              color={
+                                item.StateID === 2 ? "success" : "secondary"
+                              }
+                              onClick={() =>
+                                changeStateTask({
+                                  ID: item.ID,
+                                  StateID: item.StateID === 2 ? 1 : 2,
+                                })
+                              }
                             >
-                              <CIcon content={freeSet.cilTrash} size="xl" />
+                              <CIcon content={freeSet.cilSync} size="xl" />
                             </CButton>
                           </CCol>
-                        )}
-                      </CRow>
-                    </td>
-                  ),
-                  details: (item, index) => (
-                    <CCollapse show={details.includes(index)}>
-                      <CCardBody>
-                        <h4>
-                          {`Nombre: ${item.ClientID.Names} ${item.ClientID.LastName}`}
-                        </h4>
-                        <h4>{`Rut: ${item.ClientID.Rut}`}</h4>
-                        <h4>{`Contacto:${item.ClientID.PhoneNumber}`}</h4>
-                      </CCardBody>
-                    </CCollapse>
-                  ),
-                }}
-              />
-            </CCardBody>
-          </CCard>
-        </CCol>
+                          {admin && (
+                            <CCol
+                              col="2"
+                              xs="2"
+                              sm="2"
+                              md="2"
+                              className="mb-2 mb-xl-0"
+                            >
+                              <CButton
+                                color="danger"
+                                onClick={() => {
+                                  setDeleteModal(true);
+                                  setTaskSelected(item);
+                                }}
+                              >
+                                <CIcon content={freeSet.cilTrash} size="xl" />
+                              </CButton>
+                            </CCol>
+                          )}
+                        </CRow>
+                      </td>
+                    ),
+                    details: (item, index) => (
+                      <CCollapse show={details.includes(index)}>
+                        <CCardBody>
+                          <h4>
+                            {`Nombre: ${item.ClientID.Names} ${item.ClientID.LastName}`}
+                          </h4>
+                          <h4>{`Rut: ${item.ClientID.Rut}`}</h4>
+                          <h4>{`Contacto:${item.ClientID.PhoneNumber}`}</h4>
+                        </CCardBody>
+                      </CCollapse>
+                    ),
+                  }}
+                />
+              </CCardBody>
+            </CCard>
+          </CCol>
+        ))}
       </CRow>
       <CModal
         show={deleteModal}

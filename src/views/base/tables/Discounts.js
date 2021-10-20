@@ -17,12 +17,14 @@ import {
 import React, { useEffect, useState } from "react";
 import { supabase } from "src/config/configSupabase";
 import { createDiscount, updateDiscount } from "src/state/querys/Discount";
+import moment from "moment";
 
 const fields = ["ID", "tipoDescuento", "cantidad", "editar", "eliminar"];
 
 const Discounts = ({ userID }) => {
   const [discounts, setDiscounts] = useState([]);
   const [discountType, setDiscountType] = useState([]);
+  const [temporality, setTemporality] = useState(new Date());
   const [type, setType] = useState("$");
   const [discount, setDiscount] = useState(0);
   const [typeSelected, setTypeSelected] = useState("0");
@@ -61,10 +63,12 @@ const Discounts = ({ userID }) => {
       ClientID: userID,
       Discount: discount,
       IsPercentage: type === "%",
+      Temporality: temporality,
     }).then(() => {
       componentDidMount();
       setTypeSelected("0");
       setDiscount(0);
+      setTemporality(new Date());
     });
 
   const handleEditDiscount = () =>
@@ -74,11 +78,13 @@ const Discounts = ({ userID }) => {
         ClientID: userID,
         Discount: discount,
         IsPercentage: type === "%",
+        Temporality: temporality,
       },
       edit
     ).then(() => {
       componentDidMount();
       setTypeSelected("0");
+      setTemporality(new Date());
       setDiscount(0);
     });
 
@@ -134,9 +140,24 @@ const Discounts = ({ userID }) => {
               id="Discount"
               name="Discount"
               value={discount}
-              onChange={({ target: { value } }) => setDiscount(value)}
+              onChange={({ target: { value } }) =>
+                setDiscount(type === "$" ? value : value <= 100 ? value : 0)
+              }
             />
           </CInputGroup>
+        </CCol>
+        <CCol style={{ marginBottom: 8 }} xs="12" sm="3">
+          <CLabel htmlFor="FechCon">Fecha Expiracion</CLabel>
+          <CInput
+            id="expiration"
+            type="date"
+            placeholder=""
+            required
+            value={moment(temporality).format("YYYY-MM-DD")}
+            onChange={({ target: { value } }) =>
+              setTemporality(moment(value).toDate())
+            }
+          />
         </CCol>
         <CCol col="2">
           <CButton

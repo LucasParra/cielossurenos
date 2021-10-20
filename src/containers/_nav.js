@@ -47,6 +47,18 @@ const _nav = [
     icon: "cil-3d",
   },
   {
+    _tag: "CSidebarNavItem",
+    name: "Roles",
+    to: "/menu/roles",
+    icon: "cil-3d",
+  },
+  {
+    _tag: "CSidebarNavItem",
+    name: "Zonas",
+    to: "/menu/zones",
+    icon: "cil-3d",
+  },
+  {
     _tag: "CSidebarNavTitle",
     _children: ["Theme"],
   },

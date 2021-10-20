@@ -16,13 +16,15 @@ import {
 import { supabase } from "src/config/configSupabase";
 import _ from "lodash";
 import {
-  chargeAutomatic,
   chargeMount,
   createCharge,
   deleteCharge,
   updateCharge,
 } from "src/state/querys/Charges";
 import moment from "moment";
+
+import Select from "react-select";
+import { createTask } from "src/state/querys/Tasks";
 
 const fields = [
   "ID",
@@ -39,6 +41,7 @@ const Charges = ({ userID }) => {
   const [charges, setCharges] = useState([]);
   const [amount, setAmount] = useState(0);
   const [ispayment, setIspayment] = useState(false);
+  const [chargesSelected, setChargesSelected] = useState([]);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [edit, setEdit] = useState("");
@@ -66,11 +69,20 @@ const Charges = ({ userID }) => {
           ...charge,
         }))
       );
-      console.log(chargesApi);
       setLoading(false);
     });
   };
-  const handleAddCharge = () =>
+  const handleAddCharge = () => {
+    if (charges.filter(({ State }) => !State).length === 1) {
+      createTask({
+        TypeID: 4,
+        AssignedID: 12,
+        ClientID: userID,
+        StateID: 1,
+        Note: "desconectar a este usuario ya que paso a estado moroso",
+      });
+    }
+
     createCharge({
       Name: name,
       CreatedAt: moment().toDate(),
@@ -83,6 +95,7 @@ const Charges = ({ userID }) => {
       setName(0);
       setAmount(0);
     });
+  };
 
   const handleEditcharge = () =>
     updateCharge(
@@ -132,33 +145,59 @@ const Charges = ({ userID }) => {
         style={{ margin: 10, marginBottom: 20 }}
         className="align-items-center"
       >
-        <CCol col="2">
-          <CLabel htmlFor="amount">Monto</CLabel>
-          <div className="controls">
-            <CInputGroup className="input-prepend">
-              <CInputGroupPrepend>
-                <CInputGroupText>$</CInputGroupText>
-              </CInputGroupPrepend>
-              <CInput
-                id="amount"
-                size="16"
-                type="number"
-                onChange={({ target: { value } }) => setAmount(parseInt(value))}
-                value={amount}
-              />
-            </CInputGroup>
-          </div>
-        </CCol>
-        {!ispayment && (
+        {ispayment ? (
           <CCol col="2">
-            <CLabel htmlFor="name">Nombre</CLabel>
-            <CInput
-              id="name"
-              name="name"
-              value={name}
-              onChange={({ target: { value } }) => setName(value)}
+            <Select
+              isMulti
+              name="colors"
+              options={charges
+                .filter(({ State }) => !State)
+                .map((charge) => ({
+                  value: parseInt(charge.Charge),
+                  label: charge.nombre[0],
+                }))}
+              className="basic-multi-select"
+              classNamePrefix="select"
+              value={chargesSelected}
+              onChange={(selected) => {
+                setChargesSelected(selected);
+                selected.map(({ value }) =>
+                  setAmount(amount + parseInt(value))
+                );
+              }}
             />
           </CCol>
+        ) : (
+          <>
+            <CCol col="2">
+              <CLabel htmlFor="amount">Monto</CLabel>
+              <div className="controls">
+                <CInputGroup className="input-prepend">
+                  <CInputGroupPrepend>
+                    <CInputGroupText>$</CInputGroupText>
+                  </CInputGroupPrepend>
+                  <CInput
+                    id="amount"
+                    size="16"
+                    type="number"
+                    onChange={({ target: { value } }) =>
+                      setAmount(parseInt(value))
+                    }
+                    value={amount}
+                  />
+                </CInputGroup>
+              </div>
+            </CCol>
+            <CCol col="2">
+              <CLabel htmlFor="name">Nombre</CLabel>
+              <CInput
+                id="name"
+                name="name"
+                value={name}
+                onChange={({ target: { value } }) => setName(value)}
+              />
+            </CCol>
+          </>
         )}
         <CCol col="2" style={{ paddingTop: 30 }}>
           <CButton
@@ -168,7 +207,17 @@ const Charges = ({ userID }) => {
                 return chargeMount(userID, amount, componentDidMount).then(
                   () => {
                     setAmount(0);
+                    setChargesSelected([]);
                     componentDidMount();
+                    if (charges.filter(({ State }) => !State).length === 1) {
+                      createTask({
+                        TypeID: 5,
+                        AssignedID: 12,
+                        ClientID: userID,
+                        StateID: 1,
+                        Note: "Conectar a este usuario ",
+                      });
+                    }
                   }
                 );
 

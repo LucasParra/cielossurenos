@@ -15,24 +15,35 @@ import {
   CModalTitle,
   CRow,
   CSelect,
+  CTextarea,
 } from "@coreui/react";
 import React, { useEffect, useState } from "react";
 import { freeSet } from "@coreui/icons";
 import { supabase } from "src/config/configSupabase";
-import { createTask, getTypesTasks } from "src/state/querys/Tasks";
+import { createTask, getTypesTasks, updateTask } from "src/state/querys/Tasks";
 import TechniciansTable from "src/components/Tables/TechniciansTable";
 import ClientsTable from "src/components/Tables/ClientsTables";
 import { getChargeUserID } from "src/state/querys/Charges";
+import _ from "lodash";
 
 const fields = [
   "ID",
   "tipo",
   "AssignedID",
-  "expiracion",
+  "Agendada",
   "estado",
   "cliente",
+  "editar",
   "aprobar",
 ];
+
+const initTask = {
+  TypeID: "",
+  AssignedID: "",
+  ClientID: "",
+  StateID: 1,
+  Note: "",
+};
 
 const TaskPending = () => {
   const [loading, setLoading] = useState(false);
@@ -41,12 +52,7 @@ const TaskPending = () => {
   const [modalClient, setModalClient] = useState(false);
   const [details, setDetails] = useState([]);
   const [taskSelected, setTaskSelected] = useState({});
-  const [taskForm, setTaskForm] = useState({
-    TypeID: "",
-    AssignedID: "",
-    ClientID: "",
-    StateID: 1,
-  });
+  const [taskForm, setTaskForm] = useState(initTask);
   const [types, setTypes] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [createTaskVisible, setCreateTaskVisible] = useState(false);
@@ -60,17 +66,20 @@ const TaskPending = () => {
     setLoading(true);
     supabase
       .from("Task")
-      .select("*,TypeID(Name),ClientID(*)")
+      .select("*,TypeID(Name,ID),ClientID(*)")
       .limit(limit * 5 + 1)
       .order("ID", { ascending: true })
       .eq("StateID", 1)
       .then((snapshot) => {
         setTasks(
-          snapshot.data.map((task) => ({
-            ...task,
-            tipo: task.TypeID.Name,
-            expiracion: task.DeadLine,
-          }))
+          _.groupBy(
+            snapshot.data.map((task) => ({
+              ...task,
+              tipo: task.TypeID.Name,
+              Agendada: task.DeadLine,
+            })),
+            "Agendada"
+          )
         );
         setLoading(false);
       })
@@ -129,10 +138,11 @@ const TaskPending = () => {
         >
           Crear Tarea
         </CButton>
+
         <CCol xs="12" lg="12">
           <CCollapse show={createTaskVisible}>
             <CRow>
-              <CCol xs="3" lg="3">
+              <CCol xs="2" lg="2">
                 <h4>Tipo</h4>
                 <CSelect
                   custom
@@ -140,6 +150,7 @@ const TaskPending = () => {
                   name="DiscountType"
                   id="DiscountType"
                   value={taskForm.TypeID}
+                  defaultValue={taskForm.TypeID}
                   onChange={({ target: { value } }) =>
                     setTaskForm({ ...taskForm, TypeID: parseInt(value) })
                   }
@@ -152,8 +163,8 @@ const TaskPending = () => {
                   ))}
                 </CSelect>
               </CCol>
-              <CCol xs="3" lg="3">
-                <h4>Tecnico Encargado</h4>
+              <CCol xs="2" lg="">
+                <h4>Tecnico</h4>
                 <CButton
                   color="info"
                   onClick={() => setModalTechnicians(true)}
@@ -162,8 +173,8 @@ const TaskPending = () => {
                   Tecnico
                 </CButton>
               </CCol>
-              <CCol xs="3" lg="3">
-                <h4>Usuario asignado</h4>
+              <CCol xs="2" lg="1">
+                <h4>Usuario </h4>
                 <CButton
                   color="info"
                   onClick={() => setModalClient(true)}
@@ -172,82 +183,108 @@ const TaskPending = () => {
                   Cliente
                 </CButton>
               </CCol>
-              <CCol xs="3" lg="3" style={{ paddingTop: 10 }}>
+              <CCol xs="3" lg="3" style={{ marginBottom: 10 }}>
+                <h4>Nota (Opcional)</h4>
+                <CTextarea
+                  id="name"
+                  value={taskForm.Note}
+                  onChange={({ target: { value } }) =>
+                    setTaskForm({ ...taskForm, Note: value })
+                  }
+                />
+              </CCol>
+              <CCol xs="2" lg="2" style={{ paddingTop: 10 }}>
                 <CButton
                   color="success"
-                  onClick={() =>
-                    createTask(taskForm).then(() => {
-                      setTaskForm({
-                        TypeID: "",
-                        AssignedID: "",
-                        ClientID: "",
-                        StateID: 1,
-                      });
-                      componentDidMount();
-                    })
-                  }
+                  onClick={() => {
+                    taskForm?.ID
+                      ? updateTask(taskForm).then(() => {
+                          setTaskForm(initTask);
+                          componentDidMount();
+                        })
+                      : createTask(taskForm).then(() => {
+                          setTaskForm(initTask);
+                          componentDidMount();
+                        });
+                  }}
                   style={{ marginBottom: 10 }}
                 >
-                  Crear
+                  {taskForm?.ID ? "Editar" : "Crear"}
                 </CButton>
+              </CCol>
+              <CCol xs="2" lg="2" style={{ paddingTop: 10 }}>
+                {taskForm?.ID && (
+                  <CButton
+                    color="danger"
+                    onClick={() => {
+                      setTaskForm(initTask);
+                      componentDidMount();
+                    }}
+                    style={{ marginBottom: 10 }}
+                  >
+                    Cancelar Ediccion
+                  </CButton>
+                )}
               </CCol>
             </CRow>
           </CCollapse>
         </CCol>
       </CRow>
       <CRow>
-        <CCol xs="12" lg="12">
-          <CCard>
-            <CCardHeader>Tareas Pendiente Aprobacion</CCardHeader>
-            <CCardBody>
-              <CDataTable
-                items={tasks}
-                fields={fields}
-                itemsPerPage={5}
-                onPageChange={componentDidMount}
-                loading={loading}
-                pagination
-                scopedSlots={{
-                  cliente: (item, index) => (
-                    <td className="py-2">
-                      <CButton
-                        color={!details.includes(index) ? "info" : "secondary"}
-                        onClick={() => toggleDetails(index)}
-                      >
-                        <CIcon content={freeSet.cilUser} size="xl" />
-                      </CButton>
-                    </td>
-                  ),
-                  estado: (item) => (
-                    <td>
-                      <CBadge color={getBadge(item.StateID)}>
-                        Pendiente...
-                      </CBadge>
-                    </td>
-                  ),
-                  aprobar: (item) => (
-                    <td className="py-2">
-                      <CRow className="align-items-center">
-                        <CCol
-                          col="2"
-                          xs="2"
-                          sm="2"
-                          md="2"
-                          className="mb-2 mb-xl-0"
+        {Object.keys(tasks).map((date) => (
+          <CCol xs="12" lg="6" key={date}>
+            <CCard>
+              <CCardHeader>Tareas Pendiente : {date}</CCardHeader>
+              <CCardBody>
+                <CDataTable
+                  items={tasks[date]}
+                  fields={fields}
+                  itemsPerPage={5}
+                  onPageChange={componentDidMount}
+                  loading={loading}
+                  pagination
+                  scopedSlots={{
+                    cliente: (item, index) => (
+                      <td className="py-2">
+                        <CButton
+                          color={
+                            !details.includes(index) ? "info" : "secondary"
+                          }
+                          onClick={() => toggleDetails(item.ID)}
                         >
-                          <CButton
-                            color="success"
-                            onClick={() =>
-                              changeStateTask({
-                                ID: item.ID,
-                                StateID: 3,
-                              })
-                            }
-                          >
-                            <CIcon content={freeSet.cilCheck} size="xl" />
-                          </CButton>
-                        </CCol>
-                        {admin && (
+                          <CIcon content={freeSet.cilUser} size="xl" />
+                        </CButton>
+                      </td>
+                    ),
+                    editar: (item) => (
+                      <td className="py-2">
+                        <CButton
+                          color="info"
+                          onClick={() => {
+                            setTaskForm({
+                              ID: item.ID,
+                              TypeID: item.TypeID.ID,
+                              AssignedID: item.AssignedID,
+                              ClientID: item.ClientID.ID,
+                              StateID: item.StateID,
+                              Note: item.Note ? item.Note : "",
+                            });
+                          }}
+                        >
+                          <CIcon content={freeSet.cilPencil} size="xl" />
+                        </CButton>
+                      </td>
+                    ),
+                    estado: (item) => (
+                      <td>
+                        <CBadge color={getBadge(item.StateID)}>
+                          Pendiente...
+                        </CBadge>
+                      </td>
+                    ),
+                    aprobar: (item) => (
+                      <td className="py-2">
+                        <CRow className="align-items-center">
                           <CCol
                             col="2"
                             xs="2"
@@ -256,35 +293,64 @@ const TaskPending = () => {
                             className="mb-2 mb-xl-0"
                           >
                             <CButton
-                              color="danger"
-                              onClick={() => {
-                                setDeleteModal(true);
-                                setTaskSelected(item);
-                              }}
+                              color="success"
+                              onClick={() =>
+                                changeStateTask({
+                                  ID: item.ID,
+                                  StateID: 3,
+                                })
+                              }
                             >
-                              <CIcon content={freeSet.cilTrash} size="xl" />
+                              <CIcon content={freeSet.cilCheck} size="xl" />
                             </CButton>
                           </CCol>
-                        )}
-                      </CRow>
-                    </td>
-                  ),
-                  details: (item, index) => (
-                    <CCollapse show={details.includes(index)}>
-                      <CCardBody>
-                        <h4>
-                          {`Nombre: ${item.ClientID.Names} ${item.ClientID.LastName}`}
-                        </h4>
-                        <h4>{`Rut: ${item.ClientID.Rut}`}</h4>
-                        <h4>{`Contacto:${item.ClientID.PhoneNumber}`}</h4>
-                      </CCardBody>
-                    </CCollapse>
-                  ),
-                }}
-              />
-            </CCardBody>
-          </CCard>
-        </CCol>
+                          {admin && (
+                            <CCol
+                              col="2"
+                              xs="2"
+                              sm="2"
+                              md="2"
+                              className="mb-2 mb-xl-0"
+                            >
+                              <CButton
+                                color="danger"
+                                onClick={() => {
+                                  setDeleteModal(true);
+                                  setTaskSelected(item);
+                                }}
+                              >
+                                <CIcon content={freeSet.cilTrash} size="xl" />
+                              </CButton>
+                            </CCol>
+                          )}
+                        </CRow>
+                      </td>
+                    ),
+                    details: (item) => (
+                      <CCollapse show={details.includes(item.ID)}>
+                        <CCardBody>
+                          <CRow>
+                            <CCol lg="6">
+                              <h4>
+                                {`Nombre: ${item.ClientID.Names} ${item.ClientID.LastName}`}
+                              </h4>
+                              <h4>{`Rut: ${item.ClientID.Rut}`}</h4>
+                              <h4>{`Contacto:${item.ClientID.PhoneNumber}`}</h4>
+                            </CCol>
+                            <CCol lg="6">
+                              <h4>{`Nota`}</h4>
+                              <h5>{item.Note}</h5>
+                            </CCol>
+                          </CRow>
+                        </CCardBody>
+                      </CCollapse>
+                    ),
+                  }}
+                />
+              </CCardBody>
+            </CCard>
+          </CCol>
+        ))}
       </CRow>
       <CModal
         show={deleteModal}
@@ -313,7 +379,6 @@ const TaskPending = () => {
           </CButton>
         </CModalFooter>
       </CModal>
-
       {/* modal technicians */}
       <CModal
         show={modalTechnicians}

@@ -28,6 +28,7 @@ import Discounts from "./Discounts";
 import Charges from "./Charges";
 import { useHistory } from "react-router";
 import { chargeAutomatic } from "src/state/querys/Charges";
+import { clean, format, getCheckDigit } from "rut.js";
 
 const fields = [
   "ID",
@@ -83,13 +84,14 @@ const Tables = () => {
   const handleSearchUser = (value, limit = 1) => {
     setSearchText(value);
     if (value === undefined || value === "") return componentDidMount();
-
     setLoading(true);
     supabase
       .from("User")
       .select("*")
       .or(
-        `Names.ilike.%${value}%,LastName.ilike.%${value}%,Rut.ilike.%${value}%`
+        `Names.ilike.%${value}%,LastName.ilike.%${value}%,Rut.ilike.%${format(
+          value
+        ).replace(/\./g, "")}%`
       )
       .limit(limit * 5 + 1)
       .then((snapshot) => {
@@ -130,8 +132,22 @@ const Tables = () => {
         return "success";
       case "2":
         return "danger";
-      default:
+      case "3":
         return "info";
+      default:
+        return "default";
+    }
+  };
+  const getStateName = (StateID) => {
+    switch (StateID) {
+      case "1":
+        return "Activado";
+      case "2":
+        return "De Baja";
+      case "3":
+        return "Moroso";
+      default:
+        return "Indefinido";
     }
   };
 
@@ -249,11 +265,7 @@ const Tables = () => {
                     estado: (item) => (
                       <td>
                         <CBadge color={getBadge(item.StateID)}>
-                          {item.StateID === "1"
-                            ? "Activado"
-                            : item.StateID === "2"
-                            ? "De baja"
-                            : "Indefinido"}
+                          {getStateName(item.StateID)}
                         </CBadge>
                       </td>
                     ),

@@ -35,7 +35,7 @@ import {
   getAddressByUserID,
   updateAddress,
 } from "src/state/querys/Address";
-import { clean, format } from "rut.js";
+import { clean, format, validate } from "rut.js";
 import { getProductByIDUser } from "src/state/querys/Product";
 import { createTask } from "src/state/querys/Tasks";
 import OfficesTable from "../Tables/OfficesTable";
@@ -44,6 +44,8 @@ import {
   getOfficesToUserID,
   updateOfficeToClient,
 } from "src/state/querys/Office";
+import Zones from "src/views/base/tables/Zones";
+import { createZone, getZones } from "src/state/querys/Zones";
 
 const initUser = {
   Names: "",
@@ -69,6 +71,7 @@ const initUser = {
   BajaTec: new Date(),
   A_FE_REPAC: new Date(),
   Conections: 0,
+  Birthday: new Date(),
 };
 const initAddress = [
   {
@@ -84,10 +87,12 @@ const initAddress = [
 const UserForm = ({ user, onClose }) => {
   const [formUser, setFormUser] = useState(initUser);
   const [formsAddress, setFormsAddress] = useState(initAddress);
+  const [newZone, setNewZone] = useState("");
   const [formsProducts, setFormsProducts] = useState([]);
   const [modalProduct, setModalProduct] = useState(false);
   const [validated, setValidated] = useState(false);
   const [modalTechnicians, setModalTechnicians] = useState(false);
+  const [zones, setZones] = useState([]);
   const [modalOffice, setModalOffice] = useState(false);
   const [officeID, setOfficeID] = useState("");
   const [validatedRut, setValidatedRut] = useState(false);
@@ -182,7 +187,9 @@ const UserForm = ({ user, onClose }) => {
       });
     return null;
   };
+  const handleGetZones = () => getZones().then(setZones);
   const userEffect = () => {
+    handleGetZones();
     if (!user.Names) {
       setFormsProducts([]);
       setFormsAddress(initAddress);
@@ -194,6 +201,7 @@ const UserForm = ({ user, onClose }) => {
         ? setFormsAddress(initAddress)
         : setFormsAddress(address.map(({ Address }) => ({ ...Address })))
     );
+
     getProductByIDUser(user.ID).then((products) =>
       setFormsProducts(
         products.map(({ ID, Name, BasePrice }) => ({
@@ -248,33 +256,38 @@ const UserForm = ({ user, onClose }) => {
                       style={{ color: validatedRut ? "red" : "#000" }}
                     >
                       {validatedRut
-                        ? "Este rut ya existe en la base de datos"
+                        ? validate(format(formUser.Rut))
+                          ? "Este rut ya existe en la base de datos"
+                          : "rut invalido"
                         : "Rut"}
                     </CLabel>
                     <CInput
                       id="Rut"
                       value={format(formUser.Rut)}
-                      onBlur={() =>
-                        !user.Names &&
-                        getUserByRut(
-                          `${clean(formUser.Rut).substr(
-                            0,
-                            clean(formUser.Rut).length - 1
-                          )}-${clean(formUser.Rut).substr(
-                            clean(formUser.Rut).substr(
-                              0,
-                              clean(formUser.Rut).length - 1
-                            ).length,
-                            clean(formUser.Rut).length - 1
-                          )}`
-                        ).then((response) =>
-                          setValidatedRut(response.length > 0)
-                        )
+                      onBlur={({ target: { value } }) =>
+                        !user.Names && !validate(value)
+                          ? setValidatedRut(true)
+                          : getUserByRut(
+                              `${clean(formUser.Rut).substr(
+                                0,
+                                clean(formUser.Rut).length - 1
+                              )}-${clean(formUser.Rut).substr(
+                                clean(formUser.Rut).substr(
+                                  0,
+                                  clean(formUser.Rut).length - 1
+                                ).length,
+                                clean(formUser.Rut).length - 1
+                              )}`
+                            ).then((response) =>
+                              setValidatedRut(response.length > 0)
+                            )
                       }
                       placeholder=" Ejemplo:18.123.678-3"
                       required
                       maxLength={12}
                       onChange={({ target: { value } }) => {
+                        if (value === "") setValidatedRut(false);
+
                         setFormUser({ ...formUser, Rut: value });
                       }}
                     />
@@ -354,7 +367,7 @@ const UserForm = ({ user, onClose }) => {
                       }}
                     />
                   </CCol>
-                  <CCol style={{ marginBottom: 8 }} xs="12" sm="4">
+                  <CCol style={{ marginBottom: 8 }} xs="12" sm="3">
                     <CLabel htmlFor="FechCon">Fecha Contratacion</CLabel>
                     <CInput
                       id="FechCon"
@@ -366,6 +379,22 @@ const UserForm = ({ user, onClose }) => {
                         setFormUser({
                           ...formUser,
                           FechCon: moment(value).toDate(),
+                        })
+                      }
+                    />
+                  </CCol>
+                  <CCol style={{ marginBottom: 8 }} xs="12" sm="3">
+                    <CLabel htmlFor="FechCon">Fecha de nacimiento</CLabel>
+                    <CInput
+                      id="FechCon"
+                      type="date"
+                      placeholder=""
+                      required
+                      value={moment(formUser.Birthday).format("YYYY-MM-DD")}
+                      onChange={({ target: { value } }) =>
+                        setFormUser({
+                          ...formUser,
+                          Birthday: moment(value).toDate(),
                         })
                       }
                     />
@@ -398,10 +427,10 @@ const UserForm = ({ user, onClose }) => {
                 {formsAddress.map((data, index) => (
                   <CRow>
                     <CCol style={{ marginBottom: 8 }} xs="12" sm="9">
-                      <h3>direccion {index + 1} : </h3>
+                      <h3>direccion {index === 0 ? "" : index + 1} : </h3>
                     </CCol>
                     <CCol style={{ marginBottom: 8 }} xs="12" sm="9">
-                      <CLabel htmlFor="AddressName">AddressName</CLabel>
+                      <CLabel htmlFor="AddressName">Direccion</CLabel>
                       <CInput
                         id="AddressName"
                         placeholder=""
@@ -415,7 +444,7 @@ const UserForm = ({ user, onClose }) => {
                       />
                     </CCol>
                     <CCol style={{ marginBottom: 8 }} xs="12" sm="3">
-                      <CLabel htmlFor="AddressNumber">AddressNumber</CLabel>
+                      <CLabel htmlFor="AddressNumber">Numero</CLabel>
                       <CInput
                         id="AddressNumber"
                         placeholder="0"
@@ -430,7 +459,7 @@ const UserForm = ({ user, onClose }) => {
                     </CCol>
                     <CCol style={{ marginBottom: 8 }} xs="12" sm="4">
                       <CLabel htmlFor="AddressBlockNumber">
-                        AddressBlockNumber
+                        Numero de Block
                       </CLabel>
                       <CInput
                         id="AddressBlockNumber"
@@ -446,7 +475,7 @@ const UserForm = ({ user, onClose }) => {
                     </CCol>
                     <CCol style={{ marginBottom: 8 }} xs="12" sm="4">
                       <CLabel htmlFor="AddressFloorNumber">
-                        AddressFloorNumber
+                        Numero de piso
                       </CLabel>
                       <CInput
                         id="AddressFloorNumber"
@@ -462,7 +491,7 @@ const UserForm = ({ user, onClose }) => {
                     </CCol>
                     <CCol style={{ marginBottom: 8 }} xs="12" sm="4">
                       <CLabel htmlFor="AddressApartmentNumber">
-                        AddressApartmentNumber
+                        Numero de departamento
                       </CLabel>
                       <CInput
                         id="AddressApartmentNumber"
@@ -477,19 +506,49 @@ const UserForm = ({ user, onClose }) => {
                       />
                     </CCol>
                     <CCol style={{ marginBottom: 8 }} xs="12" sm="12">
-                      <CLabel htmlFor="zone">Zona Horaria</CLabel>
-                      <CSelect custom name="zone" id="zone">
+                      <CLabel htmlFor="zone">
+                        Crear una nueva zona (opcional)
+                      </CLabel>
+                      <CInput
+                        id="zone"
+                        placeholder="Escribe una nueva zona"
+                        value={newZone}
+                        required
+                        onChange={({ target: { value } }) => setNewZone(value)}
+                        style={{ marginBottom: 8 }}
+                      />
+                      <CButton
+                        variant="outline"
+                        color="success"
+                        onClick={() =>
+                          createZone({ Name: newZone }).then(() => {
+                            setNewZone("");
+                            handleGetZones();
+                          })
+                        }
+                        style={{ marginBottom: 8 }}
+                      >
+                        Crear Zona
+                      </CButton>
+                      <br />
+                      <CLabel htmlFor="zone">Selecciona la Zona</CLabel>
+                      <CSelect
+                        custom
+                        name="zone"
+                        id="zone"
+                        value={data.AddressZoneID}
+                        onChange={({ target: { value } }) => {
+                          const newAddress = [..._.clone(formsAddress)];
+                          newAddress[index].AddressZoneID = value;
+                          setFormsAddress(newAddress);
+                        }}
+                      >
                         <option value="0">Selecciona Zona o Localidad</option>
-                        <option value="1">Zone 1</option>
-                        <option value="2">Zone 2</option>
-                        <option value="3">Zone 3</option>
-                        <option value="4">Zone 4</option>
-                        <option value="5">Zone 5</option>
-                        <option value="6">Zone 6</option>
-                        <option value="7">Zone 7</option>
-                        <option value="8">Zone 8</option>
-                        <option value="9">Zone 9</option>
-                        <option value="10">Zone 10</option>
+                        {zones.map((zone) => (
+                          <option
+                            value={zone.ID}
+                          >{`Zona ${zone.ID} | ${zone.Name}`}</option>
+                        ))}
                       </CSelect>
                     </CCol>
                     {formsAddress.length === index + 1 && (

@@ -21,4 +21,7 @@ const getTaskByUserID = (UserID) =>
     .then((snapshot) => snapshot.data)
     .catch(console.error);
 
-export { createTask, getTypesTasks, getTaskByUserID };
+const updateTask = (updateTask) =>
+  supabase.from("Task").update(updateTask).eq("ID", updateTask.ID);
+
+export { createTask, getTypesTasks, getTaskByUserID, updateTask };

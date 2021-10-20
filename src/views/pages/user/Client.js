@@ -35,6 +35,7 @@ const Client = () => {
     ).then((response) => {
       setUser(response[0]);
       const userID = response[0]?.ID;
+      console.log("id del usuario es :", userID);
 
       if (!userID) return null;
       Promise.all([
