@@ -296,7 +296,7 @@ const Forms = () => {
                 {formsAddress.map((data, index) => (
                   <CRow>
                     <CCol style={{ marginBottom: 8 }} xs="12" sm="9">
-                      <h3>direccion {index + 1} : </h3>
+                      <h3>Direccion {index + 1} : </h3>
                     </CCol>
                     <CCol style={{ marginBottom: 8 }} xs="12" sm="9">
                       <CLabel htmlFor="AddressName">AddressName</CLabel>
@@ -390,50 +390,6 @@ const Forms = () => {
                         <option value="10">Zone 10</option>
                       </CSelect>
                     </CCol>
-                    {formsAddress.length === index + 1 && (
-                      <>
-                        <CCol xs="12" sm="2">
-                          <CButton
-                            variant="outline"
-                            color="success"
-                            onClick={() =>
-                              setFormsAddress([
-                                ...formsAddress,
-                                {
-                                  AddressName: "",
-                                  AddressNumber: 0,
-                                  AddressBlockNumber: 0,
-                                  AddressFloorNumber: 0,
-                                  AddressApartmentNumber: 0,
-                                  AddressZoneID: 0,
-                                  AddressArea: "",
-                                },
-                              ])
-                            }
-                          >
-                            Añadir
-                          </CButton>
-                        </CCol>
-                        <CCol xs="12" sm="2">
-                          {formsAddress.length !== 1 && (
-                            <CButton
-                              variant="outline"
-                              color="danger"
-                              onClick={() =>
-                                setFormsAddress(
-                                  formsAddress.filter(
-                                    (address, indexAddres) =>
-                                      indexAddres !== index
-                                  )
-                                )
-                              }
-                            >
-                              Eliminar
-                            </CButton>
-                          )}
-                        </CCol>
-                      </>
-                    )}
                   </CRow>
                 ))}
               </CCardBody>

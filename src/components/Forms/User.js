@@ -521,6 +521,7 @@ const UserForm = ({ user, onClose }) => {
                         variant="outline"
                         color="success"
                         onClick={() =>
+                          newZone !== "" &&
                           createZone({ Name: newZone }).then(() => {
                             setNewZone("");
                             handleGetZones();

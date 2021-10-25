@@ -22,7 +22,7 @@ const fields = [
   "ID",
   "tipo",
   "AssignedID",
-  "Agendada",
+  "fecha_agendada",
   "estado",
   "cliente",
   "cambiar_estado",
@@ -42,18 +42,17 @@ const Tasks = () => {
     supabase
       .from("Task")
       .select("*,TypeID(Name),ClientID(*)")
-      .limit(limit * 5 + 1)
       .order("ID", { ascending: true })
-      .match({ StateID: 3 })
+      .or("StateID.eq.2,StateID.eq.3")
       .then((snapshot) => {
         setTasks(
           _.groupBy(
             snapshot.data.map((task) => ({
               ...task,
               tipo: task.TypeID.Name,
-              Agendada: task.DeadLine,
+              fecha_agendada: task.DeadLine,
             })),
-            "Agendada"
+            "fecha_agendada"
           )
         );
         setLoading(false);
@@ -107,7 +106,7 @@ const Tasks = () => {
     <>
       <CRow>
         {Object.keys(tasks).map((date) => (
-          <CCol xs="12" lg="6" key={date}>
+          <CCol xs="12" lg="12" key={date}>
             <CCard>
               <CCardHeader>Tareas: {date}</CCardHeader>
               <CCardBody>

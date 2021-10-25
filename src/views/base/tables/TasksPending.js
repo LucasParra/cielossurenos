@@ -30,7 +30,7 @@ const fields = [
   "ID",
   "tipo",
   "AssignedID",
-  "Agendada",
+  "fecha_agendada",
   "estado",
   "cliente",
   "editar",
@@ -67,18 +67,27 @@ const TaskPending = () => {
     supabase
       .from("Task")
       .select("*,TypeID(Name,ID),ClientID(*)")
-      .limit(limit * 5 + 1)
       .order("ID", { ascending: true })
       .eq("StateID", 1)
       .then((snapshot) => {
+        console.log(
+          _.groupBy(
+            snapshot.data.map((task) => ({
+              ...task,
+              tipo: task.TypeID.Name,
+              fecha_agendada: task.DeadLine,
+            })),
+            "fecha_agendada"
+          )
+        );
         setTasks(
           _.groupBy(
             snapshot.data.map((task) => ({
               ...task,
               tipo: task.TypeID.Name,
-              Agendada: task.DeadLine,
+              fecha_agendada: task.DeadLine,
             })),
-            "Agendada"
+            "fecha_agendada"
           )
         );
         setLoading(false);
@@ -232,7 +241,7 @@ const TaskPending = () => {
       </CRow>
       <CRow>
         {Object.keys(tasks).map((date) => (
-          <CCol xs="12" lg="6" key={date}>
+          <CCol xs="12" lg="12" key={date}>
             <CCard>
               <CCardHeader>Tareas Pendiente : {date}</CCardHeader>
               <CCardBody>

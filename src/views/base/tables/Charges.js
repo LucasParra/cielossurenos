@@ -18,7 +18,9 @@ import _ from "lodash";
 import {
   chargeMount,
   createCharge,
+  createPay,
   deleteCharge,
+  getTypeCharge,
   updateCharge,
 } from "src/state/querys/Charges";
 import moment from "moment";
@@ -42,6 +44,8 @@ const Charges = ({ userID }) => {
   const [amount, setAmount] = useState(0);
   const [ispayment, setIspayment] = useState(false);
   const [chargesSelected, setChargesSelected] = useState([]);
+  const [chargesTypes, setChargesTypes] = useState([]);
+  const [chargesTypeSelected, setChargesTypeSelected] = useState({});
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [edit, setEdit] = useState("");
@@ -50,17 +54,20 @@ const Charges = ({ userID }) => {
     Promise.all([
       supabase
         .from("Charge")
-        .select("*")
+        .select("*,ChargeTypeID(*)")
         .eq("ClientID", userID)
         .limit(limit * 5 + 1)
         .order("CreatedAt", { ascending: true })
         .then((snapshot) => snapshot.data),
+      getTypeCharge(),
     ]).then((response) => {
       const chargesApi = response[0];
+      const chargesTypeApi = response[1];
+      setChargesTypes(chargesTypeApi);
       setCharges(
         chargesApi.map((charge) => ({
           ID: charge.ID,
-          nombre: _.split(charge.Name, "|", 1),
+          nombre: charge.ChargeTypeID?.Name ? charge.ChargeTypeID?.Name : "",
           cargo: new Intl.NumberFormat("es-CL", {
             currency: "CLP",
             style: "currency",
@@ -84,7 +91,7 @@ const Charges = ({ userID }) => {
     }
 
     createCharge({
-      Name: name,
+      ChargeTypeID: chargesTypeSelected.ID,
       CreatedAt: moment().toDate(),
       Charge: amount,
       ClientID: userID,
@@ -92,6 +99,7 @@ const Charges = ({ userID }) => {
       Remaining: 0,
     }).then(() => {
       componentDidMount();
+      setChargesTypeSelected({});
       setName(0);
       setAmount(0);
     });
@@ -100,6 +108,7 @@ const Charges = ({ userID }) => {
   const handleEditcharge = () =>
     updateCharge(
       {
+        ChargeTypeID: chargesTypeSelected.ID,
         Name: name,
         Charge: amount,
         ClientID: userID,
@@ -108,6 +117,7 @@ const Charges = ({ userID }) => {
     ).then(() => {
       componentDidMount();
       setName(0);
+      setChargesTypeSelected({});
       setAmount(0);
       setEdit("");
     });
@@ -120,7 +130,6 @@ const Charges = ({ userID }) => {
           <CButton
             color="danger"
             onClick={() => {
-              setEdit(false);
               setAmount(0);
               setName("");
               setIspayment(false);
@@ -155,6 +164,7 @@ const Charges = ({ userID }) => {
                 .map((charge) => ({
                   value: parseInt(charge.Charge),
                   label: charge.nombre[0],
+                  ID: charge.ID,
                 }))}
               className="basic-multi-select"
               classNamePrefix="select"
@@ -189,12 +199,20 @@ const Charges = ({ userID }) => {
               </div>
             </CCol>
             <CCol col="2">
-              <CLabel htmlFor="name">Nombre</CLabel>
-              <CInput
-                id="name"
-                name="name"
-                value={name}
-                onChange={({ target: { value } }) => setName(value)}
+              <CLabel htmlFor="amount">Tipo</CLabel>
+              <Select
+                name="colors"
+                options={chargesTypes.map((charge) => ({
+                  value: charge.ID,
+                  label: charge.Name,
+                  ID: charge.ID,
+                }))}
+                className="basic-multi-select"
+                classNamePrefix="select"
+                value={chargesTypeSelected}
+                onChange={(selected) => {
+                  setChargesTypeSelected(selected);
+                }}
               />
             </CCol>
           </>
@@ -203,23 +221,25 @@ const Charges = ({ userID }) => {
           <CButton
             color={"success"}
             onClick={() => {
-              if (ispayment)
-                return chargeMount(userID, amount, componentDidMount).then(
-                  () => {
-                    setAmount(0);
-                    setChargesSelected([]);
-                    componentDidMount();
-                    if (charges.filter(({ State }) => !State).length === 1) {
-                      createTask({
-                        TypeID: 5,
-                        AssignedID: 12,
-                        ClientID: userID,
-                        StateID: 1,
-                        Note: "Conectar a este usuario ",
-                      });
-                    }
+              if (ispayment) {
+                return Promise.all([
+                  chargesSelected.map(({ ID }) => createPay(ID)),
+                ]).then(() => {
+                  setAmount(0);
+                  setChargesSelected([]);
+                  componentDidMount();
+
+                  if (charges.filter(({ State }) => !State).length === 1) {
+                    createTask({
+                      TypeID: 5,
+                      AssignedID: 12,
+                      ClientID: userID,
+                      StateID: 1,
+                      Note: "Conectar a este usuario ",
+                    });
                   }
-                );
+                });
+              }
 
               if (edit === "") {
                 handleAddCharge();
@@ -296,6 +316,7 @@ const Charges = ({ userID }) => {
                 }).format(item.Remaining)}
               </td>
             ),
+
             editar: (item) => (
               <td className="py-2">
                 <CRow className="align-items-center">
@@ -303,6 +324,12 @@ const Charges = ({ userID }) => {
                     <CButton
                       color="info"
                       onClick={() => {
+                        if (item.ChargeTypeID?.ID)
+                          setChargesTypeSelected({
+                            ...item.ChargeTypeID,
+                            label: item.ChargeTypeID.Name,
+                          });
+
                         setIspayment(false);
                         setName(item.nombre);
                         setAmount(parseInt(item.Charge));

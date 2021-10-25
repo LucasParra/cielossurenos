@@ -146,19 +146,21 @@ const Discounts = ({ userID }) => {
             />
           </CInputGroup>
         </CCol>
-        <CCol style={{ marginBottom: 8 }} xs="12" sm="3">
-          <CLabel htmlFor="FechCon">Fecha Expiracion</CLabel>
-          <CInput
-            id="expiration"
-            type="date"
-            placeholder=""
-            required
-            value={moment(temporality).format("YYYY-MM-DD")}
-            onChange={({ target: { value } }) =>
-              setTemporality(moment(value).toDate())
-            }
-          />
-        </CCol>
+        {typeSelected === "1" && (
+          <CCol style={{ marginBottom: 8 }} xs="12" sm="3">
+            <CLabel htmlFor="FechCon">Fecha Expiracion</CLabel>
+            <CInput
+              id="expiration"
+              type="date"
+              placeholder=""
+              required
+              value={moment(temporality).format("YYYY-MM-DD")}
+              onChange={({ target: { value } }) =>
+                setTemporality(moment(value).toDate())
+              }
+            />
+          </CCol>
+        )}
         <CCol col="2">
           <CButton
             color={"success"}

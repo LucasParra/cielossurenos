@@ -10,6 +10,7 @@ const Products = React.lazy(() => import("./views/base/tables/Products"));
 const Tasks = React.lazy(() => import("./views/base/tables/Tasks"));
 const Rol = React.lazy(() => import("./views/base/tables/Rol"));
 const Zones = React.lazy(() => import("./views/base/tables/Zones"));
+const ChargesPay = React.lazy(() => import("./views/base/tables/ChargesPay"));
 const TaskPending = React.lazy(() =>
   import("./views/base/tables/TasksPending")
 );
@@ -78,6 +79,7 @@ const routes = [
   { path: "/menu/usuarios", name: "Usuarios", component: Tables },
   { path: "/menu/tareas", name: "tareas", component: Tasks },
   { path: "/menu/roles", name: "roles", component: Rol },
+  { path: "/menu/charges", name: "zonas", component: ChargesPay },
   { path: "/menu/zones", name: "zonas", component: Zones },
   {
     path: "/menu/pendientes",

@@ -23,38 +23,6 @@ const updateCharge = (chargesData, ID) =>
     .then((snapshot) => snapshot.data)
     .catch(console.error);
 
-const chargeMount = (userID, mount, refresh) =>
-  supabase
-    .from("Charge")
-    .select("*")
-    .eq("ClientID", userID)
-    .eq("State", false)
-    .order("CreatedAt", { ascending: true })
-    .then((snapshot) => {
-      let rest = mount;
-      return snapshot.data.map((charge, index) => {
-        if (rest === 0) return null;
-
-        const result =
-          parseInt(charge.Remaining > 0 ? charge.Remaining : charge.Charge) -
-          rest;
-
-        rest = result;
-
-        if (rest <= 0) {
-          rest = 0;
-          return updateCharge(
-            { ...charge, State: true, Remaining: rest },
-            charge.ID
-          ).then(refresh);
-        }
-        return updateCharge(
-          { ...charge, State: false, Remaining: rest },
-          charge.ID
-        ).then(() => (index + 1 === snapshot.data.length ? refresh() : null));
-      });
-    });
-
 const chargeAutomatic = () =>
   supabase
     .from("User")
@@ -106,12 +74,39 @@ const getAllChargeUserID = (UserID) =>
     .order("CreatedAt", { ascending: true })
     .then((snapshot) => snapshot.data);
 
+const createPay = (IDCharge) =>
+  supabase
+    .from("Charge")
+    .update({ State: true })
+    .eq("ID", IDCharge)
+    .then((snapshot) => snapshot.data);
+
+const createTypeCharge = (dataCharge) =>
+  supabase
+    .from("ChargeType")
+    .insert(dataCharge)
+    .then((snapshot) => snapshot.data)
+    .catch(console.error);
+
+const getTypeCharge = () =>
+  supabase
+    .from("ChargeType")
+    .select("*")
+    .then((snapshot) => snapshot.data)
+    .catch(console.error);
+
+const updateChargeType = (ID, data) =>
+  supabase.from("ChargeType").update(data).eq("ID", ID);
+
 export {
   createCharge,
   deleteCharge,
   updateCharge,
-  chargeMount,
   chargeAutomatic,
   getChargeUserID,
   getAllChargeUserID,
+  createPay,
+  createTypeCharge,
+  updateChargeType,
+  getTypeCharge,
 };
