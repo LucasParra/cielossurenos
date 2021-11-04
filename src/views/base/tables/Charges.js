@@ -26,7 +26,12 @@ import {
 import moment from "moment";
 
 import Select from "react-select";
-import { createTask } from "src/state/querys/Tasks";
+import {
+  createTask,
+  finishTaskPending,
+  getLastTaskByUserID,
+} from "src/state/querys/Tasks";
+import TaskPending from "./TasksPending";
 
 const fields = [
   "ID",
@@ -67,7 +72,7 @@ const Charges = ({ userID }) => {
       setCharges(
         chargesApi.map((charge) => ({
           ID: charge.ID,
-          nombre: charge.ChargeTypeID?.Name ? charge.ChargeTypeID?.Name : "",
+          nombre: charge.ChargeTypeID.Name,
           cargo: new Intl.NumberFormat("es-CL", {
             currency: "CLP",
             style: "currency",
@@ -163,7 +168,7 @@ const Charges = ({ userID }) => {
                 .filter(({ State }) => !State)
                 .map((charge) => ({
                   value: parseInt(charge.Charge),
-                  label: charge.nombre[0],
+                  label: charge.nombre,
                   ID: charge.ID,
                 }))}
               className="basic-multi-select"
@@ -230,12 +235,19 @@ const Charges = ({ userID }) => {
                   componentDidMount();
 
                   if (charges.filter(({ State }) => !State).length === 1) {
-                    createTask({
-                      TypeID: 5,
-                      AssignedID: 12,
-                      ClientID: userID,
-                      StateID: 1,
-                      Note: "Conectar a este usuario ",
+                    getLastTaskByUserID(userID).then((taskPending) => {
+                      if (taskPending.length > 0) {
+                        console.log("hola");
+                        finishTaskPending(taskPending[0].ID);
+                      } else {
+                        createTask({
+                          TypeID: 5,
+                          AssignedID: 12,
+                          ClientID: userID,
+                          StateID: 1,
+                          Note: "Conectar a este usuario ",
+                        });
+                      }
                     });
                   }
                 });

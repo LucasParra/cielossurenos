@@ -52,6 +52,7 @@ const initUser = {
   LastName: "",
   Rut: "",
   JobID: "",
+  Email: "",
   PhoneNumber: "",
   JobPhoneNumber: "",
   TechnicianID: 0,
@@ -293,6 +294,18 @@ const UserForm = ({ user, onClose }) => {
                     />
                   </CCol>
                   <CCol style={{ marginBottom: 8 }} xs="12" sm="6">
+                    <CLabel htmlFor="EmailID">Correo</CLabel>
+                    <CInput
+                      id="Email"
+                      value={formUser.Email}
+                      placeholder="correoEjemplo@gmail.com"
+                      required
+                      onChange={({ target: { value } }) =>
+                        setFormUser({ ...formUser, Email: value })
+                      }
+                    />
+                  </CCol>
+                  <CCol style={{ marginBottom: 8 }} xs="12" sm="6">
                     <CLabel htmlFor="JobID">Numero de telefono</CLabel>
                     <CInput
                       id="PhoneNumber"
@@ -304,6 +317,7 @@ const UserForm = ({ user, onClose }) => {
                       }
                     />
                   </CCol>
+
                   <CCol style={{ marginBottom: 8 }} xs="12" sm="6">
                     <CLabel htmlFor="JobID">
                       Numero de telefono comercial

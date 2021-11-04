@@ -82,12 +82,14 @@ const Tables = () => {
   const [modalVisibleCharges, setModalVisibleCharges] = useState(false);
 
   const handleSearchUser = (value, limit = 1) => {
-    setSearchText(value);
+    setSearchText(
+      /^[0-9]*$/.test(value) ? format(value).replace(/\./g, "") : value
+    );
     if (value === undefined || value === "") return componentDidMount();
     setLoading(true);
     supabase
       .from("User")
-      .select("*")
+      .select("*,Address(*)")
       .or(
         `Names.ilike.%${value}%,LastName.ilike.%${value}%,Rut.ilike.%${format(
           value
@@ -213,6 +215,13 @@ const Tables = () => {
                     label: "Filtrar",
                   }}
                   striped
+                  tableFilterValue={(value) =>
+                    /^[0-9]*$/.test(value)
+                      ? value !== ""
+                        ? format(value).replace(/\./g, "")
+                        : ""
+                      : value
+                  }
                   onTableFilterChange={debounceFilter}
                   scopedSlots={{
                     editar: (item) => (
