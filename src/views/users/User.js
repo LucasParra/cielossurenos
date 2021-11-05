@@ -106,6 +106,7 @@ const User = () => {
             <h4 style={{ marginBottom: 10 }}>{`${user.Rut}`}</h4>
             <h5>{`${user.Names} ${user.LastName}`}</h5>
             <h6>{user.PhoneNumber}</h6>
+            <h6>{user.Email}</h6>
           </CCardBody>
         </CCard>
       </CCol>
