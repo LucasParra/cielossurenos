@@ -16,6 +16,8 @@ import {
   CModalTitle,
   CModalBody,
   CModalFooter,
+  CTextarea,
+  CFormGroup,
 } from "@coreui/react";
 import _ from "lodash";
 import ProductTable from "src/components/Tables/ProductsTable";
@@ -24,6 +26,7 @@ import {
   createUser,
   createUserAddress,
   createUserProduct,
+  getUserByEmail,
   getUserByRut,
   updateUserAddress,
   updateUserID,
@@ -45,7 +48,9 @@ import {
   updateOfficeToClient,
 } from "src/state/querys/Office";
 import Zones from "src/views/base/tables/Zones";
-import { createZone, getZones } from "src/state/querys/Zones";
+import { createZone, getAdminZone, getZones } from "src/state/querys/Zones";
+import { supabase } from "src/config/configSupabase";
+import { useKeySelector } from "src/hook/general";
 
 const initUser = {
   Names: "",
@@ -73,6 +78,7 @@ const initUser = {
   A_FE_REPAC: new Date(),
   Conections: 0,
   Birthday: new Date(),
+  RolID: 2,
 };
 const initAddress = [
   {
@@ -86,9 +92,11 @@ const initAddress = [
   },
 ];
 const UserForm = ({ user, onClose }) => {
+  const { user: userSession } = useKeySelector(["user"]);
   const [formUser, setFormUser] = useState(initUser);
   const [formsAddress, setFormsAddress] = useState(initAddress);
   const [newZone, setNewZone] = useState("");
+  const [noteTask, setNoteTask] = useState("");
   const [formsProducts, setFormsProducts] = useState([]);
   const [modalProduct, setModalProduct] = useState(false);
   const [validated, setValidated] = useState(false);
@@ -97,6 +105,7 @@ const UserForm = ({ user, onClose }) => {
   const [modalOffice, setModalOffice] = useState(false);
   const [officeID, setOfficeID] = useState("");
   const [validatedRut, setValidatedRut] = useState(false);
+  const [userCreatorRolID, setUserCreatorRolID] = useState(false);
 
   const handleCreateUser = () => {
     if (validatedRut) return;
@@ -114,50 +123,96 @@ const UserForm = ({ user, onClose }) => {
     )
       return setValidated(true);
 
-    if (user.ID) {
-      updateUserID(_.omit(formUser, "apellidos", "nombres", "contacto")).then(
-        () => {
-          Promise.all([
-            formsProducts.map((product) =>
-              product.ID
-                ? updateUserProduct({ ...product, UserID: user.ID })
-                : createUserProduct({ ...product, UserID: user.ID })
-            ),
-            updateOfficeToClient(user.ID, officeID),
-            formsAddress.map((address, index) => {
-              address.ID
-                ? updateAddress(address).then((newaddressID) => {
-                    updateUserAddress({
-                      AddressID: newaddressID,
-                      UserID: user.ID,
-                    });
-
-                    if (index + 1 === formsAddress.length) {
-                      setFormUser(initUser);
-                      setFormsAddress(initAddress);
-                      setValidated(false);
-                      onClose();
-                    }
-                  })
-                : createAddress(address).then((newaddressID) => {
-                    createUserAddress({
-                      AddressID: newaddressID,
-                      UserID: user.ID,
-                    });
-
-                    if (index + 1 === formsAddress.length) {
-                      setFormUser(initUser);
-                      setFormsAddress(initAddress);
-                      onClose();
-                      setValidated(false);
-                    }
-                  });
-            }),
-          ]);
+    if (userSession.RolID.ID === 7) {
+      getAdminZone(userSession.ZoneID[0].AddressID.AddressZoneID).then(
+        (response) => {
+          const task = {
+            TypeID: user.ID ? 9 : 8,
+            AssignedID: response[0].User.ID,
+            ClientID: userSession.ID,
+            StateID: 3,
+            Note: noteTask,
+            Data: {
+              User: _.omit(
+                { ...formUser, StateID: userCreatorRolID === 7 ? "4" : "1" },
+                "apellidos",
+                "nombres",
+                "contacto"
+              ),
+              Products: formsProducts,
+              Address: formsAddress,
+              OfficeID: officeID,
+            },
+            LastData: {
+              User: user,
+              Products: formsProducts,
+              Address: formsAddress,
+            },
+          };
+          createTask(task).then(() => {
+            setFormUser(initUser);
+            setFormsAddress(initAddress);
+            onClose();
+            setValidated(false);
+          });
         }
       );
+
+      return null;
+    }
+
+    if (user.ID) {
+      return updateUserID(
+        _.omit(
+          { ...formUser, StateID: userCreatorRolID === 7 ? "4" : "1" },
+          "apellidos",
+          "nombres",
+          "contacto"
+        )
+      ).then(() => {
+        Promise.all([
+          formsProducts.map((product) =>
+            product.ID
+              ? updateUserProduct({ ...product, UserID: user.ID })
+              : createUserProduct({ ...product, UserID: user.ID })
+          ),
+          updateOfficeToClient(user.ID, officeID),
+          formsAddress.map((address, index) => {
+            address.ID
+              ? updateAddress(address).then((newaddressID) => {
+                  updateUserAddress({
+                    AddressID: newaddressID,
+                    UserID: user.ID,
+                  });
+
+                  if (index + 1 === formsAddress.length) {
+                    setFormUser(initUser);
+                    setFormsAddress(initAddress);
+                    setValidated(false);
+                    onClose();
+                  }
+                })
+              : createAddress(address).then((newaddressID) => {
+                  createUserAddress({
+                    AddressID: newaddressID,
+                    UserID: user.ID,
+                  });
+
+                  if (index + 1 === formsAddress.length) {
+                    setFormUser(initUser);
+                    setFormsAddress(initAddress);
+                    onClose();
+                    setValidated(false);
+                  }
+                });
+          }),
+        ]);
+      });
     } else
-      return createUser(formUser).then((newUserID) => {
+      return createUser({
+        ...formUser,
+        StateID: userCreatorRolID === 7 ? "4" : "1",
+      }).then((newUserID) => {
         Promise.all([
           formsProducts.map((product) =>
             createUserProduct({ ...product, UserID: newUserID })
@@ -186,7 +241,6 @@ const UserForm = ({ user, onClose }) => {
           }),
         ]);
       });
-    return null;
   };
   const handleGetZones = () => getZones().then(setZones);
   const userEffect = () => {
@@ -215,7 +269,15 @@ const UserForm = ({ user, onClose }) => {
     getOfficesToUserID(user.ID).then(setOfficeID);
     setFormUser(user);
   };
-
+  const componentDidMount = () => {
+    const {
+      user: { email },
+    } = supabase.auth.session();
+    getUserByEmail(email).then((response) =>
+      setUserCreatorRolID(response[0].RolID)
+    );
+  };
+  useEffect(componentDidMount, []);
   useEffect(userEffect, [user]);
 
   return (
@@ -413,6 +475,22 @@ const UserForm = ({ user, onClose }) => {
                       }
                     />
                   </CCol>
+                  {userSession?.RolID?.ID === 7 && (
+                    <CCol style={{ marginBottom: 8 }} xs="12" sm="12">
+                      <CFormGroup>
+                        <CLabel htmlFor="priceBase">
+                          Nota para el administrador
+                        </CLabel>
+                        <CTextarea
+                          id="name"
+                          value={noteTask}
+                          onChange={({ target: { value } }) =>
+                            setNoteTask(value)
+                          }
+                        />
+                      </CFormGroup>
+                    </CCol>
+                  )}
                   <CCol style={{ marginBottom: 8 }} xs="12" sm="12">
                     <CButton
                       variant="outline"

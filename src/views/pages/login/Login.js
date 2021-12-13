@@ -16,16 +16,25 @@ import {
 } from "@coreui/react";
 import CIcon from "@coreui/icons-react";
 import { supabase } from "src/config/configSupabase";
+import { getUserByEmail } from "src/state/querys/Users";
+
+import { useDispatch } from "react-redux";
 
 const Login = () => {
+  const dispatch = useDispatch();
   const [loginForm, setloginForm] = useState({
     email: "",
     password: "",
   });
 
-  const handleLogin = () => {
-    supabase.auth.signIn(loginForm);
-  };
+  const handleLogin = () =>
+    supabase.auth
+      .signIn(loginForm)
+      .then(({ user: { email } }) =>
+        getUserByEmail(email).then((response) =>
+          dispatch({ type: "SET_USER", payload: response[0] })
+        )
+      );
   return (
     <div className="c-app c-default-layout flex-row align-items-center">
       <CContainer>

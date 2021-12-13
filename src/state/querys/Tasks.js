@@ -40,6 +40,13 @@ const finishTaskPending = (TaskID) =>
     .update({ StateID: 2 })
     .eq("ID", TaskID)
     .then((snapshot) => snapshot.data[0].ID);
+
+const getTaskPending = () =>
+  supabase
+    .from("Task")
+    .select("*, ClientID(*),TypeID(Name)")
+    .eq("StateID", 1)
+    .then((snapshot) => snapshot.data);
 export {
   createTask,
   getTypesTasks,
@@ -47,4 +54,5 @@ export {
   updateTask,
   getLastTaskByUserID,
   finishTaskPending,
+  getTaskPending,
 };

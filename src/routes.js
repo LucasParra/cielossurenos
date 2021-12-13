@@ -22,6 +22,7 @@ const Cards = React.lazy(() => import("./views/base/cards/Cards"));
 const Carousels = React.lazy(() => import("./views/base/carousels/Carousels"));
 const Collapses = React.lazy(() => import("./views/base/collapses/Collapses"));
 const BasicForms = React.lazy(() => import("./views/base/forms/BasicForms"));
+const AdminInfo = React.lazy(() => import("./views/base/cards/AdminInfo"));
 
 const Jumbotrons = React.lazy(() =>
   import("./views/base/jumbotrons/Jumbotrons")
@@ -74,7 +75,7 @@ const User = React.lazy(() => import("./views/users/User"));
 const routes = [
   { path: "/", exact: true, name: "Home" },
   { path: "/dashboard", name: "Dashboard", component: Dashboard },
-
+  { path: "/menu/admin", name: "Dashboard", component: AdminInfo },
   { path: "/menu/products", name: "Products", component: Products },
   { path: "/menu/usuarios", name: "Usuarios", component: Tables },
   { path: "/menu/tareas", name: "tareas", component: Tasks },

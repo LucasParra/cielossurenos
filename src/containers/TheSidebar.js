@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   CCreateElement,
   CSidebar,
-  CSidebarBrand,
   CSidebarNav,
   CSidebarNavDivider,
   CSidebarNavTitle,
@@ -11,24 +10,43 @@ import {
   CSidebarNavDropdown,
   CSidebarNavItem,
 } from "@coreui/react";
-
-import CIcon from "@coreui/icons-react";
+import _ from "lodash";
 
 // sidebar nav config
 import navigation from "./_nav";
+import { useKeySelector } from "src/hook/general";
+import { supabase } from "src/config/configSupabase";
+import { getUserByEmail } from "src/state/querys/Users";
 
 const TheSidebar = () => {
   const dispatch = useDispatch();
-  const show = useSelector((state) => state.sidebarShow);
+  const { user, sidebarShow } = useKeySelector(["user", "sidebarShow"]);
 
+  const componentDidMount = () => {
+    if (!(user.length === 0)) {
+      const {
+        user: { email },
+      } = supabase.auth.session();
+      return getUserByEmail(email).then((response) =>
+        dispatch({ type: "SET_USER", payload: response[0] })
+      );
+    }
+  };
+  useEffect(componentDidMount, []);
+
+  // if (!user.RolID) return;
   return (
     <CSidebar
-      show={show}
-      onShowChange={(val) => dispatch({ type: "set", sidebarShow: val })}
+      show={sidebarShow}
+      onShowChange={(val) =>
+        dispatch({ type: "SET_SIDEBARSHOW", payload: val })
+      }
     >
       <CSidebarNav>
         <CCreateElement
-          items={navigation}
+          items={navigation.filter(
+            (nav) => _.indexOf(nav.users, user?.RolID?.ID) !== -1
+          )}
           components={{
             CSidebarNavDivider,
             CSidebarNavDropdown,

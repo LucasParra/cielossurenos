@@ -6,17 +6,18 @@ import {
   CButton,
   CCol,
   CDataTable,
+  CFormGroup,
   CInput,
   CInputGroup,
   CInputGroupPrepend,
   CInputGroupText,
   CLabel,
   CRow,
+  CTextarea,
 } from "@coreui/react";
 import { supabase } from "src/config/configSupabase";
 import _ from "lodash";
 import {
-  chargeMount,
   createCharge,
   createPay,
   deleteCharge,
@@ -31,7 +32,8 @@ import {
   finishTaskPending,
   getLastTaskByUserID,
 } from "src/state/querys/Tasks";
-import TaskPending from "./TasksPending";
+import { useKeySelector } from "src/hook/general";
+import { getAdminZone } from "src/state/querys/Zones";
 
 const fields = [
   "ID",
@@ -45,7 +47,9 @@ const fields = [
 ];
 
 const Charges = ({ userID }) => {
+  const { user } = useKeySelector(["user"]);
   const [charges, setCharges] = useState([]);
+  const [noteTask, setNoteTask] = useState("");
   const [amount, setAmount] = useState(0);
   const [ispayment, setIspayment] = useState(false);
   const [chargesSelected, setChargesSelected] = useState([]);
@@ -126,7 +130,6 @@ const Charges = ({ userID }) => {
       setAmount(0);
       setEdit("");
     });
-
   useEffect(componentDidMount, []);
   return (
     <>
@@ -222,10 +225,60 @@ const Charges = ({ userID }) => {
             </CCol>
           </>
         )}
+        {user?.RolID?.ID === 7 && (
+          <CCol xs="2">
+            <CFormGroup>
+              <CLabel htmlFor="priceBase">Nota para el administrador</CLabel>
+              <CTextarea
+                id="name"
+                value={noteTask}
+                onChange={({ target: { value } }) => setNoteTask(value)}
+              />
+            </CFormGroup>
+          </CCol>
+        )}
         <CCol col="2" style={{ paddingTop: 30 }}>
           <CButton
             color={"success"}
             onClick={() => {
+              if (user?.RolID?.ID === 7) {
+                return getAdminZone(
+                  user.ZoneID[0].AddressID.AddressZoneID
+                ).then((response) => {
+                  const task = {
+                    TypeID: edit === "" ? 10 : 11,
+                    AssignedID: response[0].User.ID,
+                    ClientID: user.ID,
+                    StateID: 3,
+                    Note: noteTask,
+                    Data:
+                      edit === ""
+                        ? {
+                            ChargeTypeID: chargesTypeSelected.ID,
+                            CreatedAt: moment().toDate(),
+                            Charge: amount,
+                            ClientID: userID,
+                            State: false,
+                            Remaining: 0,
+                          }
+                        : {
+                            ChargeTypeID: chargesTypeSelected.ID,
+                            Name: name,
+                            Charge: amount,
+                            ClientID: userID,
+                            ID: edit,
+                          },
+                  };
+                  createTask(task).then(() => {
+                    componentDidMount();
+                    setChargesTypeSelected({});
+                    setName(0);
+                    setAmount(0);
+                    setNoteTask("");
+                  });
+                });
+              }
+
               if (ispayment) {
                 return Promise.all([
                   chargesSelected.map(({ ID }) => createPay(ID)),
@@ -237,7 +290,6 @@ const Charges = ({ userID }) => {
                   if (charges.filter(({ State }) => !State).length === 1) {
                     getLastTaskByUserID(userID).then((taskPending) => {
                       if (taskPending.length > 0) {
-                        console.log("hola");
                         finishTaskPending(taskPending[0].ID);
                       } else {
                         createTask({

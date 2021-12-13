@@ -1,4 +1,7 @@
 import { supabase } from "src/config/configSupabase";
+import { createAddress, updateAddress } from "./Address";
+import { createClientOffice, updateOfficeToClient } from "./Office";
+import { createTask } from "./Tasks";
 // import { createClientOffice } from "./Office";
 
 const getTechnicians = () =>
@@ -14,6 +17,14 @@ const getUserByRut = (rut) =>
     .from("User")
     .select("*")
     .eq("Rut", rut)
+    .then((snapshot) => snapshot.data)
+    .catch(console.error);
+
+const getUserByEmail = (email) =>
+  supabase
+    .from("User")
+    .select("*,RolID(*),ZoneID:UserAddress(AddressID(AddressZoneID))")
+    .eq("Email", email)
     .then((snapshot) => snapshot.data)
     .catch(console.error);
 
@@ -81,17 +92,74 @@ const getClients = (limit) =>
     .then(({ data }) => data)
     .catch(console.error);
 
-// const queryClientToOffice = () =>
-//   supabase
-//     .from("User")
-//     .select("*")
-//     .range(4001, 5000)
-//     .eq("RolID", 2)
-//     .then((snapshot) => {
-//       // snapshot.data.map((user) =>
-//       //   createClientOffice(user.ID).then(() => console.log("hola"))
-//       // );
-//     });
+const getClientsCount = (stateID) =>
+  supabase
+    .from("User")
+    .select("*", { count: "exact" })
+    .eq("RolID", 2)
+    .eq("StateID", stateID)
+    .then(({ count }) => count)
+    .catch(console.error);
+
+const getClientsCountOffice = (officeID, stateID) =>
+  supabase
+    .from("OfficeUser")
+    .select("*", { count: "exact" })
+    .eq("UserID.RolID", 2)
+    .eq("UserID.StateID", stateID)
+    .eq("OfficeID", officeID)
+    .then(({ count }) => count)
+    .catch(console.error);
+
+const createUserFinishTask = (user, products, address, officeID) => {
+  createUser(user).then((newUserID) => {
+    Promise.all([
+      products.map((product) =>
+        createUserProduct({ ...product, UserID: newUserID })
+      ),
+      createTask({
+        TypeID: 1,
+        AssignedID: user.TechnicianID,
+        ClientID: newUserID,
+      }),
+      createClientOffice(newUserID, officeID),
+      address.map((addres) => {
+        createAddress(addres).then((newaddressID) => {
+          createUserAddress({
+            AddressID: newaddressID,
+            UserID: newUserID,
+          });
+        });
+      }),
+    ]);
+  });
+};
+const updateUserFinishTask = (user, products, address, officeID) =>
+  updateUserID(user).then(() => {
+    Promise.all([
+      products.map((product) =>
+        product.ID
+          ? updateUserProduct({ ...product, UserID: user.ID })
+          : createUserProduct({ ...product, UserID: user.ID })
+      ),
+      updateOfficeToClient(user.ID, officeID),
+      address.map((addres) => {
+        addres.ID
+          ? updateAddress(addres).then((newaddressID) => {
+              updateUserAddress({
+                AddressID: newaddressID,
+                UserID: user.ID,
+              });
+            })
+          : createAddress(addres).then((newaddressID) => {
+              createUserAddress({
+                AddressID: newaddressID,
+                UserID: user.ID,
+              });
+            });
+      }),
+    ]);
+  });
 
 export {
   getTechnicians,
@@ -106,4 +174,9 @@ export {
   queryUserToClient,
   getClients,
   // queryClientToOffice,
+  getUserByEmail,
+  getClientsCount,
+  getClientsCountOffice,
+  createUserFinishTask,
+  updateUserFinishTask,
 };

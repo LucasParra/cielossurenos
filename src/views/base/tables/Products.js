@@ -16,6 +16,7 @@ import {
   CModalHeader,
   CModalTitle,
   CRow,
+  CTextarea,
 } from "@coreui/react";
 import { DocsLink } from "src/reusable";
 
@@ -23,6 +24,9 @@ import { DocsLink } from "src/reusable";
 import { supabase } from "src/config/configSupabase";
 import CIcon from "@coreui/icons-react";
 import { freeSet } from "@coreui/icons";
+import { useKeySelector } from "src/hook/general";
+import { getAdminZone } from "src/state/querys/Zones";
+import { createTask } from "src/state/querys/Tasks";
 
 const getBadge = (status) => {
   switch (status) {
@@ -39,18 +43,23 @@ const getBadge = (status) => {
   }
 };
 const fields = ["ID", "Name", "BasePrice", "editar", "eliminar"];
-
+const initProduct = {
+  Name: "",
+  BasePrice: 0,
+  StateID: 1,
+};
 const Products = () => {
+  const { user } = useKeySelector(["user"]);
   const [products, setProducts] = useState([]);
+  const [noteTask, setNoteTask] = useState("");
   const [deleteModal, setDeleteModal] = useState(false);
+  const [lastProduct, setLastProduct] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [product, setProduct] = useState({
-    Name: "",
-    BasePrice: 0,
-  });
+  const [product, setProduct] = useState(initProduct);
   const [loading, setLoading] = useState(false);
   const componentDidMount = (limit = 1) => {
     setLoading(true);
+
     supabase
       .from("Product")
       .select("*")
@@ -61,8 +70,31 @@ const Products = () => {
       })
       .catch(console.error);
   };
-
   const createProduct = () => {
+    if (user.RolID.ID === 7) {
+      getAdminZone(user.ZoneID[0].AddressID.AddressZoneID).then((response) => {
+        const task = {
+          TypeID: product.ID ? 6 : 7,
+          AssignedID: response[0].User.ID,
+          ClientID: user.ID,
+          StateID: 3,
+          Note: noteTask,
+          Data: product,
+          LastData: lastProduct,
+        };
+        createTask(task).then(() => {
+          setLoading(false);
+          componentDidMount();
+          setModalVisible(false);
+          setNoteTask("");
+          setLastProduct(null);
+          setProduct(initProduct);
+        });
+      });
+
+      return null;
+    }
+
     if (product.ID)
       return supabase
         .from("Product")
@@ -71,6 +103,7 @@ const Products = () => {
           setLoading(false);
           componentDidMount();
           setModalVisible(false);
+          setProduct(initProduct);
         });
 
     setLoading(true);
@@ -81,6 +114,7 @@ const Products = () => {
         setLoading(false);
         componentDidMount();
         setModalVisible(false);
+        setProduct(initProduct);
       });
   };
   const deleteProduct = () =>
@@ -117,7 +151,9 @@ const Products = () => {
         size="sm"
       >
         <CModalHeader closeButton>
-          <CModalTitle>Crear Productos</CModalTitle>
+          <CModalTitle>{`${
+            product.ID ? "Editar" : "Crear"
+          } Producto`}</CModalTitle>
         </CModalHeader>
         <CModalBody>
           <CRow>
@@ -152,11 +188,27 @@ const Products = () => {
               </CFormGroup>
             </CCol>
           </CRow>
+          {user?.RolID?.ID === 7 && (
+            <CRow>
+              <CCol xs="12">
+                <CFormGroup>
+                  <CLabel htmlFor="priceBase">
+                    Nota para el administrador
+                  </CLabel>
+                  <CTextarea
+                    id="name"
+                    value={noteTask}
+                    onChange={({ target: { value } }) => setNoteTask(value)}
+                  />
+                </CFormGroup>
+              </CCol>
+            </CRow>
+          )}
         </CModalBody>
         <CModalFooter>
           <CButton color="success" onClick={createProduct}>
-            Crear
-          </CButton>{" "}
+            {product.ID ? "Editar" : "Crear"}
+          </CButton>
           <CButton
             color="secondary"
             onClick={() => {
@@ -222,6 +274,7 @@ const Products = () => {
                         color="info"
                         onClick={() => {
                           setProduct(item);
+                          setLastProduct(item);
                           setModalVisible(true);
                         }}
                       >

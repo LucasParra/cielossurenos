@@ -29,6 +29,7 @@ import Charges from "./Charges";
 import { useHistory } from "react-router";
 import { chargeAutomatic } from "src/state/querys/Charges";
 import { clean, format, getCheckDigit } from "rut.js";
+import { useKeySelector } from "src/hook/general";
 
 const fields = [
   "ID",
@@ -72,6 +73,7 @@ const fields = [
 
 const Tables = () => {
   const history = useHistory();
+  const { user: userSession } = useKeySelector(["user"]);
   const [creatingUser, setCreatingUser] = useState(false);
   const [chargesAutomaticModal, setChargesAutomaticModal] = useState(false);
   const [users, setUsers] = useState([]);
@@ -98,12 +100,14 @@ const Tables = () => {
       .limit(limit * 5 + 1)
       .then((snapshot) => {
         setUsers(
-          snapshot.data.map((user) => ({
-            ...user,
-            nombres: user.Names,
-            apellidos: user.LastName,
-            contacto: user.PhoneNumber,
-          }))
+          snapshot.data
+            .filter(({ StateID }) => StateID !== "4")
+            .map((user) => ({
+              ...user,
+              nombres: user.Names,
+              apellidos: user.LastName,
+              contacto: user.PhoneNumber,
+            }))
         );
         setLoading(false);
       })
@@ -117,12 +121,14 @@ const Tables = () => {
       .limit(limit * 5 + 1)
       .then((snapshot) => {
         setUsers(
-          snapshot.data.map((user) => ({
-            ...user,
-            nombres: user.Names,
-            apellidos: user.LastName,
-            contacto: user.PhoneNumber,
-          }))
+          snapshot.data
+            .filter(({ StateID }) => StateID !== "4")
+            .map((user) => ({
+              ...user,
+              nombres: user.Names,
+              apellidos: user.LastName,
+              contacto: user.PhoneNumber,
+            }))
         );
         setLoading(false);
       })
@@ -184,16 +190,18 @@ const Tables = () => {
                   Crear Usuario
                 </CButton>
               </CCol>
-              <CCol>
-                <CButton
-                  onClick={() => setChargesAutomaticModal(true)}
-                  style={{ marginBottom: 10 }}
-                  size="md"
-                  color="success"
-                >
-                  Crear Cobro automatico
-                </CButton>
-              </CCol>
+              {userSession?.RolID?.ID === 8 && (
+                <CCol>
+                  <CButton
+                    onClick={() => setChargesAutomaticModal(true)}
+                    style={{ marginBottom: 10 }}
+                    size="md"
+                    color="success"
+                  >
+                    Crear Cobro automatico
+                  </CButton>
+                </CCol>
+              )}
             </CRow>
           )}
           <div style={{ display: creatingUser ? "none" : "block" }}>

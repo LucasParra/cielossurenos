@@ -16,4 +16,13 @@ const getZones = () =>
     .then((snapshot) => snapshot.data)
     .catch(console.error);
 
-export { createZone, updateZone, getZones };
+const getAdminZone = (ZoneID) =>
+  supabase
+    .from("UserAddress")
+    .select("User!inner(*),Address!inner(*)")
+    .eq("User.RolID", 8)
+    .eq("Address.AddressZoneID", ZoneID)
+    .then((snapshot) => snapshot.data)
+    .catch(console.error);
+
+export { createZone, updateZone, getZones, getAdminZone };

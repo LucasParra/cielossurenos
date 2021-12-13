@@ -70,16 +70,6 @@ const TaskPending = () => {
       .order("ID", { ascending: true })
       .eq("StateID", 1)
       .then((snapshot) => {
-        console.log(
-          _.groupBy(
-            snapshot.data.map((task) => ({
-              ...task,
-              tipo: task.TypeID.Name,
-              fecha_agendada: task.DeadLine,
-            })),
-            "fecha_agendada"
-          )
-        );
         setTasks(
           _.groupBy(
             snapshot.data.map((task) => ({
@@ -424,13 +414,13 @@ const TaskPending = () => {
         <CModalBody>
           <ClientsTable
             setClientID={(value) =>
-              getChargeUserID(value).then((data) =>
-                setTaskForm({
+              getChargeUserID(value).then((data) => {
+                return setTaskForm({
                   ...taskForm,
                   ClientID: value,
                   StateID: data.length !== 0 ? 1 : 3,
-                })
-              )
+                });
+              })
             }
             ClientID={taskForm.ClientID}
           />
