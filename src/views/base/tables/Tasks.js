@@ -23,11 +23,15 @@ import {
   createUserFinishTask,
   updateUserFinishTask,
 } from "src/state/querys/Users";
-import { createCharge, updateCharge } from "src/state/querys/Charges";
+import {
+  createCharge,
+  createPay,
+  updateCharge,
+} from "src/state/querys/Charges";
+import { createDiscount, updateDiscount } from "src/state/querys/Discount";
 const fields = [
   "ID",
   "tipo",
-  "AssignedID",
   "fecha_agendada",
   "estado",
   "cliente",
@@ -49,7 +53,7 @@ const Tasks = () => {
     supabase
       .from("Task")
       .select("*,TypeID(Name,ID),ClientID(*)")
-      .order("ID", { ascending: true })
+      .order("ID", { ascending: false })
       .or("StateID.eq.2,StateID.eq.3")
       .eq("AssignedID", user.ID)
       .then((snapshot) => {
@@ -80,6 +84,7 @@ const Tasks = () => {
       });
 
   const changeStateTask = (dataTask, type, data) => {
+    if (dataTask.StateID === 1) return null;
     if (type === 6 || type === 7) {
       if (data.ID) {
         supabase
@@ -94,8 +99,6 @@ const Tasks = () => {
       }
     }
     if (type === 8 || type === 9) {
-      if (dataTask.StateID === 1) return null;
-
       if (data.User.ID) {
         updateUserFinishTask(
           _.omit(data.User, "Address"),
@@ -113,11 +116,20 @@ const Tasks = () => {
       }
     }
     if (type === 10 || type === 11) {
-      if (dataTask.StateID === 1) return null;
       if (data?.ID) {
         updateCharge(_.omit(data, "ID"), data.ID);
       } else {
         createCharge(data);
+      }
+    }
+    if (type === 12) {
+      Promise.all([data.map(({ ID }) => createPay(ID))]);
+    }
+    if (type === 13 || type === 14) {
+      if (data.ID) {
+        updateDiscount(_.omit(data, "ID"), data.ID);
+      } else {
+        createDiscount(_.omit(data, "ID"));
       }
     }
     supabase
@@ -167,13 +179,13 @@ const Tasks = () => {
                   loading={loading}
                   pagination
                   scopedSlots={{
-                    cliente: (item, index) => (
+                    cliente: (item) => (
                       <td className="py-2">
                         <CButton
                           color={
-                            !details.includes(index) ? "info" : "secondary"
+                            !details.includes(item.ID) ? "info" : "secondary"
                           }
-                          onClick={() => toggleDetails(index)}
+                          onClick={() => toggleDetails(item.ID)}
                         >
                           <CIcon content={freeSet.cilUser} size="xl" />
                         </CButton>
@@ -188,33 +200,8 @@ const Tasks = () => {
                     ),
                     cambiar_estado: (item) => (
                       <td className="py-2">
-                        <CRow className="align-items-center">
-                          <CCol
-                            col="2"
-                            xs="2"
-                            sm="2"
-                            md="2"
-                            className="mb-2 mb-xl-0"
-                          >
-                            <CButton
-                              color={
-                                item.StateID === 2 ? "success" : "secondary"
-                              }
-                              onClick={() =>
-                                changeStateTask(
-                                  {
-                                    ID: item.ID,
-                                    StateID: item.StateID === 2 ? 3 : 2,
-                                  },
-                                  item.TypeID.ID,
-                                  item.Data
-                                )
-                              }
-                            >
-                              <CIcon content={freeSet.cilSync} size="xl" />
-                            </CButton>
-                          </CCol>
-                          {user?.RolID.ID === 8 && (
+                        {item.StateID !== 2 && (
+                          <CRow className="align-items-center">
                             <CCol
                               col="2"
                               xs="2"
@@ -223,21 +210,48 @@ const Tasks = () => {
                               className="mb-2 mb-xl-0"
                             >
                               <CButton
-                                color="danger"
-                                onClick={() => {
-                                  setDeleteModal(true);
-                                  setTaskSelected(item);
-                                }}
+                                color={
+                                  item.StateID === 2 ? "success" : "secondary"
+                                }
+                                onClick={() =>
+                                  changeStateTask(
+                                    {
+                                      ID: item.ID,
+                                      StateID: item.StateID === 2 ? 3 : 2,
+                                    },
+                                    item.TypeID.ID,
+                                    item.Data
+                                  )
+                                }
                               >
-                                <CIcon content={freeSet.cilTrash} size="xl" />
+                                <CIcon content={freeSet.cilCheck} size="xl" />
                               </CButton>
                             </CCol>
-                          )}
-                        </CRow>
+                            {user?.RolID.ID === 8 && (
+                              <CCol
+                                col="2"
+                                xs="2"
+                                sm="2"
+                                md="2"
+                                className="mb-2 mb-xl-0"
+                              >
+                                <CButton
+                                  color="danger"
+                                  onClick={() => {
+                                    setDeleteModal(true);
+                                    setTaskSelected(item);
+                                  }}
+                                >
+                                  <CIcon content={freeSet.cilTrash} size="xl" />
+                                </CButton>
+                              </CCol>
+                            )}
+                          </CRow>
+                        )}
                       </td>
                     ),
                     details: (item, index) => (
-                      <CCollapse show={details.includes(index)}>
+                      <CCollapse show={details.includes(item.ID)}>
                         <CCardBody>
                           <CRow>
                             <CCol lg="4">
@@ -256,23 +270,8 @@ const Tasks = () => {
                             {(item.TypeID.ID === 8 || item.TypeID.ID === 9) && (
                               <CCol lg="3">
                                 <h4>Cliente</h4>
-                                {item.TypeID.ID === 8 ? (
-                                  <h6>{`ID: ${item.ID}`}</h6>
-                                ) : (
-                                  ""
-                                )}
-                                <h6>{`Nombre: ${
-                                  item.TypeID.ID === 0
-                                    ? `${item.Data.User.Names} ${item.Data.User.LastName} ---> `
-                                    : ""
-                                } ${item.Data.User.Names} ${
-                                  item.Data.User.LastName
-                                }`}</h6>
-                                <h6>{`Rut: ${
-                                  item.TypeID.ID === 0
-                                    ? `${item.Data.User.Rut} ---> `
-                                    : ""
-                                } ${item.Data.User.Rut}`}</h6>
+                                <h6>{`Nombre: ${item.Data.User.Names} ${item.Data.User.LastName}`}</h6>
+                                <h6>{`Rut: ${item.Data.User.Rut}`}</h6>
                               </CCol>
                             )}
                             {(item.TypeID.ID === 10 ||
@@ -281,10 +280,9 @@ const Tasks = () => {
                                 <h4>Cargo</h4>
                                 <h6>Nombre :{item.Data.Name}</h6>
                                 <h6>
-                                  Monto :
-                                  {chile
+                                  {`Monto : ${chile
                                     .format(item.Data.Charge)
-                                    .replace("$", "")}
+                                    .replace("$", "")}`}
                                 </h6>
                               </CCol>
                             )}
@@ -295,10 +293,9 @@ const Tasks = () => {
                                   <>
                                     <h6>Producto ID: {product.ProductID}</h6>
                                     <h6>
-                                      Precio:{" "}
-                                      {chile
+                                      {`Precio: ${chile
                                         .format(product.Price)
-                                        .replace("$", "")}
+                                        .replace("$", "")}`}
                                     </h6>
                                   </>
                                 ))}
@@ -308,21 +305,22 @@ const Tasks = () => {
                             {(item.TypeID.ID === 6 || item.TypeID.ID === 7) && (
                               <CCol lg="3">
                                 <h4>Producto</h4>
-                                {item.TypeID.ID === 6 ? (
-                                  <h6>{`ID: ${item.ID}`}</h6>
-                                ) : (
-                                  ""
-                                )}
-                                <h6>{`Nombre: ${
-                                  item.TypeID.ID === 6
-                                    ? `${item.LastData.Name} ---> `
-                                    : ""
-                                } ${item.Data.Name}`}</h6>
-                                <h6>{`Precio Base: ${
-                                  item.TypeID.ID === 6
-                                    ? `${item.LastData.BasePrice} ---> `
-                                    : ""
-                                } ${item.Data.BasePrice}`}</h6>
+                                <h6>{`Nombre: ${item.Data.Name}`}</h6>
+                                <h6>{`Precio Base: ${item.Data.BasePrice}`}</h6>
+                              </CCol>
+                            )}
+                            {(item.TypeID.ID === 13 ||
+                              item.TypeID.ID === 14) && (
+                              <CCol lg="3">
+                                <h4>Descuento</h4>
+                                <h6>{`Tipo de descuento: ${item.Data.TypeID}`}</h6>
+                                <h6>{`Descuento: ${
+                                  item.Data.IsPercentage
+                                    ? `${item.Data.Discount}%`
+                                    : chile
+                                        .format(item.Data.Discount)
+                                        .replace("$", "")
+                                }`}</h6>
                               </CCol>
                             )}
                           </CRow>

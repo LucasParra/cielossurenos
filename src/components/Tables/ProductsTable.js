@@ -66,7 +66,7 @@ const ProductTable = ({ type, productsSelected, setProductsSelected }) => {
               </CCol>
             </td>
           ),
-        activo: (item, index) => (
+        activo: (item) => (
           <td className="py-2">
             {type === "select" ? (
               <CRow className="align-items-center" key={item.ID}>
@@ -102,7 +102,7 @@ const ProductTable = ({ type, productsSelected, setProductsSelected }) => {
                           );
                     }}
                   />
-                </CCol>{" "}
+                </CCol>
               </CRow>
             ) : (
               <CRow className="align-items-center">

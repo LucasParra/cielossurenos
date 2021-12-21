@@ -144,11 +144,13 @@ const User = () => {
                   }
                 >
                   <option value={""}>selecciona un tipo</option>
-                  {types.map((type) => (
-                    <option key={type.ID} value={type.ID}>
-                      {type.Name}
-                    </option>
-                  ))}
+                  {types
+                    .filter(({ ID }) => ID < 6)
+                    .map((type) => (
+                      <option key={type.ID} value={type.ID}>
+                        {type.Name}
+                      </option>
+                    ))}
                 </CSelect>
               </CCol>
               <CCol xs="3" lg="3">

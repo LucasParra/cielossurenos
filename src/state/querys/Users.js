@@ -1,8 +1,8 @@
+import { format } from "rut.js";
 import { supabase } from "src/config/configSupabase";
 import { createAddress, updateAddress } from "./Address";
 import { createClientOffice, updateOfficeToClient } from "./Office";
 import { createTask } from "./Tasks";
-// import { createClientOffice } from "./Office";
 
 const getTechnicians = () =>
   supabase
@@ -77,17 +77,26 @@ const queryUserToClient = () =>
     .is("RolID", null)
     .then((snapshot) => {
       console.log(snapshot.data);
-      // snapshot.data.map((user) => {
-      //   updateUserID({ ...user, RolID: 2 }).then((response) =>
-      //     console.log(response)
-      //   );
-      // });
     });
 const getClients = (limit) =>
   supabase
     .from("User")
     .select("*")
     .eq("RolID", 2)
+    .limit(limit * 5 + 1)
+    .then(({ data }) => data)
+    .catch(console.error);
+
+const getUsersClients = (limit, value) =>
+  supabase
+    .from("User")
+    .select("*")
+    .eq("RolID", 2)
+    .or(
+      `Names.ilike.%${value}%,LastName.ilike.%${value}%,Rut.ilike.%${format(
+        value
+      ).replace(/\./g, "")}%`
+    )
     .limit(limit * 5 + 1)
     .then(({ data }) => data)
     .catch(console.error);
@@ -104,10 +113,10 @@ const getClientsCount = (stateID) =>
 const getClientsCountOffice = (officeID, stateID) =>
   supabase
     .from("OfficeUser")
-    .select("*", { count: "exact" })
-    .eq("UserID.RolID", 2)
-    .eq("UserID.StateID", stateID)
-    .eq("OfficeID", officeID)
+    .select("User!inner(*),Office!inner(*)", { count: "exact" })
+    .eq("User.RolID", 2)
+    .eq("User.StateID", stateID)
+    .eq("Office.ID", officeID)
     .then(({ count }) => count)
     .catch(console.error);
 
@@ -173,10 +182,10 @@ export {
   getUserByID,
   queryUserToClient,
   getClients,
-  // queryClientToOffice,
   getUserByEmail,
   getClientsCount,
   getClientsCountOffice,
   createUserFinishTask,
   updateUserFinishTask,
+  getUsersClients,
 };

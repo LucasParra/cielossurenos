@@ -5,11 +5,17 @@ import { getTechnicians } from "src/state/querys/Users";
 const TechniciansTable = ({ setTechnicianID, TechnicianID }) => {
   const [technicians, setTechnicians] = useState([]);
   const [loading, setLoading] = useState(false);
-  const fields = ["Names", "LastName", "opciones"];
+  const fields = ["nombre", "apellido", "opciones"];
   const techniciansEffect = () => {
     setLoading(true);
     getTechnicians().then((techniciansApi) => {
-      setTechnicians(techniciansApi);
+      setTechnicians(
+        techniciansApi.map((technician) => ({
+          ...technician,
+          nombre: technician.Names,
+          apellido: technician.LastName,
+        }))
+      );
       setLoading(false);
     });
   };
@@ -24,7 +30,7 @@ const TechniciansTable = ({ setTechnicianID, TechnicianID }) => {
       loading={loading}
       pagination
       scopedSlots={{
-        opciones: (item, index) => (
+        opciones: (item) => (
           <td className="py-2">
             <CRow className="align-items-center" key={item.ID}>
               <CCol col="2" xs="2" sm="2" md="2" className="mb-2 mb-xl-0">

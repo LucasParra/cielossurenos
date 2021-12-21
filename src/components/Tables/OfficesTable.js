@@ -5,11 +5,11 @@ import { getOffices } from "src/state/querys/Office";
 const OfficesTable = ({ setOfficeID, officeID }) => {
   const [offices, setOffices] = useState([]);
   const [loading, setLoading] = useState(false);
-  const fields = ["ID", "Name", "opciones"];
+  const fields = ["ID", "nombre", "opciones"];
   const officesEffects = () => {
     setLoading(true);
     getOffices().then((Offices) => {
-      setOffices(Offices);
+      setOffices(Offices.map((office) => ({ ...office, nombre: office.Name })));
       setLoading(false);
     });
   };

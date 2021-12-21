@@ -18,6 +18,20 @@ const _nav = [
   },
   {
     _tag: "CSidebarNavItem",
+    name: "General",
+    to: "/admin",
+    icon: "cil-3d",
+    users: [8],
+  },
+  {
+    _tag: "CSidebarNavItem",
+    name: "productos de clientes",
+    to: "/admin/productos",
+    icon: "cil-3d",
+    users: [8],
+  },
+  {
+    _tag: "CSidebarNavItem",
     name: "Productos",
     to: "/menu/products",
     icon: "cil-3d",
@@ -42,7 +56,7 @@ const _nav = [
     name: "Tareas Pendientes",
     to: "/menu/pendientes",
     icon: "cil-3d",
-    users: [8, 7, 1],
+    users: [8, 1],
   },
   {
     _tag: "CSidebarNavItem",
@@ -63,7 +77,7 @@ const _nav = [
     name: "Zonas",
     to: "/menu/zones",
     icon: "cil-3d",
-    users: [8],
+    users: [8, 7],
   },
   {
     _tag: "CSidebarNavItem",
@@ -72,13 +86,7 @@ const _nav = [
     icon: "cil-3d",
     users: [8],
   },
-  {
-    _tag: "CSidebarNavItem",
-    name: "administrador",
-    to: "/menu/admin",
-    icon: "cil-3d",
-    users: [8],
-  },
+
   // {
   //   _tag: "CSidebarNavTitle",
   //   _children: ["Theme"],

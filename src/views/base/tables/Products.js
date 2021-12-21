@@ -20,7 +20,6 @@ import {
 } from "@coreui/react";
 import { DocsLink } from "src/reusable";
 
-// import users from "../../users/users";
 import { supabase } from "src/config/configSupabase";
 import CIcon from "@coreui/icons-react";
 import { freeSet } from "@coreui/icons";
@@ -42,7 +41,7 @@ const getBadge = (status) => {
       return "primary";
   }
 };
-const fields = ["ID", "Name", "BasePrice", "editar", "eliminar"];
+const fields = ["ID", "nombre", "precio", "editar", "eliminar"];
 const initProduct = {
   Name: "",
   BasePrice: 0,
@@ -65,7 +64,13 @@ const Products = () => {
       .select("*")
       .limit(limit * 5 + 1)
       .then((snapshot) => {
-        setProducts(snapshot.data);
+        setProducts(
+          snapshot.data.map((product) => ({
+            ...product,
+            nombre: product.Name,
+            precio: product.BasePrice,
+          }))
+        );
         setLoading(false);
       })
       .catch(console.error);

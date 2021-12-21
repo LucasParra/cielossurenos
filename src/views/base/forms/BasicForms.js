@@ -358,7 +358,7 @@ const BasicForms = () => {
                     />
                     <CSwitch
                       className="mr-1"
-                      color="dark"
+                      color=""
                       defaultChecked
                       shape="pill"
                       variant="opposite"

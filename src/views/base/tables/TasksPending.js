@@ -29,7 +29,7 @@ import _ from "lodash";
 const fields = [
   "ID",
   "tipo",
-  "AssignedID",
+  "usuario_asignado",
   "fecha_agendada",
   "estado",
   "cliente",
@@ -66,8 +66,8 @@ const TaskPending = () => {
     setLoading(true);
     supabase
       .from("Task")
-      .select("*,TypeID(Name,ID),ClientID(*)")
-      .order("ID", { ascending: true })
+      .select("*,TypeID(Name,ID),ClientID(*),AssignedID(*)")
+      .order("ID", { ascending: false })
       .eq("StateID", 1)
       .then((snapshot) => {
         setTasks(
@@ -76,6 +76,7 @@ const TaskPending = () => {
               ...task,
               tipo: task.TypeID.Name,
               fecha_agendada: task.DeadLine,
+              usuario_asignado: task.AssignedID.Names,
             })),
             "fecha_agendada"
           )
@@ -155,11 +156,13 @@ const TaskPending = () => {
                   }
                 >
                   <option value={""}>selecciona un tipo</option>
-                  {types.map((type) => (
-                    <option key={type.ID} value={type.ID}>
-                      {type.Name}
-                    </option>
-                  ))}
+                  {types
+                    .filter(({ ID }) => ID < 6)
+                    .map((type) => (
+                      <option key={type.ID} value={type.ID}>
+                        {type.Name}
+                      </option>
+                    ))}
                 </CSelect>
               </CCol>
               <CCol xs="2" lg="">
@@ -247,7 +250,7 @@ const TaskPending = () => {
                       <td className="py-2">
                         <CButton
                           color={
-                            !details.includes(index) ? "info" : "secondary"
+                            !details.includes(item.ID) ? "info" : "secondary"
                           }
                           onClick={() => toggleDetails(item.ID)}
                         >

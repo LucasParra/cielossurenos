@@ -8,20 +8,25 @@ import {
   CDropdownItem,
   CDropdownMenu,
   CDropdownToggle,
+  CFormGroup,
   CInput,
   CInputGroup,
   CLabel,
   CRow,
   CSelect,
+  CTextarea,
 } from "@coreui/react";
 import React, { useEffect, useState } from "react";
 import { supabase } from "src/config/configSupabase";
 import { createDiscount, updateDiscount } from "src/state/querys/Discount";
 import moment from "moment";
+import { useKeySelector } from "src/hook/general";
+import { createTaskforAdmin } from "src/state/querys/Tasks";
 
 const fields = ["ID", "tipoDescuento", "cantidad", "editar", "eliminar"];
 
 const Discounts = ({ userID }) => {
+  const { user } = useKeySelector(["user"]);
   const [discounts, setDiscounts] = useState([]);
   const [discountType, setDiscountType] = useState([]);
   const [temporality, setTemporality] = useState(new Date());
@@ -30,6 +35,7 @@ const Discounts = ({ userID }) => {
   const [typeSelected, setTypeSelected] = useState("0");
   const [loading, setLoading] = useState(false);
   const [edit, setEdit] = useState("");
+  const [noteTask, setNoteTask] = useState("");
 
   const componentDidMount = (limit = 1) => {
     setLoading(true);
@@ -64,12 +70,7 @@ const Discounts = ({ userID }) => {
       Discount: discount,
       IsPercentage: type === "%",
       Temporality: temporality,
-    }).then(() => {
-      componentDidMount();
-      setTypeSelected("0");
-      setDiscount(0);
-      setTemporality(new Date());
-    });
+    }).then(onFinish);
 
   const handleEditDiscount = () =>
     updateDiscount(
@@ -81,22 +82,17 @@ const Discounts = ({ userID }) => {
         Temporality: temporality,
       },
       edit
-    ).then(() => {
-      componentDidMount();
-      setTypeSelected("0");
-      setTemporality(new Date());
-      setDiscount(0);
-    });
+    ).then(onFinish);
 
+  const onFinish = () => {
+    componentDidMount();
+    setTypeSelected("0");
+    setTemporality(new Date());
+    setDiscount(0);
+    setNoteTask("");
+  };
   const deleteDiscount = (ID) =>
-    supabase
-      .from("Discount")
-      .delete()
-      .match({ ID })
-      .then(() => {
-        setLoading(false);
-        componentDidMount();
-      });
+    supabase.from("Discount").delete().match({ ID }).then(onFinish);
 
   useEffect(componentDidMount, []);
   return (
@@ -161,11 +157,42 @@ const Discounts = ({ userID }) => {
             />
           </CCol>
         )}
+        {user?.RolID?.ID === 7 && (
+          <CRow>
+            <CCol xs="12">
+              <CFormGroup>
+                <CLabel htmlFor="priceBase">Nota para el administrador</CLabel>
+                <CTextarea
+                  id="name"
+                  value={noteTask}
+                  onChange={({ target: { value } }) => setNoteTask(value)}
+                />
+              </CFormGroup>
+            </CCol>
+          </CRow>
+        )}
         <CCol col="2">
           <CButton
             color={"success"}
             style={{ marginTop: 28 }}
             onClick={() => {
+              if (user.RolID.ID === 7) {
+                createTaskforAdmin(user.ZoneID[0].AddressID.AddressZoneID, {
+                  TypeID: edit === "" ? 13 : 14,
+                  ClientID: user.ID,
+                  Note: noteTask,
+                  Data: {
+                    TypeID: typeSelected,
+                    ClientID: userID,
+                    Discount: discount,
+                    IsPercentage: type === "%",
+                    Temporality: temporality,
+                    ID: edit !== "" ? edit : null,
+                  },
+                }).then(onFinish);
+
+                return null;
+              }
               if (edit === "") {
                 handleAddDiscount();
               } else {

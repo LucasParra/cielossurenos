@@ -30,7 +30,7 @@ const AppRouter = () => {
   useEffect(componentDidMount, []);
 
   return session === null ? null : (
-    <Router basename="/cielossurenos/build">
+    <Router basename="/cielossurenos/">
       <Switch>
         <PublicRoute
           exact

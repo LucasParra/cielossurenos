@@ -29,6 +29,7 @@ import moment from "moment";
 import Select from "react-select";
 import {
   createTask,
+  createTaskforAdmin,
   finishTaskPending,
   getLastTaskByUserID,
 } from "src/state/querys/Tasks";
@@ -66,7 +67,7 @@ const Charges = ({ userID }) => {
         .select("*,ChargeTypeID(*)")
         .eq("ClientID", userID)
         .limit(limit * 5 + 1)
-        .order("CreatedAt", { ascending: true })
+        .order("CreatedAt", { ascending: false })
         .then((snapshot) => snapshot.data),
       getTypeCharge(),
     ]).then((response) => {
@@ -242,40 +243,37 @@ const Charges = ({ userID }) => {
             color={"success"}
             onClick={() => {
               if (user?.RolID?.ID === 7) {
-                return getAdminZone(
-                  user.ZoneID[0].AddressID.AddressZoneID
-                ).then((response) => {
-                  const task = {
-                    TypeID: edit === "" ? 10 : 11,
-                    AssignedID: response[0].User.ID,
+                return createTaskforAdmin(
+                  user.ZoneID[0].AddressID.AddressZoneID,
+                  {
+                    TypeID: ispayment ? 12 : edit === "" ? 10 : 11,
                     ClientID: user.ID,
-                    StateID: 3,
                     Note: noteTask,
-                    Data:
-                      edit === ""
-                        ? {
-                            ChargeTypeID: chargesTypeSelected.ID,
-                            CreatedAt: moment().toDate(),
-                            Charge: amount,
-                            ClientID: userID,
-                            State: false,
-                            Remaining: 0,
-                          }
-                        : {
-                            ChargeTypeID: chargesTypeSelected.ID,
-                            Name: name,
-                            Charge: amount,
-                            ClientID: userID,
-                            ID: edit,
-                          },
-                  };
-                  createTask(task).then(() => {
-                    componentDidMount();
-                    setChargesTypeSelected({});
-                    setName(0);
-                    setAmount(0);
-                    setNoteTask("");
-                  });
+                    Data: ispayment
+                      ? chargesSelected
+                      : edit === ""
+                      ? {
+                          ChargeTypeID: chargesTypeSelected.ID,
+                          CreatedAt: moment().toDate(),
+                          Charge: amount,
+                          ClientID: userID,
+                          State: false,
+                          Remaining: 0,
+                        }
+                      : {
+                          ChargeTypeID: chargesTypeSelected.ID,
+                          Name: name,
+                          Charge: amount,
+                          ClientID: userID,
+                          ID: edit,
+                        },
+                  }
+                ).then(() => {
+                  componentDidMount();
+                  setChargesTypeSelected({});
+                  setName(0);
+                  setAmount(0);
+                  setNoteTask("");
                 });
               }
 

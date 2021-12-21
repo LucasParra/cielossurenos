@@ -53,6 +53,7 @@ const UserInfo = ({ goBack, user, charges, tasks, products }) => {
             <CListGroupItem
               component="button"
               active={step === "Charges"}
+              style={{ cursor: "pointer" }}
               onClick={() => setStep("Charges")}
             >
               Deudas
@@ -60,20 +61,25 @@ const UserInfo = ({ goBack, user, charges, tasks, products }) => {
             <CListGroupItem
               component="button"
               active={step === "Payment"}
+              style={{ cursor: "pointer" }}
               onClick={() => setStep("Payment")}
             >
               Ultimos Pagos
             </CListGroupItem>
-            <CListGroupItem
-              component="button"
-              active={step === "Tasks"}
-              onClick={() => setStep("Tasks")}
-            >
-              Estado de Tarea de tecnico
-            </CListGroupItem>
+            {products.length !== 0 && (
+              <CListGroupItem
+                component="button"
+                active={step === "Tasks"}
+                style={{ cursor: "pointer" }}
+                onClick={() => setStep("Tasks")}
+              >
+                Estado de Tarea de tecnico
+              </CListGroupItem>
+            )}
             <CListGroupItem
               component="button"
               active={step === "Products"}
+              style={{ cursor: "pointer" }}
               onClick={() => setStep("Products")}
             >
               Productos Contratados
@@ -81,6 +87,7 @@ const UserInfo = ({ goBack, user, charges, tasks, products }) => {
             <CListGroupItem
               component="button"
               active={step === "CreateTask"}
+              style={{ cursor: "pointer" }}
               onClick={() => setStep("CreateTask")}
             >
               Crear Tareas
@@ -162,11 +169,13 @@ const UserInfo = ({ goBack, user, charges, tasks, products }) => {
                       }
                     >
                       <option value={""}>selecciona un tipo</option>
-                      {types.map((type) => (
-                        <option key={type.ID} value={type.ID}>
-                          {type.Name}
-                        </option>
-                      ))}
+                      {types
+                        .filter(({ ID }) => ID < 6)
+                        .map((type) => (
+                          <option key={type.ID} value={type.ID}>
+                            {type.Name}
+                          </option>
+                        ))}
                     </CSelect>
                   </CCol>
                   <CCol xs="3" lg="3">

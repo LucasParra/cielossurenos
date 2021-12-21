@@ -1,3 +1,5 @@
+import { getAdminZone } from "./Zones";
+
 const { supabase } = require("src/config/configSupabase");
 
 const createTask = (taskData) =>
@@ -16,7 +18,7 @@ const getTaskByUserID = (UserID) =>
   supabase
     .from("Task")
     .select("*,TypeID(Name)")
-    .order("ID", { ascending: true })
+    .order("ID", { ascending: false })
     .eq("ClientID", UserID)
     .then((snapshot) => snapshot.data)
     .catch(console.error);
@@ -47,6 +49,11 @@ const getTaskPending = () =>
     .select("*, ClientID(*),TypeID(Name)")
     .eq("StateID", 1)
     .then((snapshot) => snapshot.data);
+
+const createTaskforAdmin = (addressZoneID, task) =>
+  getAdminZone(addressZoneID).then((response) =>
+    createTask({ ...task, AssignedID: response[0].User.ID, StateID: 3 })
+  );
 export {
   createTask,
   getTypesTasks,
@@ -55,4 +62,5 @@ export {
   getLastTaskByUserID,
   finishTaskPending,
   getTaskPending,
+  createTaskforAdmin,
 };
