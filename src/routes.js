@@ -5,12 +5,11 @@ const Toaster = React.lazy(() =>
   import("./views/notifications/toaster/Toaster")
 );
 const Tables = React.lazy(() => import("./views/base/tables/Tables"));
-const Products = React.lazy(() => import("./views/base/tables/Products"));
 
 const Tasks = React.lazy(() => import("./views/base/tables/Tasks"));
 const Rol = React.lazy(() => import("./views/base/tables/Rol"));
 const Zones = React.lazy(() => import("./views/base/tables/Zones"));
-const ChargesPay = React.lazy(() => import("./views/base/tables/ChargesPay"));
+
 const TaskPending = React.lazy(() =>
   import("./views/base/tables/TasksPending")
 );
@@ -28,6 +27,9 @@ const GeneralAdmin = React.lazy(() => import("./views/admin/AdminGeneral"));
 const UsersProductsAdmin = React.lazy(() =>
   import("./views/admin/UsersProducts")
 );
+// views
+const Products = React.lazy(() => import("./views/product/Products"));
+const ChargesPay = React.lazy(() => import("./views/chargePay/ChargesPay"));
 
 const Jumbotrons = React.lazy(() =>
   import("./views/base/jumbotrons/Jumbotrons")
@@ -87,11 +89,12 @@ const routes = [
     component: UsersProductsAdmin,
     exact: true,
   },
-  { path: "/menu/products", name: "Products", component: Products },
+  { path: "/products", name: "Products", component: Products },
+  { path: "/charges", name: "zonas", component: ChargesPay },
   { path: "/menu/usuarios", name: "Usuarios", component: Tables },
   { path: "/menu/tareas", name: "tareas", component: Tasks },
   { path: "/menu/roles", name: "roles", component: Rol },
-  { path: "/menu/charges", name: "zonas", component: ChargesPay },
+
   { path: "/menu/zones", name: "zonas", component: Zones },
   {
     path: "/menu/pendientes",

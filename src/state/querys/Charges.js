@@ -2,12 +2,21 @@ import moment from "moment";
 
 const { supabase } = require("src/config/configSupabase");
 
+const getCharges = (limit) =>
+  supabase
+    .from("ChargeType")
+    .select("*")
+    .limit(limit * 5 + 1)
+    .then((snapshot) => snapshot.data)
+    .catch(console.error);
+
 const createCharge = (chargesData) =>
   supabase
     .from("Charge")
     .insert(chargesData)
     .then((snapshot) => snapshot.data)
     .catch(console.error);
+
 const deleteCharge = (ID) =>
   supabase
     .from("Charge")
@@ -98,6 +107,20 @@ const getTypeCharge = () =>
 const updateChargeType = (ID, data) =>
   supabase.from("ChargeType").update(data).eq("ID", ID);
 
+const deleteChargeType = (ID) =>
+  supabase
+    .from("ChargeType")
+    .delete()
+    .match({ ID })
+    .then((snapshot) => snapshot.data);
+
+const countChargeByTypeID = (ChargeTypeID) =>
+  supabase
+    .from("Charge")
+    .select("*", { count: "exact" })
+    .eq("ChargeTypeID", ChargeTypeID)
+    .then(({ count }) => count);
+
 export {
   createCharge,
   deleteCharge,
@@ -109,4 +132,7 @@ export {
   createTypeCharge,
   updateChargeType,
   getTypeCharge,
+  getCharges,
+  deleteChargeType,
+  countChargeByTypeID,
 };

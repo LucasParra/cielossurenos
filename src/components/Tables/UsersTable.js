@@ -44,7 +44,7 @@ const UsersTable = ({ handleClient }) => {
       loading={loading}
       pagination
       tableFilter={{
-        placeholder: "nombre,rut o apellido",
+        placeholder: "rut",
         label: "Filtrar",
       }}
       striped

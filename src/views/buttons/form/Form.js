@@ -20,7 +20,7 @@ import {
   CInvalidFeedback,
 } from "@coreui/react";
 import _ from "lodash";
-import ProductTable from "src/components/Tables/ProductsTable";
+import SelecteProductsTable from "src/components/Tables/SelecteProductsTable";
 import TechniciansTable from "src/components/Tables/TechniciansTable";
 import {
   createUser,
@@ -440,7 +440,7 @@ const Forms = () => {
           </CModalTitle>
         </CModalHeader>
         <CModalBody>
-          <ProductTable
+          <SelecteProductsTable
             type={"select"}
             productsSelected={formsProducts}
             setProductsSelected={setFormsProducts}

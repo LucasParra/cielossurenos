@@ -7,7 +7,7 @@ import {
   CModalTitle,
 } from "@coreui/react";
 import React from "react";
-import ProductTable from "../Tables/ProductsTable";
+import SelecteProductsTable from "../Tables/SelecteProductsTable";
 
 const SelectProductModal = ({
   show,
@@ -24,7 +24,7 @@ const SelectProductModal = ({
         </CModalTitle>
       </CModalHeader>
       <CModalBody>
-        <ProductTable
+        <SelecteProductsTable
           type={"select"}
           productsSelected={productsSelected}
           setProductsSelected={setProductsSelected}

@@ -34,7 +34,6 @@ import {
   getLastTaskByUserID,
 } from "src/state/querys/Tasks";
 import { useKeySelector } from "src/hook/general";
-import { getAdminZone } from "src/state/querys/Zones";
 
 const fields = [
   "ID",
