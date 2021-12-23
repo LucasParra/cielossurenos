@@ -16,4 +16,11 @@ const getProductByIDUser = (UserID) =>
     .then((snapshot) => snapshot.data)
     .catch(console.error);
 
-export { getProducts, getProductByIDUser };
+const countProductUsed = (productID) =>
+  supabase
+    .from("UserProduct")
+    .select("*", { count: "exact" })
+    .eq("ProductID", productID)
+    .then(({ count }) => count);
+
+export { getProducts, getProductByIDUser, countProductUsed };

@@ -55,8 +55,8 @@ const TheHeader = () => {
         >
           <CIcon
             content={freeSet.cilPowerStandby}
-            size="lg"
-            style={{ color: colors.primary }}
+            size="xl"
+            style={{ color: "#fff" }}
           />
         </CButton>
       </CHeaderNav>

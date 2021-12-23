@@ -7,6 +7,7 @@ import { format } from "rut.js";
 import _ from "lodash";
 
 import { getUsersClients } from "src/state/querys/Users";
+import { ButtonOptionTable } from "../buttons";
 
 const fields = ["nombre", "rut", "numero_de_contacto", "productos"];
 
@@ -58,18 +59,11 @@ const UsersTable = ({ handleClient }) => {
       onTableFilterChange={debounceFilter}
       scopedSlots={{
         productos: (item) => (
-          <td className="py-2">
-            <CRow className="align-items-center" key={item.ID}>
-              <CCol col="2" xs="2" sm="2" md="2" className="mb-2 mb-xl-0">
-                <CButton
-                  color="secondary"
-                  onClick={() => handleClient(item.ID)}
-                >
-                  <CIcon content={freeSet.cilListRich} size="lg" />
-                </CButton>
-              </CCol>
-            </CRow>
-          </td>
+          <ButtonOptionTable
+            color="secondary"
+            icon={freeSet.cilListRich}
+            onPress={() => handleClient(item.ID)}
+          />
         ),
       }}
     />

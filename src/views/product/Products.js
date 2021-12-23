@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import {
   CButton,
+  CCard,
+  CCardBody,
+  CCardHeader,
   CCol,
   CFormGroup,
   CInput,
@@ -19,7 +22,9 @@ import { useKeySelector } from "src/hook/general";
 import { createTaskforAdmin } from "src/state/querys/Tasks";
 import { DeleteModal } from "src/components/Modals";
 import ProductsTable from "src/components/Tables/ProductsTable";
-import { getProducts } from "src/state/querys/Product";
+import { countProductUsed, getProducts } from "src/state/querys/Product";
+import { CChartDoughnut } from "@coreui/react-chartjs";
+import { colorsChart } from "src/utils";
 
 const initProduct = {
   Name: "",
@@ -32,23 +37,31 @@ const Products = () => {
   const [noteTask, setNoteTask] = useState("");
   const [lastProduct, setLastProduct] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [productChart, setProductChart] = useState([]);
   const [product, setProduct] = useState(initProduct);
-  const [loading, setLoading] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const componentDidMount = (limit = 1) => {
     setLoading(true);
     getProducts(limit)
-      .then((data) => {
-        setProducts(
-          data.map((product) => ({
-            ...product,
-            nombre: product.Name,
-            precio: product.BasePrice,
-          }))
-        );
-        setLoading(false);
-      })
+      .then((data) =>
+        Promise.all(
+          data.map(({ ID, Name }) =>
+            countProductUsed(ID).then((count) => ({ count, name: Name }))
+          )
+        ).then((result) => {
+          setProductChart(result);
+          setProducts(
+            data.map((product) => ({
+              ...product,
+              nombre: product.Name,
+              precio: product.BasePrice,
+            }))
+          );
+          setLoading(false);
+        })
+      )
       .catch(console.error);
   };
   const createProduct = () => {
@@ -120,15 +133,59 @@ const Products = () => {
         </CCol>
       </CRow>
       <CRow>
-        <CCol xs="12" lg="12">
-          <ProductsTable
-            products={products}
-            setProduct={setProduct}
-            onPageChange={componentDidMount}
-            setShowDeleteModal={setShowDeleteModal}
-            setModalVisible={setModalVisible}
-            loading={loading}
-          />
+        <CCol xs="12" lg="6">
+          <CCard>
+            <CCardHeader
+              style={{
+                backgroundColor: colors.primary,
+                color: "#fff",
+                fontWeight: "bold",
+              }}
+            >
+              Productos
+            </CCardHeader>
+            <CCardBody>
+              <ProductsTable
+                products={products}
+                setProduct={setProduct}
+                onPageChange={componentDidMount}
+                setShowDeleteModal={setShowDeleteModal}
+                setModalVisible={setModalVisible}
+                loading={loading}
+              />
+            </CCardBody>
+          </CCard>
+        </CCol>
+        <CCol xs="12" lg="6">
+          <CCard>
+            <CCardHeader
+              style={{
+                backgroundColor: colors.primary,
+                color: "#fff",
+                fontWeight: "bold",
+              }}
+            >
+              Grafica de los Productos mas utilizados
+            </CCardHeader>
+            {productChart.length > 0 && (
+              <CCardBody>
+                <CChartDoughnut
+                  datasets={[
+                    {
+                      backgroundColor: colorsChart,
+                      data: productChart.map(({ count }) => count),
+                    },
+                  ]}
+                  labels={productChart.map(({ name }) => name)}
+                  options={{
+                    tooltips: {
+                      enabled: true,
+                    },
+                  }}
+                />
+              </CCardBody>
+            )}
+          </CCard>
         </CCol>
       </CRow>
       <DeleteModal

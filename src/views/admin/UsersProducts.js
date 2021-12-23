@@ -1,12 +1,14 @@
-import { CCard, CCardBody, CCol, CRow } from "@coreui/react";
+import { CCard, CCardBody, CCardHeader, CCol, CRow } from "@coreui/react";
 import React, { useState } from "react";
 
 import UsersTable from "src/components/Tables/UsersTable";
 import { SelectProductModal } from "src/components/Modals";
 import { getProductByIDUser } from "src/state/querys/Product";
 import { createUserProduct, updateUserProduct } from "src/state/querys/Users";
+import { useKeySelector } from "src/hook/general";
 
 const UsersProducts = () => {
+  const { colors } = useKeySelector(["colors"]);
   const [showModal, setShowModal] = useState(false);
   const [productsSelected, setProductsSelected] = useState([]);
   const [userID, setUserID] = useState("");
@@ -39,10 +41,18 @@ const UsersProducts = () => {
   };
   return (
     <>
-      <h1 className="pt-3 ">clientes</h1>
       <CRow>
         <CCol xs="12" sm="6" lg="12">
           <CCard>
+            <CCardHeader
+              style={{
+                backgroundColor: colors.primary,
+                color: "#fff",
+                fontWeight: "bold",
+              }}
+            >
+              clientes
+            </CCardHeader>
             <CCardBody>
               <UsersTable handleClient={handleClient} />
             </CCardBody>

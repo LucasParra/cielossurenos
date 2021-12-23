@@ -17,6 +17,7 @@ import navigation from "./_nav";
 import { useKeySelector } from "src/hook/general";
 import { supabase } from "src/config/configSupabase";
 import { getUserByEmail } from "src/state/querys/Users";
+import UserCard from "src/components/Cards/UserCard";
 
 const TheSidebar = () => {
   const dispatch = useDispatch();
@@ -43,6 +44,7 @@ const TheSidebar = () => {
       }
     >
       <CSidebarNav>
+        <UserCard />
         <CCreateElement
           items={navigation.filter(
             (nav) => _.indexOf(nav.users, user?.RolID?.ID) !== -1

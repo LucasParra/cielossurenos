@@ -8,7 +8,7 @@ import {
   CRow,
 } from "@coreui/react";
 import {
-  countChargeByTypeID,
+  countChargeAssigned,
   createTypeCharge,
   deleteChargeType,
   getCharges,
@@ -18,6 +18,7 @@ import { ChargesPayModal, DeleteModal } from "src/components/Modals";
 import { ChargesPayTable } from "src/components/Tables";
 import { useKeySelector } from "src/hook/general";
 import { CChartDoughnut } from "@coreui/react-chartjs";
+import { colorsChart } from "src/utils";
 
 const ChargesPay = () => {
   const { colors } = useKeySelector(["colors"]);
@@ -34,7 +35,7 @@ const ChargesPay = () => {
       .then((data) =>
         Promise.all(
           data.map(({ ID, Name }) =>
-            countChargeByTypeID(ID).then((result) => ({
+            countChargeAssigned(ID).then((result) => ({
               count: result,
               charges: Name,
             }))
@@ -130,7 +131,7 @@ const ChargesPay = () => {
                 <CChartDoughnut
                   datasets={[
                     {
-                      backgroundColor: ["#41B883", "#E46651"],
+                      backgroundColor: colorsChart,
                       data: chargesChart.map(({ count }) => count),
                     },
                   ]}

@@ -114,7 +114,7 @@ const deleteChargeType = (ID) =>
     .match({ ID })
     .then((snapshot) => snapshot.data);
 
-const countChargeByTypeID = (ChargeTypeID) =>
+const countChargeAssigned = (ChargeTypeID) =>
   supabase
     .from("Charge")
     .select("*", { count: "exact" })
@@ -134,5 +134,5 @@ export {
   getTypeCharge,
   getCharges,
   deleteChargeType,
-  countChargeByTypeID,
+  countChargeAssigned,
 };

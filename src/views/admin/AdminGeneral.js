@@ -17,10 +17,12 @@ import _ from "lodash";
 import { getOffices } from "src/state/querys/Office";
 import { freeSet } from "@coreui/icons";
 import { CChartDoughnut } from "@coreui/react-chartjs";
+import { useKeySelector } from "src/hook/general";
 
 const fields = ["ID", "Tipo", "fecha_agendada", "cliente"];
 
 const AdminGeneral = () => {
+  const { colors } = useKeySelector(["colors"]);
   const [countClient, setCountClient] = useState(0);
   const [countClientInactive, setCountClientInactive] = useState(0);
   const [offices, setOffices] = useState([]);
@@ -109,7 +111,16 @@ const AdminGeneral = () => {
           <CRow>
             <CCol xs="12" sm="6" lg="12">
               <CCard>
-                <CCardHeader align="center">Grafica de clientes</CCardHeader>
+                <CCardHeader
+                  align="center"
+                  style={{
+                    backgroundColor: colors.primary,
+                    color: "#fff",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Grafica de clientes
+                </CCardHeader>
                 <CCardBody>
                   <CChartDoughnut
                     datasets={[
@@ -136,7 +147,16 @@ const AdminGeneral = () => {
             {offices.map((office) => (
               <CCol xs="12" sm="6" lg="3" key={office.Name}>
                 <CCard>
-                  <CCardHeader align="center">{office.Name}</CCardHeader>
+                  <CCardHeader
+                    align="center"
+                    style={{
+                      backgroundColor: colors.primary,
+                      color: "#fff",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {office.Name}
+                  </CCardHeader>
                   <CCardBody>
                     <CChartDoughnut
                       datasets={[
@@ -166,11 +186,27 @@ const AdminGeneral = () => {
               return (
                 <CCol xs="12" sm="6" md="6">
                   <CCard>
-                    <h4 className="pt-3 pl-3">{key}</h4>
+                    <CCardHeader
+                      align="center"
+                      style={{
+                        backgroundColor: colors.primary,
+                        color: "#fff",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {key}
+                    </CCardHeader>
                     <CCardBody>
                       {Object.keys(taskOrderType).map((keyType) => (
                         <CCard className="mb-0">
-                          <CCardHeader id="headingOne">
+                          <CCardHeader
+                            id="headingOne"
+                            style={{
+                              backgroundColor: colors.primary,
+                              color: "#fff",
+                              fontWeight: "bold",
+                            }}
+                          >
                             <CButton
                               block
                               className="text-left m-0 p-0"
@@ -182,7 +218,15 @@ const AdminGeneral = () => {
                                 )
                               }
                             >
-                              <h5 className="m-0 p-0">{keyType}</h5>
+                              <h5
+                                className="m-0 p-0"
+                                style={{
+                                  color: "#fff",
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                {keyType}
+                              </h5>
                             </CButton>
                           </CCardHeader>
                           <CCollapse show={accordion === `${key}-${keyType}`}>
