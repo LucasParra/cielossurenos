@@ -65,7 +65,7 @@ const _nav = [
   {
     _tag: "CSidebarNavItem",
     name: <h5>Sucursal</h5>,
-    to: "/menu/sucursal",
+    to: "/offices",
     icon: "cil-home",
     users: [8],
   },

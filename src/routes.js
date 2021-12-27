@@ -1,5 +1,4 @@
 import React from "react";
-import Office from "./views/base/tables/Office";
 
 const Toaster = React.lazy(() =>
   import("./views/notifications/toaster/Toaster")
@@ -30,6 +29,7 @@ const UsersProductsAdmin = React.lazy(() =>
 // views
 const Products = React.lazy(() => import("./views/product/Products"));
 const ChargesPay = React.lazy(() => import("./views/chargePay/ChargesPay"));
+const Offices = React.lazy(() => import("./views/office/Offices"));
 
 const Jumbotrons = React.lazy(() =>
   import("./views/base/jumbotrons/Jumbotrons")
@@ -91,6 +91,7 @@ const routes = [
   },
   { path: "/products", name: "Products", component: Products },
   { path: "/charges", name: "zonas", component: ChargesPay },
+  { path: "/offices", name: "sucursal", component: Offices },
   { path: "/menu/usuarios", name: "Usuarios", component: Tables },
   { path: "/menu/tareas", name: "tareas", component: Tasks },
   { path: "/menu/roles", name: "roles", component: Rol },
@@ -101,7 +102,6 @@ const routes = [
     name: "pendientes",
     component: TaskPending,
   },
-  { path: "/menu/sucursal", name: "sucursal", component: Office },
   {
     path: "/menu/user/:id",
     exact: true,

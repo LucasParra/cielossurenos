@@ -41,7 +41,7 @@ import {
 import { clean, format, validate } from "rut.js";
 import { getProductByIDUser } from "src/state/querys/Product";
 import { createTask } from "src/state/querys/Tasks";
-import OfficesTable from "../Tables/OfficesTable";
+import SelectOfficesTable from "../Tables/SelectOfficesTable";
 import {
   createClientOffice,
   getOfficesToUserID,
@@ -716,7 +716,7 @@ const UserForm = ({ user, onClose }) => {
           <CModalTitle>Selecciona la sucursal del usuario</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          <OfficesTable setOfficeID={setOfficeID} officeID={officeID} />
+          <SelectOfficesTable setOfficeID={setOfficeID} officeID={officeID} />
         </CModalBody>
         <CModalFooter>
           <CButton color="success" onClick={() => setModalOffice(false)}>

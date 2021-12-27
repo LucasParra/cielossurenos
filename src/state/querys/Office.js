@@ -23,10 +23,11 @@ const createClientOffice = (UserID, officeID) =>
     .insert({ OfficeID: officeID, UserID: UserID })
     .then((snapshot) => snapshot.data[0].ID);
 
-const getOffices = () =>
+const getOffices = (limit = 1) =>
   supabase
     .from("Office")
     .select("*")
+    .limit(limit * 5 + 1)
     .then((snapshot) => snapshot.data);
 
 const getOfficesToUserID = (UserID) =>
@@ -36,6 +37,8 @@ const getOfficesToUserID = (UserID) =>
     .eq("UserID", UserID)
     .then((snapshot) => snapshot.data[0]?.OfficeID);
 
+const deleteOffice = (ID) => supabase.from("Office").delete().match({ ID });
+
 export {
   createOffice,
   updateOffice,
@@ -43,4 +46,5 @@ export {
   getOffices,
   updateOfficeToClient,
   getOfficesToUserID,
+  deleteOffice,
 };
