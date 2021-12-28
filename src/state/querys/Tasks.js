@@ -6,7 +6,7 @@ const createTask = (taskData) =>
   supabase
     .from("Task")
     .insert(taskData)
-    .then((snapshot) => snapshot.data[0].ID);
+    .then((snapshot) => snapshot?.data[0].ID);
 
 const getTypesTasks = () =>
   supabase

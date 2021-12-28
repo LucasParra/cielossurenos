@@ -108,7 +108,8 @@ const UserForm = ({ user, onClose }) => {
   const [userCreatorRolID, setUserCreatorRolID] = useState(false);
 
   const handleCreateUser = () => {
-    if (validatedRut) return;
+    console.log("hola", !user.ID && validatedRut);
+    if (!user.ID && validatedRut) return;
 
     const { Names, LastName, Rut, PhoneNumber, Conections } = formUser;
     const { AddressName } = formsAddress;

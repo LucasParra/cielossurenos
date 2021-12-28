@@ -51,7 +51,7 @@ const AppRouter = () => {
           path="/client"
           name="cliente"
           component={Client}
-          isAuthenticated={session}
+          isAuthenticated={false}
         />
         <PrivateRoute
           path="/"

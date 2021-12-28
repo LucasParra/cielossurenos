@@ -78,7 +78,7 @@ const getChargeUserID = (UserID) =>
 const getAllChargeUserID = (UserID) =>
   supabase
     .from("Charge")
-    .select("*")
+    .select("*,ChargeTypeID(*)")
     .eq("ClientID", UserID)
     .order("CreatedAt", { ascending: true })
     .then((snapshot) => snapshot.data);

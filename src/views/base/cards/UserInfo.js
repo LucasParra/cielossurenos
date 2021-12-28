@@ -116,7 +116,7 @@ const UserInfo = ({ goBack, user, charges, tasks, products }) => {
                               style: "currency",
                             }
                           ).format(charge.Charge)}`}</h4>
-                          <h3 className="pt-1">{`${charge.Name}`}</h3>
+                          <h3 className="pt-1">{`${charge.ChargeTypeID.Name}`}</h3>
                           <h5 className="pt-1">{`Fecha : ${moment(
                             charge.CreatedAt
                           ).format("DD-MM-YYYY")}`}</h5>
