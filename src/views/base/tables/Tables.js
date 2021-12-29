@@ -115,6 +115,7 @@ const Tables = () => {
   };
   const componentDidMount = (limit = 1) => {
     setLoading(true);
+    console.log(limit);
     supabase
       .from("User")
       .select("*,Address(*)")
@@ -213,7 +214,7 @@ const Tables = () => {
                   fields={fields}
                   itemsPerPage={5}
                   onPageChange={(number) => {
-                    if (searchText === "") return componentDidMount(number);
+                    if (!searchText !== "") return componentDidMount(number);
                     else return handleSearchUser(searchText, number);
                   }}
                   loading={loading}
