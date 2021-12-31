@@ -16,11 +16,9 @@ const UsersTable = ({ handleClient }) => {
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
 
-  const usersEffect = (value, limit = 1) => {
-    setSearchText(
-      /^[0-9]*$/.test(value) ? format(value).replace(/\./g, "") : value
-    );
+  const usersEffect = (value = "", limit = 1) => {
     setLoading(true);
+    setSearchText(value);
     getUsersClients(limit, value).then((usersResponse) => {
       setUsers(
         usersResponse.map((user) => ({
@@ -49,13 +47,6 @@ const UsersTable = ({ handleClient }) => {
         label: "Filtrar",
       }}
       striped
-      tableFilterValue={(value) =>
-        /^[0-9]*$/.test(value)
-          ? value !== ""
-            ? format(value).replace(/\./g, "")
-            : ""
-          : value
-      }
       onTableFilterChange={debounceFilter}
       scopedSlots={{
         productos: (item) => (

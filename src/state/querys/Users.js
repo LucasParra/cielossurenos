@@ -92,11 +92,7 @@ const getUsersClients = (limit, value) =>
     .from("User")
     .select("*")
     .eq("RolID", 2)
-    .or(
-      `Names.ilike.%${value}%,LastName.ilike.%${value}%,Rut.ilike.%${format(
-        value
-      ).replace(/\./g, "")}%`
-    )
+    .ilike("Rut", `%${value}%`)
     .limit(limit * 5 + 1)
     .then(({ data }) => data)
     .catch(console.error);

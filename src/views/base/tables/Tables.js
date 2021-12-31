@@ -95,7 +95,6 @@ const Tables = () => {
       .ilike("Rut", `%${value}%`)
       .limit(limit * 5 + 1)
       .then((snapshot) => {
-        console.log(snapshot.data);
         setUsers(
           snapshot.data
             .filter(({ StateID }) => StateID !== "4")
