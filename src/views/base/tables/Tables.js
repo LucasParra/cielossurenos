@@ -92,13 +92,10 @@ const Tables = () => {
     supabase
       .from("User")
       .select("*,Address(*)")
-      .or(
-        `Names.ilike.%${value}%,LastName.ilike.%${value}%,Rut.ilike.%${format(
-          value
-        ).replace(/\./g, "")}%`
-      )
+      .ilike("Rut", `%${value}%`)
       .limit(limit * 5 + 1)
       .then((snapshot) => {
+        console.log(snapshot.data);
         setUsers(
           snapshot.data
             .filter(({ StateID }) => StateID !== "4")
@@ -115,7 +112,6 @@ const Tables = () => {
   };
   const componentDidMount = (limit = 1) => {
     setLoading(true);
-    console.log(limit);
     supabase
       .from("User")
       .select("*,Address(*)")
@@ -224,13 +220,6 @@ const Tables = () => {
                     label: "Filtrar",
                   }}
                   striped
-                  tableFilterValue={(value) =>
-                    /^[0-9]*$/.test(value)
-                      ? value !== ""
-                        ? format(value).replace(/\./g, "")
-                        : ""
-                      : value
-                  }
                   onTableFilterChange={debounceFilter}
                   scopedSlots={{
                     editar: (item) => (
