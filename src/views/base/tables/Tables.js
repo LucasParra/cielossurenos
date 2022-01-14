@@ -30,6 +30,7 @@ import { useHistory } from "react-router";
 import { chargeAutomatic } from "src/state/querys/Charges";
 import { clean, format, getCheckDigit } from "rut.js";
 import { useKeySelector } from "src/hook/general";
+import { CreateClient } from "src/components/Cards";
 
 const fields = [
   "ID",
@@ -66,7 +67,7 @@ const fields = [
   // "AltaTec",
   // "BajaTec",
   // "A_FE_REPAC",
-  "estado",
+  { key: "estado" },
   "editar",
   "datos",
 ];
@@ -124,6 +125,7 @@ const Tables = () => {
               nombres: user.Names,
               apellidos: user.LastName,
               contacto: user.PhoneNumber,
+              estado: getStateName(user.StateID),
             }))
         );
         setLoading(false);
@@ -158,6 +160,7 @@ const Tables = () => {
   const debounceFilter = useCallback(_.debounce(handleSearchUser, 1000), []);
 
   useEffect(componentDidMount, []);
+  // return <CreateClient />;
   return (
     <>
       <CRow>
@@ -207,6 +210,7 @@ const Tables = () => {
                 <CDataTable
                   items={users}
                   fields={fields}
+                  sorter
                   itemsPerPage={5}
                   onPageChange={(number) => {
                     if (!searchText !== "") return componentDidMount(number);

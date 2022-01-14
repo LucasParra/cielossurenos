@@ -1,2 +1,3 @@
 import ButtonOptionTable from "./ButtonOptionTable";
-export { ButtonOptionTable };
+import UploadFile from "./UploadFile";
+export { ButtonOptionTable, UploadFile };

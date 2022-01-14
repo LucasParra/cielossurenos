@@ -29,6 +29,10 @@ import {
   updateCharge,
 } from "src/state/querys/Charges";
 import { createDiscount, updateDiscount } from "src/state/querys/Discount";
+import { getUrlImage } from "src/state/querys/General";
+import { saveAs } from "file-saver";
+import moment from "moment";
+
 const fields = [
   "ID",
   "tipo",
@@ -307,6 +311,25 @@ const Tasks = () => {
                                 <h4>Producto</h4>
                                 <h6>{`Nombre: ${item.Data.Name}`}</h6>
                                 <h6>{`Precio Base: ${item.Data.BasePrice}`}</h6>
+                              </CCol>
+                            )}
+                            {item.TypeID.ID === 12 && (
+                              <CCol lg="2">
+                                <h4>Archivos adjuntos</h4>
+                                <CButton
+                                  color="info"
+                                  onClick={() => {
+                                    const { publicURL } = getUrlImage(
+                                      item.Files
+                                    );
+                                    saveAs(publicURL, `${moment().unix()}.jpg`);
+                                  }}
+                                >
+                                  <CIcon
+                                    content={freeSet.cilCloudDownload}
+                                    size="xl"
+                                  />
+                                </CButton>
                               </CCol>
                             )}
                             {(item.TypeID.ID === 13 ||

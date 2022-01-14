@@ -8,6 +8,7 @@ import {
   CDataTable,
   CFormGroup,
   CInput,
+  CInputFile,
   CInputGroup,
   CInputGroupPrepend,
   CInputGroupText,
@@ -34,6 +35,8 @@ import {
   getLastTaskByUserID,
 } from "src/state/querys/Tasks";
 import { useKeySelector } from "src/hook/general";
+import { UploadFile } from "src/components/buttons";
+import { uploadImage } from "src/state/querys/General";
 
 const fields = [
   "ID",
@@ -58,6 +61,7 @@ const Charges = ({ userID }) => {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [edit, setEdit] = useState("");
+  const [files, setFiles] = useState([]);
   const componentDidMount = (limit = 1) => {
     setLoading(true);
     Promise.all([
@@ -163,28 +167,30 @@ const Charges = ({ userID }) => {
         className="align-items-center"
       >
         {ispayment ? (
-          <CCol col="2">
-            <Select
-              isMulti
-              name="colors"
-              options={charges
-                .filter(({ State }) => !State)
-                .map((charge) => ({
-                  value: parseInt(charge.Charge),
-                  label: charge.nombre,
-                  ID: charge.ID,
-                }))}
-              className="basic-multi-select"
-              classNamePrefix="select"
-              value={chargesSelected}
-              onChange={(selected) => {
-                setChargesSelected(selected);
-                selected.map(({ value }) =>
-                  setAmount(amount + parseInt(value))
-                );
-              }}
-            />
-          </CCol>
+          <>
+            <CCol col="2">
+              <Select
+                isMulti
+                name="colors"
+                options={charges
+                  .filter(({ State }) => !State)
+                  .map((charge) => ({
+                    value: parseInt(charge.Charge),
+                    label: charge.nombre,
+                    ID: charge.ID,
+                  }))}
+                className="basic-multi-select"
+                classNamePrefix="select"
+                value={chargesSelected}
+                onChange={(selected) => {
+                  setChargesSelected(selected);
+                  selected.map(({ value }) =>
+                    setAmount(amount + parseInt(value))
+                  );
+                }}
+              />
+            </CCol>
+          </>
         ) : (
           <>
             <CCol col="2">
@@ -226,28 +232,46 @@ const Charges = ({ userID }) => {
           </>
         )}
         {user?.RolID?.ID === 7 && (
-          <CCol xs="2">
-            <CFormGroup>
-              <CLabel htmlFor="priceBase">Nota para el administrador</CLabel>
-              <CTextarea
-                id="name"
-                value={noteTask}
-                onChange={({ target: { value } }) => setNoteTask(value)}
-              />
-            </CFormGroup>
-          </CCol>
+          <>
+            <CCol xs="2">
+              <CFormGroup>
+                <CLabel htmlFor="priceBase">Nota para el administrador</CLabel>
+                <CTextarea
+                  id="name"
+                  value={noteTask}
+                  onChange={({ target: { value } }) => setNoteTask(value)}
+                />
+              </CFormGroup>
+            </CCol>
+            {ispayment && (
+              <CCol xs="2">
+                <CButton color="info">
+                  <UploadFile
+                    onChange={({ target: { files } }) => setFiles(files)}
+                  >
+                    Subir Archivo
+                  </UploadFile>
+                </CButton>
+              </CCol>
+            )}
+          </>
         )}
         <CCol col="2" style={{ paddingTop: 30 }}>
           <CButton
             color={"success"}
             onClick={() => {
               if (user?.RolID?.ID === 7) {
+                const nameFile = `${moment().unix()}.jpg`;
+
+                uploadImage(nameFile, files[0]);
+
                 return createTaskforAdmin(
                   user.ZoneID[0].AddressID.AddressZoneID,
                   {
                     TypeID: ispayment ? 12 : edit === "" ? 10 : 11,
                     ClientID: user.ID,
                     Note: noteTask,
+                    Files: files[0].name ? nameFile : null,
                     Data: ispayment
                       ? chargesSelected
                       : edit === ""

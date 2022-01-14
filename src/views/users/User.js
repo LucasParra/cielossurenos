@@ -75,7 +75,7 @@ const User = () => {
               color={user.StateID === "2" ? "danger" : "success"}
               onClick={() => changeStateUser(user.StateID, user.ID)}
             >
-              {user.StateID === "2" ? "Dar de baja" : "Activar"}
+              {user.StateID !== "2" ? "Dar de baja" : "Activar"}
             </CButton>
           </CCardHeader>
           <CCardBody
