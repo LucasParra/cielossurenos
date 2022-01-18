@@ -17,6 +17,7 @@ import {
   CModalHeader,
   CModal,
   CInputRadio,
+  CSelect,
 } from "@coreui/react";
 
 // import users from "../../users/users";
@@ -34,11 +35,14 @@ import { useKeySelector } from "src/hook/general";
 import { CreateClient } from "src/components/Cards";
 import {
   getUserBySearch,
+  getUserStates,
+  subscribedProcessUser,
   unsubscribedProcessUser,
   updateUserID,
 } from "src/state/querys/Users";
 import { DeleteModal } from "src/components/Modals";
 import { finishTaskProcessUnSubscribe } from "src/state/querys/Tasks";
+import { nameStateSpanish } from "src/utils";
 
 const fields = [
   "ID",
@@ -86,6 +90,7 @@ const Tables = () => {
   const { user: userSession, colors } = useKeySelector(["user", "colors"]);
   const [creatingUser, setCreatingUser] = useState(false);
   const [chargesAutomaticModal, setChargesAutomaticModal] = useState(false);
+  const [userStates, setUserStates] = useState([]);
   const [users, setUsers] = useState([]);
   const [user, setUser] = useState({});
   const [searchText, setSearchText] = useState("");
@@ -98,12 +103,13 @@ const Tables = () => {
   const [unsubscribedSelected, setUnsubscribedSelected] = useState();
   const [showModalSubscribedConfirm, setShowModalSubscribedConfirm] =
     useState(false);
-
+  const [showModalSubscribedProcess, setShowModalSubscribedProcess] =
+    useState(false);
   const handleSearchUser = (value, limit) => {
     setSearchText(
       /^[0-9]*$/.test(value) ? format(value).replace(/\./g, "") : value
     );
-    if (value === undefined || value === "") return componentDidMount();
+    if (value === undefined || value === "") return userEffect();
     setLoading(true);
     getUserBySearch(value, limit).then((usersApi) => {
       setUsers(
@@ -119,7 +125,7 @@ const Tables = () => {
       setLoading(false);
     });
   };
-  const componentDidMount = (limit = 1) => {
+  const userEffect = (limit = 1) => {
     setLoading(true);
     let refUser = supabase
       .from("User")
@@ -146,6 +152,10 @@ const Tables = () => {
       .catch(console.error);
   };
 
+  const componentDidMount = () => {
+    getUserStates().then(setUserStates);
+  };
+
   const onFinishUnsubscribedProcess = () => {
     unsubscribedProcessUser(
       unsubscribedSelected,
@@ -153,15 +163,24 @@ const Tables = () => {
     ).then(() => {
       setUnsubscribedSelected({});
       setShowModalUnsubscribedConfirm(false);
-      componentDidMount();
+      userEffect();
     });
   };
+  const onFinishSubscribedProcess = () =>
+    subscribedProcessUser(
+      unsubscribedSelected,
+      userSession.ZoneID[0].AddressID.AddressZoneID
+    ).then(() => {
+      setUnsubscribedSelected({});
+      setShowModalSubscribedProcess(false);
+      userEffect();
+    });
   const onFinishSubscribed = () =>
     updateUserID({ ID: unsubscribedSelected, StateID: 1 }).then(() => {
       finishTaskProcessUnSubscribe(unsubscribedSelected);
       setUnsubscribedSelected({});
       setShowModalSubscribedConfirm(false);
-      componentDidMount();
+      userEffect();
     });
 
   const getBadge = (status) => {
@@ -174,6 +193,8 @@ const Tables = () => {
         return "info";
       case "5":
         return "danger";
+      case "6":
+        return "info";
       default:
         return "default";
     }
@@ -188,6 +209,8 @@ const Tables = () => {
         return "Moroso";
       case "5":
         return "Proceso de baja";
+      case "6":
+        return "Reconexion";
       default:
         return "Indefinido";
     }
@@ -195,7 +218,8 @@ const Tables = () => {
 
   const debounceFilter = useCallback(_.debounce(handleSearchUser, 1000), []);
 
-  useEffect(componentDidMount, [stateFilterSelected]);
+  useEffect(userEffect, [stateFilterSelected]);
+  useEffect(componentDidMount, []);
   return (
     <>
       <CRow>
@@ -257,81 +281,23 @@ const Tables = () => {
               </CCardHeader>
               <CCardBody>
                 <CRow alignHorizontal="end">
-                  <CCol xs="12" lg="1">
-                    <CFormGroup variant="checkbox">
-                      <CInputRadio
-                        className="form-check-input"
-                        id="stateAllUser"
-                        name="radioFilterState"
-                        value={0}
-                        style={{ width: 16, height: 16 }}
-                        onClick={() => setStateFilterSelected(0)}
-                      />
-                      <CLabel
-                        variant="checkbox"
-                        htmlFor="stateAllUser"
-                        style={{ fontWeight: "bold", fontSize: 16 }}
-                      >
-                        Todos
-                      </CLabel>
-                    </CFormGroup>
-                  </CCol>
-                  <CCol xs="12" lg="1">
-                    <CFormGroup variant="checkbox">
-                      <CInputRadio
-                        className="form-check-input"
-                        id="stateActiveUser"
-                        name="radioFilterState"
-                        value={1}
-                        style={{ width: 16, height: 16 }}
-                        onClick={() => setStateFilterSelected(1)}
-                      />
-                      <CLabel
-                        variant="checkbox"
-                        htmlFor="stateActiveUser"
-                        style={{ fontWeight: "bold", fontSize: 16 }}
-                      >
-                        Activos
-                      </CLabel>
-                    </CFormGroup>
-                  </CCol>
-                  <CCol xs="12" lg="1">
-                    <CFormGroup variant="checkbox">
-                      <CInputRadio
-                        className="form-check-input"
-                        id="stateUnsubscribedUser"
-                        name="radioFilterState"
-                        value={2}
-                        style={{ width: 16, height: 16 }}
-                        onClick={() => setStateFilterSelected(3)}
-                      />
-                      <CLabel
-                        variant="checkbox"
-                        htmlFor="stateUnsubscribedUser"
-                        style={{ fontWeight: "bold", fontSize: 16 }}
-                      >
-                        Moroso
-                      </CLabel>
-                    </CFormGroup>
-                  </CCol>
                   <CCol xs="12" lg="2">
-                    <CFormGroup variant="checkbox">
-                      <CInputRadio
-                        className="form-check-input"
-                        id="stateUnsubscribedUser"
-                        name="radioFilterState"
-                        value={5}
-                        style={{ width: 16, height: 16 }}
-                        onClick={() => setStateFilterSelected(5)}
-                      />
-                      <CLabel
-                        variant="checkbox"
-                        htmlFor="stateUnsubscribedUser"
-                        style={{ fontWeight: "bold", fontSize: 16 }}
-                      >
-                        En desconexion
-                      </CLabel>
-                    </CFormGroup>
+                    <CSelect
+                      custom
+                      name="select-user-states"
+                      id="select-user-states"
+                      value={stateFilterSelected}
+                      onChange={({ target: { value } }) => {
+                        setStateFilterSelected(value);
+                      }}
+                    >
+                      <option value={0}>Todos</option>
+                      {userStates.map((state) => (
+                        <option value={state.ID}>
+                          {nameStateSpanish(state.ID)}
+                        </option>
+                      ))}
+                    </CSelect>
                   </CCol>
                 </CRow>
                 <CDataTable
@@ -340,7 +306,7 @@ const Tables = () => {
                   sorter
                   itemsPerPage={5}
                   onPageChange={(number) => {
-                    if (!searchText !== "") return componentDidMount(number);
+                    if (!searchText !== "") return userEffect(number);
                     else return handleSearchUser(searchText, number);
                   }}
                   loading={loading}
@@ -448,6 +414,28 @@ const Tables = () => {
                             </CCol>
                           </CRow>
                         )}
+                        {item.StateID === "2" && (
+                          <CRow>
+                            <CCol
+                              col="2"
+                              xs="2"
+                              sm="2"
+                              md="2"
+                              className="mb-2 mb-xl-0"
+                              style={{ zIndex: 999 }}
+                            >
+                              <CButton
+                                color="success"
+                                onClick={() => {
+                                  setUnsubscribedSelected(item.ID);
+                                  setShowModalSubscribedProcess(true);
+                                }}
+                              >
+                                <CIcon content={freeSet.cilArrowTop} size="l" />
+                              </CButton>
+                            </CCol>
+                          </CRow>
+                        )}
                       </td>
                     ),
                     estado: (item) => (
@@ -467,7 +455,7 @@ const Tables = () => {
               user={user}
               onClose={() => {
                 setUser({});
-                componentDidMount();
+                userEffect();
                 setCreatingUser(false);
               }}
             />
@@ -533,6 +521,14 @@ const Tables = () => {
           setShowModalSubscribedConfirm(false);
         }}
         onFinish={onFinishSubscribed}
+      />
+      <DeleteModal
+        show={showModalSubscribedProcess}
+        setShow={() => {
+          setUnsubscribedSelected({});
+          setShowModalSubscribedProcess(false);
+        }}
+        onFinish={onFinishSubscribedProcess}
       />
     </>
   );

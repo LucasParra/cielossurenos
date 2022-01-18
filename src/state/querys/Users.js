@@ -191,6 +191,25 @@ const unsubscribedProcessUser = (UserID, ZoneID) =>
     });
   });
 
+const subscribedProcessUser = (UserID, ZoneID) =>
+  getTechnicalZone(ZoneID).then((result) => {
+    const technical = result[_.random(0, result.length - 1)];
+    updateUserID({ ID: UserID, StateID: 6 }).then(() => {
+      createTask({
+        TypeID: 17,
+        AssignedID: technical.User.ID,
+        ClientID: UserID,
+        StateID: 3,
+      });
+    });
+  });
+
+const getUserStates = () =>
+  supabase
+    .from("UserState")
+    .select("*")
+    .then((snapshot) => snapshot.data)
+    .catch(console.error);
 export {
   getTechnicians,
   createUser,
@@ -211,4 +230,6 @@ export {
   getUsersClients,
   getUserBySearch,
   unsubscribedProcessUser,
+  subscribedProcessUser,
+  getUserStates,
 };

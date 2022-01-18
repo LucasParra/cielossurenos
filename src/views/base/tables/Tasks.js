@@ -57,7 +57,9 @@ const Tasks = () => {
     setLoading(true);
     supabase
       .from("Task")
-      .select("*,TypeID(Name,ID),ClientID(*)")
+      .select(
+        "*,TypeID(Name,ID),ClientID(*,Address:UserAddress!inner(AddressID(AddressName,AddressNumber)))"
+      )
       .order("ID", { ascending: false })
       .or("StateID.eq.2,StateID.eq.3")
       .eq("AssignedID", user.ID)
@@ -138,10 +140,10 @@ const Tasks = () => {
       }
     }
     if (type === 16) {
-      console.log("hola", dataTask);
-      updateUserID({ ID: dataTask.ClientID, StateID: 2 }).then(() =>
-        console.log("hola2")
-      );
+      updateUserID({ ID: dataTask.ClientID, StateID: 2 }).then(() => {});
+    }
+    if (type === 17) {
+      updateUserID({ ID: dataTask.ClientID, StateID: 1 }).then(() => {});
     }
     supabase
       .from("Task")
@@ -352,6 +354,13 @@ const Tasks = () => {
                                         .format(item.Data.Discount)
                                         .replace("$", "")
                                 }`}</h6>
+                              </CCol>
+                            )}
+                            {(item.TypeID.ID === 16 ||
+                              item.TypeID.ID === 17) && (
+                              <CCol lg="3">
+                                <h4>Direccion</h4>
+                                <h6>{`${item.ClientID?.Address[0].AddressID?.AddressName}  ${item.ClientID?.Address[0].AddressID?.AddressNumber}`}</h6>
                               </CCol>
                             )}
                           </CRow>
