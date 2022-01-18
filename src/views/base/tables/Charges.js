@@ -231,7 +231,7 @@ const Charges = ({ userID }) => {
             </CCol>
           </>
         )}
-        {user?.RolID?.ID === 7 && (
+        {user?.RolID?.ID === 7 && !ispayment && (
           <>
             <CCol xs="2">
               <CFormGroup>
@@ -243,86 +243,89 @@ const Charges = ({ userID }) => {
                 />
               </CFormGroup>
             </CCol>
-            {ispayment && (
-              <CCol xs="2">
-                <CButton color="info">
-                  <UploadFile
-                    onChange={({ target: { files } }) => setFiles(files)}
-                  >
-                    Subir Archivo
-                  </UploadFile>
-                </CButton>
-              </CCol>
-            )}
+            <CCol xs="2">
+              <CButton color="info">
+                <UploadFile
+                  onChange={({ target: { files } }) => setFiles(files)}
+                >
+                  Subir Archivo
+                </UploadFile>
+              </CButton>
+            </CCol>
           </>
         )}
         <CCol col="2" style={{ paddingTop: 30 }}>
           <CButton
             color={"success"}
             onClick={() => {
-              if (user?.RolID?.ID === 7) {
-                const nameFile = `${moment().unix()}.jpg`;
+              // if (user?.RolID?.ID === 7) {
+              //   const nameFile = `${moment().unix()}.jpg`;
 
-                uploadImage(nameFile, files[0]);
+              //   if (files[0]) uploadImage(nameFile, files[0]);
 
-                return createTaskforAdmin(
-                  user.ZoneID[0].AddressID.AddressZoneID,
-                  {
-                    TypeID: ispayment ? 12 : edit === "" ? 10 : 11,
-                    ClientID: user.ID,
-                    Note: noteTask,
-                    Files: files[0].name ? nameFile : null,
-                    Data: ispayment
-                      ? chargesSelected
-                      : edit === ""
-                      ? {
-                          ChargeTypeID: chargesTypeSelected.ID,
-                          CreatedAt: moment().toDate(),
-                          Charge: amount,
-                          ClientID: userID,
-                          State: false,
-                          Remaining: 0,
-                        }
-                      : {
-                          ChargeTypeID: chargesTypeSelected.ID,
-                          Name: name,
-                          Charge: amount,
-                          ClientID: userID,
-                          ID: edit,
-                        },
-                  }
-                ).then(() => {
-                  componentDidMount();
-                  setChargesTypeSelected({});
-                  setName(0);
-                  setAmount(0);
-                  setNoteTask("");
-                });
-              }
+              //   return createTaskforAdmin(
+              //     user.ZoneID[0].AddressID.AddressZoneID,
+              //     {
+              //       TypeID: ispayment ? 12 : edit === "" ? 10 : 11,
+              //       ClientID: user.ID,
+              //       Note: noteTask,
+              //       Files: files[0].name ? nameFile : null,
+              //       Data: ispayment
+              //         ? chargesSelected
+              //         : edit === ""
+              //         ? {
+              //             ChargeTypeID: chargesTypeSelected.ID,
+              //             CreatedAt: moment().toDate(),
+              //             Charge: amount,
+              //             ClientID: userID,
+              //             State: false,
+              //             Remaining: 0,
+              //           }
+              //         : {
+              //             ChargeTypeID: chargesTypeSelected.ID,
+              //             Name: name,
+              //             Charge: amount,
+              //             ClientID: userID,
+              //             ID: edit,
+              //           },
+              //     }
+              //   ).then(() => {
+              //     componentDidMount();
+              //     setChargesTypeSelected({});
+              //     setName(0);
+              //     setAmount(0);
+              //     setNoteTask("");
+              //   });
+              // }
 
               if (ispayment) {
-                return Promise.all([
-                  chargesSelected.map(({ ID }) => createPay(ID)),
-                ]).then(() => {
-                  setAmount(0);
-                  setChargesSelected([]);
-                  componentDidMount();
+                const nameFile = `${moment().unix()}.jpg`;
 
+                if (files[0]) uploadImage(nameFile, files[0]);
+
+                return Promise.all([
+                  chargesSelected.map(({ ID }) =>
+                    createPay(ID, files[0] ? nameFile : null)
+                  ),
+                ]).then(() => {
                   if (charges.filter(({ State }) => !State).length === 1) {
                     getLastTaskByUserID(userID).then((taskPending) => {
                       if (taskPending.length > 0) {
                         finishTaskPending(taskPending[0].ID);
                       } else {
-                        createTask({
-                          TypeID: 5,
-                          AssignedID: 12,
-                          ClientID: userID,
-                          StateID: 1,
-                          Note: "Conectar a este usuario ",
-                        });
+                        // createTask({
+                        //   TypeID: 5,
+                        //   AssignedID: 12,
+                        //   ClientID: userID,
+                        //   StateID: 1,
+                        //   Note: "Conectar a este usuario ",
+                        // });
                       }
                     });
                   }
+                  setAmount(0);
+                  setChargesSelected([]);
+                  componentDidMount();
                 });
               }
 

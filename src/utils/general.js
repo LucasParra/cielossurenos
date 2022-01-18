@@ -7,7 +7,7 @@ const nameStateSpanish = (stateID) => {
     case 3:
       return "moroso";
     case 4:
-      return "borrador";
+      return "en aprobacion";
     case 5:
       return "desconexion en proceso";
     case 6:
