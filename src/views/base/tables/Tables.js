@@ -16,6 +16,7 @@ import {
   CModalTitle,
   CModalHeader,
   CModal,
+  CInputRadio,
 } from "@coreui/react";
 
 // import users from "../../users/users";
@@ -31,6 +32,7 @@ import { chargeAutomatic } from "src/state/querys/Charges";
 import { clean, format, getCheckDigit } from "rut.js";
 import { useKeySelector } from "src/hook/general";
 import { CreateClient } from "src/components/Cards";
+import { getUserBySearch } from "src/state/querys/Users";
 
 const fields = [
   "ID",
@@ -74,7 +76,7 @@ const fields = [
 
 const Tables = () => {
   const history = useHistory();
-  const { user: userSession } = useKeySelector(["user"]);
+  const { user: userSession, colors } = useKeySelector(["user", "colors"]);
   const [creatingUser, setCreatingUser] = useState(false);
   const [chargesAutomaticModal, setChargesAutomaticModal] = useState(false);
   const [users, setUsers] = useState([]);
@@ -83,39 +85,39 @@ const Tables = () => {
   const [loading, setLoading] = useState(false);
   const [modalVisibleDiscounts, setModalVisible] = useState(false);
   const [modalVisibleCharges, setModalVisibleCharges] = useState(false);
+  const [stateFilterSelected, setStateFilterSelected] = useState(1);
 
-  const handleSearchUser = (value, limit = 1) => {
+  const handleSearchUser = (value, limit) => {
     setSearchText(
       /^[0-9]*$/.test(value) ? format(value).replace(/\./g, "") : value
     );
     if (value === undefined || value === "") return componentDidMount();
     setLoading(true);
-    supabase
-      .from("User")
-      .select("*,Address(*)")
-      .ilike("Rut", `%${value}%`)
-      .limit(limit * 5 + 1)
-      .then((snapshot) => {
-        setUsers(
-          snapshot.data
-            .filter(({ StateID }) => StateID !== "4")
-            .map((user) => ({
-              ...user,
-              nombres: user.Names,
-              apellidos: user.LastName,
-              contacto: user.PhoneNumber,
-            }))
-        );
-        setLoading(false);
-      })
-      .catch(console.error);
+    getUserBySearch(value, limit).then((usersApi) => {
+      setUsers(
+        usersApi
+          .filter(({ StateID }) => StateID !== "4")
+          .map((user) => ({
+            ...user,
+            nombres: user.Names,
+            apellidos: user.LastName,
+            contacto: user.PhoneNumber,
+          }))
+      );
+      setLoading(false);
+    });
   };
   const componentDidMount = (limit = 1) => {
     setLoading(true);
-    supabase
+    let refUser = supabase
       .from("User")
       .select("*,Address(*)")
-      .limit(limit * 5 + 1)
+      .limit(limit * 5 + 1);
+
+    if (stateFilterSelected !== 0) refUser.eq("StateID", stateFilterSelected);
+
+    console.log("hola", stateFilterSelected !== 0, stateFilterSelected);
+    refUser
       .then((snapshot) => {
         setUsers(
           snapshot.data
@@ -159,8 +161,7 @@ const Tables = () => {
 
   const debounceFilter = useCallback(_.debounce(handleSearchUser, 1000), []);
 
-  useEffect(componentDidMount, []);
-  // return <CreateClient />;
+  useEffect(componentDidMount, [stateFilterSelected]);
   return (
     <>
       <CRow>
@@ -207,6 +208,65 @@ const Tables = () => {
             <CCard>
               <CCardHeader>Usuarios</CCardHeader>
               <CCardBody>
+                <CRow alignHorizontal="end">
+                  <CCol xs="12" lg="1">
+                    <CFormGroup variant="checkbox">
+                      <CInputRadio
+                        className="form-check-input"
+                        id="stateAllUser"
+                        name="radioFilterState"
+                        value={0}
+                        style={{ width: 16, height: 16 }}
+                        onClick={() => setStateFilterSelected(0)}
+                      />
+                      <CLabel
+                        variant="checkbox"
+                        htmlFor="stateAllUser"
+                        style={{ fontWeight: "bold", fontSize: 16 }}
+                      >
+                        Todos
+                      </CLabel>
+                    </CFormGroup>
+                  </CCol>
+                  <CCol xs="12" lg="1">
+                    <CFormGroup variant="checkbox">
+                      <CInputRadio
+                        className="form-check-input"
+                        id="stateActiveUser"
+                        name="radioFilterState"
+                        value={1}
+                        style={{ width: 16, height: 16 }}
+                        onClick={() => setStateFilterSelected(1)}
+                      />
+                      <CLabel
+                        variant="checkbox"
+                        htmlFor="stateActiveUser"
+                        style={{ fontWeight: "bold", fontSize: 16 }}
+                      >
+                        Activos
+                      </CLabel>
+                    </CFormGroup>
+                  </CCol>
+                  <CCol xs="12" lg="1">
+                    <CFormGroup variant="checkbox">
+                      <CInputRadio
+                        className="form-check-input"
+                        id="stateUnsubscribedUser"
+                        name="radioFilterState"
+                        value={2}
+                        style={{ width: 16, height: 16 }}
+                        onClick={() => setStateFilterSelected(2)}
+                      />
+                      <CLabel
+                        variant="checkbox"
+                        htmlFor="stateUnsubscribedUser"
+                        style={{ fontWeight: "bold", fontSize: 16 }}
+                      >
+                        Moroso
+                      </CLabel>
+                    </CFormGroup>
+                  </CCol>
+                </CRow>
                 <CDataTable
                   items={users}
                   fields={fields}

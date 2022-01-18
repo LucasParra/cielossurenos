@@ -166,6 +166,17 @@ const updateUserFinishTask = (user, products, address, officeID) =>
     ]);
   });
 
+const getUserBySearch = (textSearch, limit = 1) =>
+  supabase
+    .from("User")
+    .select("*,Address(*)")
+    .or(
+      `Names.like.%${textSearch}%,LastName.like.%${textSearch}%,Rut.ilike.%${textSearch}%`
+    )
+    .limit(limit * 5 + 1)
+    .then((snapshot) => snapshot.data)
+    .catch(console.error);
+
 export {
   getTechnicians,
   createUser,
@@ -184,4 +195,5 @@ export {
   createUserFinishTask,
   updateUserFinishTask,
   getUsersClients,
+  getUserBySearch,
 };
