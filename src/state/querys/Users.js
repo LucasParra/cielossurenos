@@ -1,8 +1,9 @@
-import { format } from "rut.js";
+import _ from "lodash";
 import { supabase } from "src/config/configSupabase";
 import { createAddress, updateAddress } from "./Address";
 import { createClientOffice, updateOfficeToClient } from "./Office";
 import { createTask } from "./Tasks";
+import { getTechnicalZone } from "./Zones";
 
 const getTechnicians = () =>
   supabase
@@ -177,6 +178,19 @@ const getUserBySearch = (textSearch, limit = 1) =>
     .then((snapshot) => snapshot.data)
     .catch(console.error);
 
+const unsubscribedProcessUser = (UserID, ZoneID) =>
+  getTechnicalZone(ZoneID).then((result) => {
+    const technical = result[_.random(0, result.length - 1)];
+    updateUserID({ ID: UserID, StateID: 5 }).then(() => {
+      createTask({
+        TypeID: 16,
+        AssignedID: technical.User.ID,
+        ClientID: UserID,
+        StateID: 3,
+      });
+    });
+  });
+
 export {
   getTechnicians,
   createUser,
@@ -196,4 +210,5 @@ export {
   updateUserFinishTask,
   getUsersClients,
   getUserBySearch,
+  unsubscribedProcessUser,
 };

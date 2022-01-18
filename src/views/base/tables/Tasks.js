@@ -22,6 +22,7 @@ import { useKeySelector } from "src/hook/general";
 import {
   createUserFinishTask,
   updateUserFinishTask,
+  updateUserID,
 } from "src/state/querys/Users";
 import {
   createCharge,
@@ -136,6 +137,12 @@ const Tasks = () => {
         createDiscount(_.omit(data, "ID"));
       }
     }
+    if (type === 16) {
+      console.log("hola", dataTask);
+      updateUserID({ ID: dataTask.ClientID, StateID: 2 }).then(() =>
+        console.log("hola2")
+      );
+    }
     supabase
       .from("Task")
       .update(dataTask)
@@ -222,6 +229,7 @@ const Tasks = () => {
                                     {
                                       ID: item.ID,
                                       StateID: item.StateID === 2 ? 3 : 2,
+                                      ClientID: item.ClientID.ID,
                                     },
                                     item.TypeID.ID,
                                     item.Data

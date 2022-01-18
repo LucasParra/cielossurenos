@@ -50,6 +50,15 @@ const getTaskPending = () =>
     .eq("StateID", 1)
     .then((snapshot) => snapshot.data);
 
+const finishTaskProcessUnSubscribe = (UserID) =>
+  supabase
+    .from("Task")
+    .update({ StateID: 2 })
+    .eq("StateID", 3)
+    .eq("ClientID.ID", UserID)
+    .eq("TypeID.ID", 16)
+    .then((snapshot) => snapshot.data);
+
 const createTaskforAdmin = (addressZoneID, task) =>
   getAdminZone(addressZoneID).then((response) =>
     createTask({ ...task, AssignedID: response[0].User.ID, StateID: 3 })
@@ -63,4 +72,5 @@ export {
   finishTaskPending,
   getTaskPending,
   createTaskforAdmin,
+  finishTaskProcessUnSubscribe,
 };

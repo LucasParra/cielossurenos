@@ -32,7 +32,13 @@ import { chargeAutomatic } from "src/state/querys/Charges";
 import { clean, format, getCheckDigit } from "rut.js";
 import { useKeySelector } from "src/hook/general";
 import { CreateClient } from "src/components/Cards";
-import { getUserBySearch } from "src/state/querys/Users";
+import {
+  getUserBySearch,
+  unsubscribedProcessUser,
+  updateUserID,
+} from "src/state/querys/Users";
+import { DeleteModal } from "src/components/Modals";
+import { finishTaskProcessUnSubscribe } from "src/state/querys/Tasks";
 
 const fields = [
   "ID",
@@ -72,6 +78,7 @@ const fields = [
   { key: "estado" },
   "editar",
   "datos",
+  { key: "unsubscribed", label: "opciones" },
 ];
 
 const Tables = () => {
@@ -86,6 +93,11 @@ const Tables = () => {
   const [modalVisibleDiscounts, setModalVisible] = useState(false);
   const [modalVisibleCharges, setModalVisibleCharges] = useState(false);
   const [stateFilterSelected, setStateFilterSelected] = useState(1);
+  const [showModalUnsubscribedConfirm, setShowModalUnsubscribedConfirm] =
+    useState(false);
+  const [unsubscribedSelected, setUnsubscribedSelected] = useState();
+  const [showModalSubscribedConfirm, setShowModalSubscribedConfirm] =
+    useState(false);
 
   const handleSearchUser = (value, limit) => {
     setSearchText(
@@ -116,7 +128,6 @@ const Tables = () => {
 
     if (stateFilterSelected !== 0) refUser.eq("StateID", stateFilterSelected);
 
-    console.log("hola", stateFilterSelected !== 0, stateFilterSelected);
     refUser
       .then((snapshot) => {
         setUsers(
@@ -134,6 +145,25 @@ const Tables = () => {
       })
       .catch(console.error);
   };
+
+  const onFinishUnsubscribedProcess = () => {
+    unsubscribedProcessUser(
+      unsubscribedSelected,
+      userSession.ZoneID[0].AddressID.AddressZoneID
+    ).then(() => {
+      setUnsubscribedSelected({});
+      setShowModalUnsubscribedConfirm(false);
+      componentDidMount();
+    });
+  };
+  const onFinishSubscribed = () =>
+    updateUserID({ ID: unsubscribedSelected, StateID: 1 }).then(() => {
+      finishTaskProcessUnSubscribe(unsubscribedSelected);
+      setUnsubscribedSelected({});
+      setShowModalSubscribedConfirm(false);
+      componentDidMount();
+    });
+
   const getBadge = (status) => {
     switch (status) {
       case "1":
@@ -142,6 +172,8 @@ const Tables = () => {
         return "danger";
       case "3":
         return "info";
+      case "5":
+        return "danger";
       default:
         return "default";
     }
@@ -154,6 +186,8 @@ const Tables = () => {
         return "De Baja";
       case "3":
         return "Moroso";
+      case "5":
+        return "Proceso de baja";
       default:
         return "Indefinido";
     }
@@ -183,9 +217,13 @@ const Tables = () => {
               <CCol>
                 <CButton
                   onClick={() => setCreatingUser(true)}
-                  style={{ marginBottom: 10 }}
-                  size="md"
-                  color="primary"
+                  style={{
+                    marginBottom: 10,
+                    backgroundColor: colors.primary,
+                    color: "#fff",
+                    fontSize: 16,
+                    fontWeight: "bold",
+                  }}
                 >
                   Crear Usuario
                 </CButton>
@@ -205,8 +243,18 @@ const Tables = () => {
             </CRow>
           )}
           <div style={{ display: creatingUser ? "none" : "block" }}>
-            <CCard>
-              <CCardHeader>Usuarios</CCardHeader>
+            <CCard style={{ borderRadius: 20 }}>
+              <CCardHeader
+                style={{
+                  backgroundColor: colors.primary,
+                  color: "#fff",
+                  fontSize: 16,
+                  fontWeight: "bold",
+                  textAlign: "center",
+                }}
+              >
+                Usuarios
+              </CCardHeader>
               <CCardBody>
                 <CRow alignHorizontal="end">
                   <CCol xs="12" lg="1">
@@ -255,7 +303,7 @@ const Tables = () => {
                         name="radioFilterState"
                         value={2}
                         style={{ width: 16, height: 16 }}
-                        onClick={() => setStateFilterSelected(2)}
+                        onClick={() => setStateFilterSelected(3)}
                       />
                       <CLabel
                         variant="checkbox"
@@ -263,6 +311,25 @@ const Tables = () => {
                         style={{ fontWeight: "bold", fontSize: 16 }}
                       >
                         Moroso
+                      </CLabel>
+                    </CFormGroup>
+                  </CCol>
+                  <CCol xs="12" lg="2">
+                    <CFormGroup variant="checkbox">
+                      <CInputRadio
+                        className="form-check-input"
+                        id="stateUnsubscribedUser"
+                        name="radioFilterState"
+                        value={5}
+                        style={{ width: 16, height: 16 }}
+                        onClick={() => setStateFilterSelected(5)}
+                      />
+                      <CLabel
+                        variant="checkbox"
+                        htmlFor="stateUnsubscribedUser"
+                        style={{ fontWeight: "bold", fontSize: 16 }}
+                      >
+                        En desconexion
                       </CLabel>
                     </CFormGroup>
                   </CCol>
@@ -282,7 +349,7 @@ const Tables = () => {
                     placeholder: "nombre,rut o apellido",
                     label: "Filtrar",
                   }}
-                  striped
+                  selectable
                   onTableFilterChange={debounceFilter}
                   scopedSlots={{
                     editar: (item) => (
@@ -330,6 +397,57 @@ const Tables = () => {
                             </CButton>
                           </CCol>
                         </CRow>
+                      </td>
+                    ),
+                    unsubscribed: (item) => (
+                      <td>
+                        {item.StateID === "3" && (
+                          <CRow>
+                            <CCol
+                              col="2"
+                              xs="2"
+                              sm="2"
+                              md="2"
+                              className="mb-2 mb-xl-0"
+                              style={{ zIndex: 999 }}
+                            >
+                              <CButton
+                                color="danger"
+                                onClick={() => {
+                                  setUnsubscribedSelected(item.ID);
+                                  setShowModalUnsubscribedConfirm(true);
+                                }}
+                              >
+                                <CIcon
+                                  content={freeSet.cilArrowBottom}
+                                  size="l"
+                                />
+                              </CButton>
+                            </CCol>
+                          </CRow>
+                        )}
+                        {item.StateID === "5" && (
+                          <CRow>
+                            <CCol
+                              col="2"
+                              xs="2"
+                              sm="2"
+                              md="2"
+                              className="mb-2 mb-xl-0"
+                              style={{ zIndex: 999 }}
+                            >
+                              <CButton
+                                color="success"
+                                onClick={() => {
+                                  setUnsubscribedSelected(item.ID);
+                                  setShowModalSubscribedConfirm(true);
+                                }}
+                              >
+                                <CIcon content={freeSet.cilArrowTop} size="l" />
+                              </CButton>
+                            </CCol>
+                          </CRow>
+                        )}
                       </td>
                     ),
                     estado: (item) => (
@@ -400,6 +518,22 @@ const Tables = () => {
           </CButton>
         </CModalFooter>
       </CModal>
+      <DeleteModal
+        show={showModalUnsubscribedConfirm}
+        setShow={() => {
+          setUnsubscribedSelected({});
+          setShowModalUnsubscribedConfirm(false);
+        }}
+        onFinish={onFinishUnsubscribedProcess}
+      />
+      <DeleteModal
+        show={showModalSubscribedConfirm}
+        setShow={() => {
+          setUnsubscribedSelected({});
+          setShowModalSubscribedConfirm(false);
+        }}
+        onFinish={onFinishSubscribed}
+      />
     </>
   );
 };
