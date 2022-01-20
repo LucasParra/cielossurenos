@@ -57,10 +57,10 @@ const _nav = [
   },
   {
     _tag: "CSidebarNavItem",
-    name: <h5>Tareas Pendientes</h5>,
+    name: <h5>Tareas Tecnicos</h5>,
     to: "/menu/pendientes",
     icon: "cil-task",
-    users: [8, 1],
+    users: [8, 7],
   },
   {
     _tag: "CSidebarNavItem",

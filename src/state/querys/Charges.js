@@ -70,7 +70,7 @@ const chargeAutomatic = () =>
 const getChargeUserID = (UserID) =>
   supabase
     .from("Charge")
-    .select("*")
+    .select("*,ChargeTypeID(*)")
     .eq("ClientID", UserID)
     .eq("State", false)
     .then(({ data }) => data);

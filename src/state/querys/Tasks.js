@@ -63,6 +63,20 @@ const createTaskforAdmin = (addressZoneID, task) =>
   getAdminZone(addressZoneID).then((response) =>
     createTask({ ...task, AssignedID: response[0].User.ID, StateID: 3 })
   );
+
+const getCommentsTask = (TaskID) =>
+  supabase
+    .from("TaskComments")
+    .select("*,UserID(Names,LastName)")
+    .eq("TaskID", TaskID)
+    .then((snapshot) => snapshot.data);
+
+const createCommentTask = (commentData) =>
+  supabase
+    .from("TaskComments")
+    .insert(commentData)
+    .then((snapshot) => snapshot?.data[0].ID);
+
 export {
   createTask,
   getTypesTasks,
@@ -73,4 +87,6 @@ export {
   getTaskPending,
   createTaskforAdmin,
   finishTaskProcessUnSubscribe,
+  getCommentsTask,
+  createCommentTask,
 };
