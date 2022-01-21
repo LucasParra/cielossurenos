@@ -339,7 +339,7 @@ const Tables = () => {
                   fields={fields}
                   sorter
                   itemsPerPageSelect={{
-                    label: "Cantidad de usuarios por paginas",
+                    label: "Cantidad",
                   }}
                   itemsPerPage={5}
                   onPageChange={(number) => {
