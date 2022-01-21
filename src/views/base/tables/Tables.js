@@ -24,6 +24,7 @@ import {
 import { supabase } from "src/config/configSupabase";
 import { UserForm } from "src/components/Forms";
 import _ from "lodash";
+import Select from "react-select";
 import CIcon from "@coreui/icons-react";
 import { freeSet } from "@coreui/icons";
 import Discounts from "./Discounts";
@@ -43,6 +44,7 @@ import {
 import { DeleteModal } from "src/components/Modals";
 import { finishTaskProcessUnSubscribe } from "src/state/querys/Tasks";
 import { nameStateSpanish } from "src/utils";
+import { getAddressNames } from "src/state/querys/Zones";
 
 const fields = [
   "ID",
@@ -98,6 +100,7 @@ const Tables = () => {
   const [modalVisibleDiscounts, setModalVisible] = useState(false);
   const [modalVisibleCharges, setModalVisibleCharges] = useState(false);
   const [stateFilterSelected, setStateFilterSelected] = useState(1);
+  const [addressOptions, setAddressOptions] = useState([]);
   const [showModalUnsubscribedConfirm, setShowModalUnsubscribedConfirm] =
     useState(false);
   const [unsubscribedSelected, setUnsubscribedSelected] = useState();
@@ -105,6 +108,8 @@ const Tables = () => {
     useState(false);
   const [showModalSubscribedProcess, setShowModalSubscribedProcess] =
     useState(false);
+
+  const [addressFilterLoading, setaddressFilterLoading] = useState(false);
   const handleSearchUser = (value, limit) => {
     setSearchText(
       /^[0-9]*$/.test(value) ? format(value).replace(/\./g, "") : value
@@ -125,14 +130,15 @@ const Tables = () => {
       setLoading(false);
     });
   };
-  const userEffect = (limit = 1) => {
+  const userEffect = (limit = 1, addressName) => {
     setLoading(true);
     let refUser = supabase
       .from("User")
-      .select("*,Address(*)")
+      .select("*,Address!inner(*)")
       .limit(limit * 5 + 1);
 
     if (stateFilterSelected !== 0) refUser.eq("StateID", stateFilterSelected);
+    if (addressName) refUser.eq("Address.AddressName", addressName);
 
     refUser
       .then((snapshot) => {
@@ -215,8 +221,23 @@ const Tables = () => {
         return "Indefinido";
     }
   };
+  const filterAddress = (value) => {
+    setaddressFilterLoading(false);
+    getAddressNames(value).then((results) => {
+      setAddressOptions(
+        _.uniq(results.map((result) => result.Address.AddressName)).map(
+          (address) => ({ value: address, label: address })
+        )
+      );
+      setaddressFilterLoading(false);
+    });
+  };
 
   const debounceFilter = useCallback(_.debounce(handleSearchUser, 1000), []);
+  const debounceFilterAddress = useCallback(
+    _.debounce(filterAddress, 1000),
+    []
+  );
 
   useEffect(userEffect, [stateFilterSelected]);
   useEffect(componentDidMount, []);
@@ -299,11 +320,27 @@ const Tables = () => {
                       ))}
                     </CSelect>
                   </CCol>
+                  <CCol xs="12" lg="2">
+                    <Select
+                      className="basic-single"
+                      classNamePrefix="select"
+                      onInputChange={debounceFilterAddress}
+                      onChange={(value) => userEffect(1, value?.value)}
+                      isLoading={addressFilterLoading}
+                      isClearable={true}
+                      isSearchable={true}
+                      name="color"
+                      options={addressOptions}
+                    />
+                  </CCol>
                 </CRow>
                 <CDataTable
                   items={users}
                   fields={fields}
                   sorter
+                  itemsPerPageSelect={{
+                    label: "Cantidad de usuarios por paginas",
+                  }}
                   itemsPerPage={5}
                   onPageChange={(number) => {
                     if (!searchText !== "") return userEffect(number);

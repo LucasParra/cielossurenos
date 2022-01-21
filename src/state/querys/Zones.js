@@ -34,4 +34,20 @@ const getTechnicalZone = (ZoneID) =>
     .then((snapshot) => snapshot.data)
     .catch(console.error);
 
-export { createZone, updateZone, getZones, getAdminZone, getTechnicalZone };
+const getAddressNames = (AddressName) =>
+  supabase
+    .from("UserAddress")
+    .select("User!inner(*),Address!inner(*)")
+    .eq("User.RolID", 2)
+    .ilike("Address.AddressName", `%${AddressName}%`)
+    .then((snapshot) => snapshot.data)
+    .catch(console.error);
+
+export {
+  createZone,
+  updateZone,
+  getZones,
+  getAdminZone,
+  getTechnicalZone,
+  getAddressNames,
+};
