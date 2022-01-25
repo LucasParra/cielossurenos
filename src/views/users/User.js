@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import {
   CButton,
+  CCallout,
   CCard,
   CCardBody,
   CCardHeader,
   CCol,
+  CLabel,
   CModal,
   CModalBody,
   CModalFooter,
@@ -22,17 +24,25 @@ import CIcon from "@coreui/icons-react";
 import { freeSet } from "@coreui/icons";
 import { supabase } from "src/config/configSupabase";
 import TechniciansTable from "src/components/Tables/TechniciansTable";
-import { createTask, getTypesTasks } from "src/state/querys/Tasks";
+import {
+  createTask,
+  getTaskByUserID,
+  getTypesTasks,
+} from "src/state/querys/Tasks";
+import TasksTable from "src/components/Tables/TasksTable";
+import _ from "lodash";
 
 const User = () => {
   const history = useHistory();
   const { id } = useParams();
   const [modalTechnicians, setModalTechnicians] = useState(false);
   const [types, setTypes] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [taskForm, setTaskForm] = useState({
     TypeID: "",
     AssignedID: "",
     ClientID: id,
+    Priority: "Media",
     Note: "",
     StateID: 1,
   });
@@ -40,6 +50,19 @@ const User = () => {
 
   const componentDidMount = () => {
     getUserByID(id).then(setUser);
+    supabase
+      .from("Task")
+      .select(
+        "*,TypeID(Name,ID),AssignedID!inner(*),ClientID!inner(*,Address:UserAddress!inner(AddressID(AddressName,AddressNumber)))"
+      )
+      .order("ID", { ascending: false })
+      .or("StateID.eq.2,StateID.eq.3")
+      .eq("ClientID.ID", id)
+      .then((snapshot) => {
+        setTasks(_.groupBy(snapshot.data, "Priority"));
+      })
+      .catch(console.error);
+
     getTypesTasks().then(setTypes);
   };
 
@@ -70,7 +93,9 @@ const User = () => {
             >
               <CIcon content={freeSet.cilArrowLeft} size="l" />
             </CButton>
-            Usuario
+            <CLabel style={{ fontSize: 20, fontWeight: "bold" }}>
+              Usuario
+            </CLabel>
             <CButton
               color={user.StateID === "2" ? "danger" : "success"}
               onClick={() => changeStateUser(user.StateID, user.ID)}
@@ -112,7 +137,12 @@ const User = () => {
       </CCol>
       <CCol lg={8}>
         <CCard>
-          <CCardHeader>Descuentos</CCardHeader>
+          <CCardHeader>
+            <CLabel style={{ fontSize: 20, fontWeight: "bold" }}>
+              Descuentos
+            </CLabel>
+          </CCardHeader>
+
           <CCardBody>
             <Discounts userID={id} />
           </CCardBody>
@@ -120,7 +150,9 @@ const User = () => {
       </CCol>
       <CCol lg={12}>
         <CCard>
-          <CCardHeader>Cargos</CCardHeader>
+          <CCardHeader>
+            <CLabel style={{ fontSize: 20, fontWeight: "bold" }}>Cargos</CLabel>
+          </CCardHeader>
           <CCardBody>
             <Charges userID={id} />
           </CCardBody>
@@ -128,7 +160,11 @@ const User = () => {
       </CCol>
       <CCol lg={12}>
         <CCard>
-          <CCardHeader>Crear tareas</CCardHeader>
+          <CCardHeader>
+            <CLabel style={{ fontSize: 20, fontWeight: "bold" }}>
+              Crear tareas
+            </CLabel>
+          </CCardHeader>
           <CCardBody>
             <CRow>
               <CCol xs="3" lg="3">
@@ -194,6 +230,16 @@ const User = () => {
                 </CButton>
               </CCol>
             </CRow>
+          </CCardBody>
+        </CCard>
+      </CCol>
+      <CCol lg={12}>
+        <CCard>
+          <CCardHeader>
+            <CLabel style={{ fontSize: 20, fontWeight: "bold" }}>Tareas</CLabel>
+          </CCardHeader>
+          <CCardBody>
+            <TasksTable tasks={tasks} taskEffect={componentDidMount} />
           </CCardBody>
         </CCard>
       </CCol>
