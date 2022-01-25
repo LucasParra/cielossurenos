@@ -26,6 +26,7 @@ import {
   updateCharge,
 } from "src/state/querys/Charges";
 import moment from "moment";
+import { saveAs } from "file-saver";
 
 import Select from "react-select";
 import {
@@ -36,7 +37,7 @@ import {
 } from "src/state/querys/Tasks";
 import { useKeySelector } from "src/hook/general";
 import { UploadFile } from "src/components/buttons";
-import { uploadImage } from "src/state/querys/General";
+import { getUrlImage, uploadImage } from "src/state/querys/General";
 
 const fields = [
   "ID",
@@ -45,11 +46,11 @@ const fields = [
   "cargo",
   "restante",
   "estado",
-  "editar",
+  "opciones",
   "eliminar",
 ];
 
-const Charges = ({ userID }) => {
+const Charges = ({ userID, type }) => {
   const { user } = useKeySelector(["user"]);
   const [charges, setCharges] = useState([]);
   const [noteTask, setNoteTask] = useState("");
@@ -137,36 +138,11 @@ const Charges = ({ userID }) => {
   useEffect(componentDidMount, []);
   return (
     <>
-      <CRow>
-        <CCol md="2" col="2">
-          <CButton
-            color="danger"
-            onClick={() => {
-              setAmount(0);
-              setName("");
-              setIspayment(false);
-            }}
-          >
-            Crear Cargo
-          </CButton>
-        </CCol>
-        <CCol md="2" col="2">
-          <CButton
-            color="success"
-            onClick={() => {
-              setIspayment(true);
-              setAmount(0);
-            }}
-          >
-            Crear Pago
-          </CButton>
-        </CCol>
-      </CRow>
       <CRow
         style={{ margin: 10, marginBottom: 20 }}
         className="align-items-center"
       >
-        {ispayment ? (
+        {type === "pay" ? (
           <>
             <CCol col="2">
               <Select
@@ -231,7 +207,7 @@ const Charges = ({ userID }) => {
             </CCol>
           </>
         )}
-        {user?.RolID?.ID === 7 && !ispayment && (
+        {user?.RolID?.ID === 7 && type === "pay" && (
           <>
             <CCol xs="2">
               <CFormGroup>
@@ -298,7 +274,7 @@ const Charges = ({ userID }) => {
               //   });
               // }
 
-              if (ispayment) {
+              if (type === "pay") {
                 const nameFile = `${moment().unix()}.jpg`;
 
                 if (files[0]) uploadImage(nameFile, files[0]);
@@ -336,15 +312,15 @@ const Charges = ({ userID }) => {
               }
             }}
           >
-            {!ispayment
+            {type !== "pay"
               ? edit !== ""
-                ? "Editar Cargo"
+                ? "opciones Cargo"
                 : "Añadir Cargo"
               : "Crear Pago"}
           </CButton>
         </CCol>
 
-        {!ispayment && edit !== "" && (
+        {type !== "pay" && edit !== "" && (
           <CCol col="2" style={{ paddingTop: 30 }}>
             <CButton
               color={"danger"}
@@ -362,7 +338,9 @@ const Charges = ({ userID }) => {
       </CRow>
       <CRow>
         <CDataTable
-          items={charges}
+          items={charges.filter(({ State }) =>
+            type === "pay" ? State === true : State === false
+          )}
           fields={fields}
           itemsPerPage={5}
           onPageChange={componentDidMount}
@@ -405,27 +383,41 @@ const Charges = ({ userID }) => {
               </td>
             ),
 
-            editar: (item) => (
+            opciones: (item) => (
               <td className="py-2">
                 <CRow className="align-items-center">
                   <CCol col="2" xs="2" sm="2" md="2" className="mb-2 mb-xl-0">
-                    <CButton
-                      color="info"
-                      onClick={() => {
-                        if (item.ChargeTypeID?.ID)
-                          setChargesTypeSelected({
-                            ...item.ChargeTypeID,
-                            label: item.ChargeTypeID.Name,
-                          });
+                    {type !== "pay" ? (
+                      <CButton
+                        color="info"
+                        onClick={() => {
+                          if (item.ChargeTypeID?.ID)
+                            setChargesTypeSelected({
+                              ...item.ChargeTypeID,
+                              label: item.ChargeTypeID.Name,
+                            });
 
-                        setIspayment(false);
-                        setName(item.nombre);
-                        setAmount(parseInt(item.Charge));
-                        setEdit(item.ID);
-                      }}
-                    >
-                      <CIcon content={freeSet.cilPencil} size="xl" />
-                    </CButton>
+                          setIspayment(false);
+                          setName(item.nombre);
+                          setAmount(parseInt(item.Charge));
+                          setEdit(item.ID);
+                        }}
+                      >
+                        <CIcon content={freeSet.cilPencil} size="xl" />
+                      </CButton>
+                    ) : (
+                      item.UrlImage && (
+                        <CButton
+                          color="info"
+                          onClick={() => {
+                            const { publicURL } = getUrlImage(item.UrlImage);
+                            saveAs(publicURL, `${moment().unix()}.jpg`);
+                          }}
+                        >
+                          <CIcon content={freeSet.cilCloudDownload} size="xl" />
+                        </CButton>
+                      )
+                    )}
                   </CCol>
                 </CRow>
               </td>
