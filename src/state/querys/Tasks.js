@@ -5,7 +5,7 @@ const { supabase } = require("src/config/configSupabase");
 const createTask = (taskData) =>
   supabase
     .from("Task")
-    .insert(taskData)
+    .insert({ ...taskData, Priority: "Media" })
     .then((snapshot) => snapshot?.data[0].ID);
 
 const getTypesTasks = () =>

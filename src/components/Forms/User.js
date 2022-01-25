@@ -133,6 +133,7 @@ const UserForm = ({ user, onClose }) => {
             ClientID: userSession.ID,
             StateID: 3,
             Note: noteTask,
+            Priority: "Media",
             Data: {
               User: _.omit(
                 { ...formUser, StateID: userCreatorRolID === 7 ? "4" : "1" },
@@ -220,6 +221,7 @@ const UserForm = ({ user, onClose }) => {
           ),
           createTask({
             TypeID: 1,
+            Priority: "Media",
             AssignedID: formUser.TechnicianID,
             // DeadLine:.toDate(),
             ClientID: newUserID,
