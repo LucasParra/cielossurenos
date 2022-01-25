@@ -26,6 +26,7 @@ const Login = () => {
     email: "",
     password: "",
   });
+  const [error, setError] = useState(false);
 
   const handleLogin = () =>
     supabase.auth
@@ -34,7 +35,8 @@ const Login = () => {
         getUserByEmail(email).then((response) =>
           dispatch({ type: "SET_USER", payload: response[0] })
         )
-      );
+      )
+      .catch(() => setError(true));
   return (
     <div className="c-app c-default-layout flex-row align-items-center">
       <CContainer>
@@ -45,7 +47,14 @@ const Login = () => {
                 <CCardBody>
                   <CForm>
                     <h1>Bienvenido!</h1>
-                    <p className="text-muted">Ingresa tu Cuenta</p>
+
+                    {error ? (
+                      <p className="text-danger">
+                        Usuario o contraseña incorrectos{" "}
+                      </p>
+                    ) : (
+                      <p className="text-muted">Ingresa tu Cuenta</p>
+                    )}
                     <CInputGroup className="mb-3">
                       <CInputGroupPrepend>
                         <CInputGroupText>
@@ -56,6 +65,7 @@ const Login = () => {
                         type="email"
                         placeholder="email"
                         autoComplete="email"
+                        style={{ borderColor: error ? "red" : "#9999" }}
                         onChange={({ target: { value } }) =>
                           setloginForm({ ...loginForm, email: value })
                         }
@@ -72,6 +82,7 @@ const Login = () => {
                         type="password"
                         placeholder="Password"
                         autoComplete="current-password"
+                        style={{ borderColor: error ? "red" : "#9999" }}
                         onChange={({ target: { value } }) =>
                           setloginForm({ ...loginForm, password: value })
                         }
