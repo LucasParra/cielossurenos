@@ -572,9 +572,23 @@ const TasksTable = ({ tasks, taskEffect }) => {
                                               backgroundColor: "#d7d7d799",
                                               borderRadius: 6,
                                               padding: 6,
+                                              paddingBottom: 20,
                                             }}
                                           >
                                             {comment.Comment}
+                                          </p>
+                                          <p
+                                            style={{
+                                              fontSize: 12,
+                                              fontWeight: "bold",
+                                              position: "absolute",
+                                              bottom: 0,
+                                              right: 30,
+                                            }}
+                                          >
+                                            {moment(comment.CreatedAt).format(
+                                              "DD-MM-YYYY"
+                                            )}
                                           </p>
                                         </CCol>
                                       </CRow>
