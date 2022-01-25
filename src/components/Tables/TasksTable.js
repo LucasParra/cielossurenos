@@ -345,8 +345,8 @@ const TasksTable = ({ tasks, taskEffect }) => {
                                       />
                                     </CButton>
                                   </CCol>
-                                  {task.AssignedID?.RolID === 7 ||
-                                    (task.AssignedID?.RolID === 8 && (
+                                  {user?.RolID.ID !== 1 &&
+                                    task.AssignedID?.RolID === 1 && (
                                       <CCol xs="2" lg="2">
                                         <CButton
                                           color="warning"
@@ -364,7 +364,7 @@ const TasksTable = ({ tasks, taskEffect }) => {
                                           />
                                         </CButton>
                                       </CCol>
-                                    ))}
+                                    )}
                                   {task.StateID === 3 && (
                                     <CCol xs="2" lg="2">
                                       <CButton
@@ -515,6 +515,37 @@ const TasksTable = ({ tasks, taskEffect }) => {
                                         </h6>
                                       </CCol>
                                     </CRow>
+                                    {user?.RolID.ID !== 1 && (
+                                      <CRow
+                                        style={{
+                                          backgroundColor: "#d7d7d799",
+                                          borderRadius: 6,
+                                          padding: 6,
+                                          marginTop: 12,
+                                        }}
+                                      >
+                                        <CCol lg="12">
+                                          <h6 style={{ fontWeight: "bold" }}>
+                                            {`Tecnico Encargado`}
+                                          </h6>
+                                        </CCol>
+                                        <CCol lg="12">
+                                          <h6 style={{ fontWeight: "bold" }}>
+                                            {`Nombre: ${task.AssignedID.Names} ${task.AssignedID.LastName}`}
+                                          </h6>
+                                        </CCol>
+                                        <CCol lg="12">
+                                          <h6 style={{ fontWeight: "bold" }}>
+                                            {`Contacto: ${task.AssignedID.PhoneNumber}`}
+                                          </h6>
+                                        </CCol>
+                                        <CCol lg="12">
+                                          <h6 style={{ fontWeight: "bold" }}>
+                                            {`Rut: ${task.AssignedID.Rut}`}
+                                          </h6>
+                                        </CCol>
+                                      </CRow>
+                                    )}
                                     <CRow
                                       style={{
                                         backgroundColor: "#d7d7d799",
