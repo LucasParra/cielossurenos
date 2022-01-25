@@ -71,7 +71,7 @@ const TaskPending = () => {
           </CSelect>
         </CCol>
       </CRow>
-      <TasksTable tasks={tasks} taskEffect={componentDidMount} />
+      <TasksTable tasks={tasks} taskEffect={taskEffect} />
     </>
   );
 };

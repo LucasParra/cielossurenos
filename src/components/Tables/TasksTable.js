@@ -45,9 +45,11 @@ import CIcon from "@coreui/icons-react";
 import { freeSet } from "@coreui/icons";
 import TechniciansTable from "./TechniciansTable";
 import { UploadFile } from "../buttons";
+import { useDispatch } from "react-redux";
 
 const TasksTable = ({ tasks, taskEffect }) => {
   const { user } = useKeySelector(["user"]);
+  const dispatch = useDispatch();
   const [showCollapseCommentTask, setShowCollapseCommentTask] = useState("");
   const [showCollapseInfoTask, setShowCollapseInfoTask] = useState("");
 
@@ -63,7 +65,11 @@ const TasksTable = ({ tasks, taskEffect }) => {
   const [chargesSelected, setChargesSelected] = useState([]);
   const [files, setFiles] = useState([]);
 
-  const deleteTask = () =>
+  const deleteTask = () => {
+    dispatch({
+      type: "SET_TOAS",
+      payload: { show: true, type: "loading", label: "Cargando..." },
+    });
     supabase
       .from("Task")
       .delete()
@@ -72,9 +78,32 @@ const TasksTable = ({ tasks, taskEffect }) => {
         setTaskSelected();
         taskEffect();
         setDeleteModal(false);
+        dispatch({
+          type: "SET_TOAS",
+          payload: {
+            show: true,
+            type: "success",
+            label: "Tarea Eliminada!",
+          },
+        });
+        setTimeout(() => {
+          dispatch({
+            type: "SET_TOAS",
+            payload: {
+              show: false,
+              type: "",
+              label: "",
+            },
+          });
+        }, 3000);
       });
+  };
 
   const changeStateTask = (dataTask, type, data) => {
+    dispatch({
+      type: "SET_TOAS",
+      payload: { show: true, type: "loading", label: "Cargando..." },
+    });
     if (dataTask.StateID === 1) return null;
     if (type === 6 || type === 7) {
       if (data.ID) {
@@ -136,6 +165,24 @@ const TasksTable = ({ tasks, taskEffect }) => {
       .then(() => {
         taskEffect();
         setDeleteModal(false);
+        dispatch({
+          type: "SET_TOAS",
+          payload: {
+            show: true,
+            type: "success",
+            label: "Operacion Exitosa!",
+          },
+        });
+        setTimeout(() => {
+          dispatch({
+            type: "SET_TOAS",
+            payload: {
+              show: false,
+              type: "",
+              label: "",
+            },
+          });
+        }, 3000);
       });
   };
 
@@ -170,7 +217,11 @@ const TasksTable = ({ tasks, taskEffect }) => {
       );
     });
   };
-  const handleCreateComments = (TaskID) =>
+  const handleCreateComments = (TaskID) => {
+    dispatch({
+      type: "SET_TOAS",
+      payload: { show: true, type: "loading", label: "Cargando..." },
+    });
     createCommentTask({ TaskID, Comment: textComment, UserID: user.ID }).then(
       (newCommentID) => {
         setComments([
@@ -183,14 +234,62 @@ const TasksTable = ({ tasks, taskEffect }) => {
             Comment: textComment,
           },
         ]);
+        dispatch({
+          type: "SET_TOAS",
+          payload: {
+            show: true,
+            type: "success",
+            label: "Comentario Guardado...",
+          },
+        });
+        setTimeout(() => {
+          dispatch({
+            type: "SET_TOAS",
+            payload: {
+              show: false,
+              type: "",
+              label: "",
+            },
+          });
+        }, 3000);
         setTextComment("");
         getCommentsTask(TaskID);
       }
     );
-  const handleChangePriorityTask = (TaskID, Priority) =>
-    updateTask({ ID: TaskID, Priority }).then(taskEffect);
+  };
+  const handleChangePriorityTask = (TaskID, Priority) => {
+    dispatch({
+      type: "SET_TOAS",
+      payload: { show: true, type: "loading", label: "Cargando..." },
+    });
+    updateTask({ ID: TaskID, Priority }).then(() => {
+      taskEffect();
+      dispatch({
+        type: "SET_TOAS",
+        payload: {
+          show: true,
+          type: "success",
+          label: "Prioridad Cambiada Correctamente",
+        },
+      });
+      setTimeout(() => {
+        dispatch({
+          type: "SET_TOAS",
+          payload: {
+            show: false,
+            type: "",
+            label: "",
+          },
+        });
+      }, 3000);
+    });
+  };
 
-  const handleChangeTechnicalTask = (TaskID, Priority) =>
+  const handleChangeTechnicalTask = () => {
+    dispatch({
+      type: "SET_TOAS",
+      payload: { show: true, type: "loading", label: "Cargando..." },
+    });
     updateTask({
       ID: technicalSelected.TaskID,
       AssignedID: technicalSelected.AssignedID,
@@ -198,7 +297,26 @@ const TasksTable = ({ tasks, taskEffect }) => {
       setTechnicalSelected(false);
       setShowTechnicalModal(false);
       taskEffect();
+      dispatch({
+        type: "SET_TOAS",
+        payload: {
+          show: true,
+          type: "success",
+          label: "Operacion Exitosa!",
+        },
+      });
+      setTimeout(() => {
+        dispatch({
+          type: "SET_TOAS",
+          payload: {
+            show: false,
+            type: "",
+            label: "",
+          },
+        });
+      }, 3000);
     });
+  };
 
   const orderPriority = (priority) => {
     switch (priority) {
@@ -210,7 +328,11 @@ const TasksTable = ({ tasks, taskEffect }) => {
         return 2;
     }
   };
-  const onFinishPayment = () =>
+  const onFinishPayment = () => {
+    dispatch({
+      type: "SET_TOAS",
+      payload: { show: true, type: "loading", label: "Cargando..." },
+    });
     Promise.all([
       chargesSelected.map((charge) => updateCharge({ State: true }, charge.ID)),
       updateUserID({ ID: taskSelected.ClientID.ID, StateID: 1 }),
@@ -224,7 +346,26 @@ const TasksTable = ({ tasks, taskEffect }) => {
       setFiles();
       setShowTechnicalPaymentModal(false);
       setTaskSelected();
+      dispatch({
+        type: "SET_TOAS",
+        payload: {
+          show: true,
+          type: "success",
+          label: "Operacion Exitosa!",
+        },
+      });
+      setTimeout(() => {
+        dispatch({
+          type: "SET_TOAS",
+          payload: {
+            show: false,
+            type: "",
+            label: "",
+          },
+        });
+      }, 3000);
     });
+  };
 
   return (
     <>
@@ -862,7 +1003,27 @@ const TasksTable = ({ tasks, taskEffect }) => {
             <CCol xs="12" lg="3">
               <CButton color="info">
                 <UploadFile
-                  onChange={({ target: { files } }) => setFiles(files)}
+                  onChange={({ target: { files } }) => {
+                    dispatch({
+                      type: "SET_TOAS",
+                      payload: {
+                        show: true,
+                        type: "success",
+                        label: "Archivo Cargado",
+                      },
+                    });
+                    setTimeout(() => {
+                      dispatch({
+                        type: "SET_TOAS",
+                        payload: {
+                          show: false,
+                          type: "",
+                          label: "",
+                        },
+                      });
+                    }, 3000);
+                    setFiles(files);
+                  }}
                 >
                   Subir Archivo
                 </UploadFile>

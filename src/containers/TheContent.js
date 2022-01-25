@@ -1,9 +1,10 @@
 import React, { Suspense } from "react";
 import { Switch, Route } from "react-router-dom";
-import { CContainer, CFade } from "@coreui/react";
+import { CCard, CContainer, CFade, CRow } from "@coreui/react";
 
 // routes config
 import routes from "../routes";
+import Toas from "src/components/utils/Toas";
 
 const loading = (
   <div className="pt-3 text-center">
@@ -22,6 +23,7 @@ const Comp = (props) => {
 const TheContent = () => {
   return (
     <main className="c-main">
+      <Toas />
       <CContainer fluid>
         <Suspense fallback={loading}>
           <Switch>
@@ -40,7 +42,6 @@ const TheContent = () => {
                 )
               );
             })}
-            {/* <Redirect from="/" to="/login" /> */}
           </Switch>
         </Suspense>
       </CContainer>

@@ -135,7 +135,6 @@ const Tables = () => {
   };
   const userEffect = (limit = 1, addressName) => {
     setLoading(true);
-    console.log("hola", limit, addressName);
     let refUser = supabase
       .from("User")
       .select("*,Address!inner(*)")

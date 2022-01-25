@@ -11,6 +11,10 @@ const middleHelpers = {
     ...state,
     sidebarShow: payload,
   }),
+  SET_TOAS: (state, payload) => ({
+    ...state,
+    toas: payload,
+  }),
 };
 
 const reducer = (state = initialState, action) => {
