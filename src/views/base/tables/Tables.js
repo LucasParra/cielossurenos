@@ -110,12 +110,15 @@ const Tables = () => {
     useState(false);
 
   const [addressFilterLoading, setaddressFilterLoading] = useState(false);
+  const [addressSelected, setAddressSelected] = useState();
+
   const handleSearchUser = (value, limit) => {
     setSearchText(
       /^[0-9]*$/.test(value) ? format(value).replace(/\./g, "") : value
     );
     if (value === undefined || value === "") return userEffect();
     setLoading(true);
+
     getUserBySearch(value, limit).then((usersApi) => {
       setUsers(
         usersApi
@@ -132,6 +135,7 @@ const Tables = () => {
   };
   const userEffect = (limit = 1, addressName) => {
     setLoading(true);
+    console.log("hola", limit, addressName);
     let refUser = supabase
       .from("User")
       .select("*,Address!inner(*)")
@@ -325,7 +329,10 @@ const Tables = () => {
                       className="basic-single"
                       classNamePrefix="select"
                       onInputChange={debounceFilterAddress}
-                      onChange={(value) => userEffect(1, value?.value)}
+                      onChange={(value) => {
+                        setAddressSelected(value?.value);
+                        userEffect(1, value?.value);
+                      }}
                       isLoading={addressFilterLoading}
                       isClearable={true}
                       isSearchable={true}
@@ -338,11 +345,9 @@ const Tables = () => {
                   items={users}
                   fields={fields}
                   sorter
-                  itemsPerPageSelect={{
-                    label: "Cantidad",
-                  }}
-                  itemsPerPage={5}
                   onPageChange={(number) => {
+                    if (addressSelected !== "")
+                      return userEffect(number, addressSelected);
                     if (!searchText !== "") return userEffect(number);
                     else return handleSearchUser(searchText, number);
                   }}
@@ -352,6 +357,7 @@ const Tables = () => {
                     placeholder: "nombre,rut o apellido",
                     label: "Filtrar",
                   }}
+                  itemsPerPage={5}
                   selectable
                   onTableFilterChange={debounceFilter}
                   scopedSlots={{
