@@ -50,7 +50,7 @@ const _nav = [
   },
   {
     _tag: "CSidebarNavItem",
-    name: <h5>Tareas</h5>,
+    name: <h5>Mis Tareas</h5>,
     to: "/menu/tareas",
     icon: "cil-task",
     users: [8, 7, 1],
