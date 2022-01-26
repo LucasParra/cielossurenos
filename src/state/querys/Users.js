@@ -98,13 +98,13 @@ const getUsersClients = (limit, value) =>
     .then(({ data }) => data)
     .catch(console.error);
 
-const getClientsCount = (stateID) =>
+const getClientsCount = (stateID, nameState) =>
   supabase
     .from("User")
     .select("*", { count: "exact" })
     .eq("RolID", 2)
     .eq("StateID", stateID)
-    .then(({ count }) => count)
+    .then(({ count }) => ({ count, name: nameState, stateID }))
     .catch(console.error);
 
 const getClientsCountOffice = (officeID, stateID) =>
@@ -210,6 +210,7 @@ const getUserStates = () =>
     .select("*")
     .then((snapshot) => snapshot.data)
     .catch(console.error);
+
 export {
   getTechnicians,
   createUser,
