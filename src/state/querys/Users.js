@@ -65,7 +65,7 @@ const updateUserProduct = (userProductData) =>
 const getUserByID = (ID) =>
   supabase
     .from("User")
-    .select("*")
+    .select("*,UserAddress!inner(Address(*,AddressZoneID(*)))")
     .eq("ID", ID)
     .then((snapshot) => snapshot.data[0])
     .catch(console.error);

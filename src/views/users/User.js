@@ -164,7 +164,7 @@ const User = () => {
             <CLabel style={{ fontSize: 20, fontWeight: "bold" }}>Pagos</CLabel>
           </CCardHeader>
           <CCardBody>
-            <Charges userID={id} type="pay" />
+            <Charges userID={id} type="pay" client={user} />
           </CCardBody>
         </CCard>
       </CCol>

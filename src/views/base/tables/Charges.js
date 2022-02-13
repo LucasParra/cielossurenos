@@ -38,6 +38,11 @@ import {
 import { useKeySelector } from "src/hook/general";
 import { UploadFile } from "src/components/buttons";
 import { getUrlImage, uploadImage } from "src/state/querys/General";
+import {
+  creditNote,
+  generateBill,
+  getDetailsDocumentID,
+} from "src/state/querys/Bills";
 
 const fields = [
   "ID",
@@ -50,7 +55,7 @@ const fields = [
   "eliminar",
 ];
 
-const Charges = ({ userID, type }) => {
+const Charges = ({ userID, type, client }) => {
   const { user } = useKeySelector(["user"]);
   const [charges, setCharges] = useState([]);
   const [noteTask, setNoteTask] = useState("");
@@ -275,34 +280,44 @@ const Charges = ({ userID, type }) => {
               // }
 
               if (type === "pay") {
-                const nameFile = `${moment().unix()}.jpg`;
+                return generateBill(client, chargesSelected).then(
+                  (response) => {
+                    window.open(response.urlPublicView, "_blank");
 
-                if (files[0]) uploadImage(nameFile, files[0]);
+                    const nameFile = `${moment().unix()}.jpg`;
 
-                return Promise.all([
-                  chargesSelected.map(({ ID }) =>
-                    createPay(ID, files[0] ? nameFile : null)
-                  ),
-                ]).then(() => {
-                  if (charges.filter(({ State }) => !State).length === 1) {
-                    getLastTaskByUserID(userID).then((taskPending) => {
-                      if (taskPending.length > 0) {
-                        finishTaskPending(taskPending[0].ID);
-                      } else {
-                        // createTask({
-                        //   TypeID: 5,
-                        //   AssignedID: 12,
-                        //   ClientID: userID,
-                        //   StateID: 1,
-                        //   Note: "Conectar a este usuario ",
-                        // });
+                    if (files[0]) uploadImage(nameFile, files[0]);
+                    console.log("charge", response.id);
+                    return Promise.all([
+                      chargesSelected.map((charge) =>
+                        createPay(
+                          charge.ID,
+                          files[0] ? nameFile : null,
+                          response.id
+                        )
+                      ),
+                    ]).then(() => {
+                      if (charges.filter(({ State }) => !State).length === 1) {
+                        getLastTaskByUserID(userID).then((taskPending) => {
+                          if (taskPending.length > 0) {
+                            finishTaskPending(taskPending[0].ID);
+                          } else {
+                            // createTask({
+                            //   TypeID: 5,
+                            //   AssignedID: 12,
+                            //   ClientID: userID,
+                            //   StateID: 1,
+                            //   Note: "Conectar a este usuario ",
+                            // });
+                          }
+                        });
                       }
+                      setAmount(0);
+                      setChargesSelected([]);
+                      componentDidMount();
                     });
                   }
-                  setAmount(0);
-                  setChargesSelected([]);
-                  componentDidMount();
-                });
+                );
               }
 
               if (edit === "") {
@@ -353,12 +368,20 @@ const Charges = ({ userID, type }) => {
                   <CCol col="2" xs="2" sm="2" md="2" className="mb-2 mb-xl-0">
                     <CButton
                       color="danger"
-                      onClick={() =>
-                        deleteCharge(item.ID).then(() => {
-                          setLoading(false);
-                          componentDidMount();
-                        })
-                      }
+                      onClick={() => {
+                        getDetailsDocumentID(item.DocumentID).then((detail) => {
+                          creditNote(
+                            client,
+                            item.DocumentID,
+                            detail.items[0].id
+                          ).then(() =>
+                            deleteCharge(item.ID).then(() => {
+                              setLoading(false);
+                              componentDidMount();
+                            })
+                          );
+                        });
+                      }}
                     >
                       <CIcon content={freeSet.cilTrash} size="xl" />
                     </CButton>

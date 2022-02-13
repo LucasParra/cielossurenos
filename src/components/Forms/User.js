@@ -18,6 +18,7 @@ import {
   CModalFooter,
   CTextarea,
   CFormGroup,
+  CSwitch,
 } from "@coreui/react";
 import _ from "lodash";
 import SelecteProductsTable from "src/components/Tables/SelecteProductsTable";
@@ -79,6 +80,7 @@ const initUser = {
   Conections: 0,
   Birthday: new Date(),
   RolID: 2,
+  Business: false,
 };
 const initAddress = [
   {
@@ -478,6 +480,25 @@ const UserForm = ({ user, onClose }) => {
                       }
                     />
                   </CCol>
+                  <CCol xs="12" sm="2" style={{ paddingTop: 16 }}>
+                    <CLabel htmlFor="business">Empresa :</CLabel>
+                  </CCol>
+                  <CCol xs="12" sm="1" style={{ paddingTop: 16 }}>
+                    <CSwitch
+                      className="mr-1"
+                      variant={"3d"}
+                      color={"success"}
+                      value={formUser.Business}
+                      shape="pill"
+                      onChange={({ target: { checked } }) =>
+                        setFormUser({
+                          ...formUser,
+                          Business: checked,
+                        })
+                      }
+                    />
+                  </CCol>
+
                   {userSession?.RolID?.ID === 7 && (
                     <CCol style={{ marginBottom: 8 }} xs="12" sm="12">
                       <CFormGroup>
