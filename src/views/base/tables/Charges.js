@@ -26,6 +26,7 @@ import {
   updateCharge,
 } from "src/state/querys/Charges";
 import moment from "moment";
+import { saveAs } from "file-saver";
 
 import Select from "react-select";
 import {
@@ -36,7 +37,12 @@ import {
 } from "src/state/querys/Tasks";
 import { useKeySelector } from "src/hook/general";
 import { UploadFile } from "src/components/buttons";
-import { uploadImage } from "src/state/querys/General";
+import { getUrlImage, uploadImage } from "src/state/querys/General";
+import {
+  creditNote,
+  generateBill,
+  getDetailsDocumentID,
+} from "src/state/querys/Bills";
 
 const fields = [
   "ID",
@@ -45,11 +51,11 @@ const fields = [
   "cargo",
   "restante",
   "estado",
-  "editar",
+  "opciones",
   "eliminar",
 ];
 
-const Charges = ({ userID }) => {
+const Charges = ({ userID, type, client }) => {
   const { user } = useKeySelector(["user"]);
   const [charges, setCharges] = useState([]);
   const [noteTask, setNoteTask] = useState("");
@@ -137,36 +143,11 @@ const Charges = ({ userID }) => {
   useEffect(componentDidMount, []);
   return (
     <>
-      <CRow>
-        <CCol md="2" col="2">
-          <CButton
-            color="danger"
-            onClick={() => {
-              setAmount(0);
-              setName("");
-              setIspayment(false);
-            }}
-          >
-            Crear Cargo
-          </CButton>
-        </CCol>
-        <CCol md="2" col="2">
-          <CButton
-            color="success"
-            onClick={() => {
-              setIspayment(true);
-              setAmount(0);
-            }}
-          >
-            Crear Pago
-          </CButton>
-        </CCol>
-      </CRow>
       <CRow
         style={{ margin: 10, marginBottom: 20 }}
         className="align-items-center"
       >
-        {ispayment ? (
+        {type === "pay" ? (
           <>
             <CCol col="2">
               <Select
@@ -231,7 +212,7 @@ const Charges = ({ userID }) => {
             </CCol>
           </>
         )}
-        {user?.RolID?.ID === 7 && !ispayment && (
+        {user?.RolID?.ID === 7 && type === "pay" && (
           <>
             <CCol xs="2">
               <CFormGroup>
@@ -298,35 +279,45 @@ const Charges = ({ userID }) => {
               //   });
               // }
 
-              if (ispayment) {
-                const nameFile = `${moment().unix()}.jpg`;
+              if (type === "pay") {
+                return generateBill(client, chargesSelected).then(
+                  (response) => {
+                    window.open(response.urlPublicView, "_blank");
 
-                if (files[0]) uploadImage(nameFile, files[0]);
+                    const nameFile = `${moment().unix()}.jpg`;
 
-                return Promise.all([
-                  chargesSelected.map(({ ID }) =>
-                    createPay(ID, files[0] ? nameFile : null)
-                  ),
-                ]).then(() => {
-                  if (charges.filter(({ State }) => !State).length === 1) {
-                    getLastTaskByUserID(userID).then((taskPending) => {
-                      if (taskPending.length > 0) {
-                        finishTaskPending(taskPending[0].ID);
-                      } else {
-                        // createTask({
-                        //   TypeID: 5,
-                        //   AssignedID: 12,
-                        //   ClientID: userID,
-                        //   StateID: 1,
-                        //   Note: "Conectar a este usuario ",
-                        // });
+                    if (files[0]) uploadImage(nameFile, files[0]);
+                    console.log("charge", response.id);
+                    return Promise.all([
+                      chargesSelected.map((charge) =>
+                        createPay(
+                          charge.ID,
+                          files[0] ? nameFile : null,
+                          response.id
+                        )
+                      ),
+                    ]).then(() => {
+                      if (charges.filter(({ State }) => !State).length === 1) {
+                        getLastTaskByUserID(userID).then((taskPending) => {
+                          if (taskPending.length > 0) {
+                            finishTaskPending(taskPending[0].ID);
+                          } else {
+                            // createTask({
+                            //   TypeID: 5,
+                            //   AssignedID: 12,
+                            //   ClientID: userID,
+                            //   StateID: 1,
+                            //   Note: "Conectar a este usuario ",
+                            // });
+                          }
+                        });
                       }
+                      setAmount(0);
+                      setChargesSelected([]);
+                      componentDidMount();
                     });
                   }
-                  setAmount(0);
-                  setChargesSelected([]);
-                  componentDidMount();
-                });
+                );
               }
 
               if (edit === "") {
@@ -336,15 +327,15 @@ const Charges = ({ userID }) => {
               }
             }}
           >
-            {!ispayment
+            {type !== "pay"
               ? edit !== ""
-                ? "Editar Cargo"
+                ? "opciones Cargo"
                 : "Añadir Cargo"
               : "Crear Pago"}
           </CButton>
         </CCol>
 
-        {!ispayment && edit !== "" && (
+        {type !== "pay" && edit !== "" && (
           <CCol col="2" style={{ paddingTop: 30 }}>
             <CButton
               color={"danger"}
@@ -362,7 +353,9 @@ const Charges = ({ userID }) => {
       </CRow>
       <CRow>
         <CDataTable
-          items={charges}
+          items={charges.filter(({ State }) =>
+            type === "pay" ? State === true : State === false
+          )}
           fields={fields}
           itemsPerPage={5}
           onPageChange={componentDidMount}
@@ -375,12 +368,20 @@ const Charges = ({ userID }) => {
                   <CCol col="2" xs="2" sm="2" md="2" className="mb-2 mb-xl-0">
                     <CButton
                       color="danger"
-                      onClick={() =>
-                        deleteCharge(item.ID).then(() => {
-                          setLoading(false);
-                          componentDidMount();
-                        })
-                      }
+                      onClick={() => {
+                        getDetailsDocumentID(item.DocumentID).then((detail) => {
+                          creditNote(
+                            client,
+                            item.DocumentID,
+                            detail.items[0].id
+                          ).then(() =>
+                            deleteCharge(item.ID).then(() => {
+                              setLoading(false);
+                              componentDidMount();
+                            })
+                          );
+                        });
+                      }}
                     >
                       <CIcon content={freeSet.cilTrash} size="xl" />
                     </CButton>
@@ -405,27 +406,41 @@ const Charges = ({ userID }) => {
               </td>
             ),
 
-            editar: (item) => (
+            opciones: (item) => (
               <td className="py-2">
                 <CRow className="align-items-center">
                   <CCol col="2" xs="2" sm="2" md="2" className="mb-2 mb-xl-0">
-                    <CButton
-                      color="info"
-                      onClick={() => {
-                        if (item.ChargeTypeID?.ID)
-                          setChargesTypeSelected({
-                            ...item.ChargeTypeID,
-                            label: item.ChargeTypeID.Name,
-                          });
+                    {type !== "pay" ? (
+                      <CButton
+                        color="info"
+                        onClick={() => {
+                          if (item.ChargeTypeID?.ID)
+                            setChargesTypeSelected({
+                              ...item.ChargeTypeID,
+                              label: item.ChargeTypeID.Name,
+                            });
 
-                        setIspayment(false);
-                        setName(item.nombre);
-                        setAmount(parseInt(item.Charge));
-                        setEdit(item.ID);
-                      }}
-                    >
-                      <CIcon content={freeSet.cilPencil} size="xl" />
-                    </CButton>
+                          setIspayment(false);
+                          setName(item.nombre);
+                          setAmount(parseInt(item.Charge));
+                          setEdit(item.ID);
+                        }}
+                      >
+                        <CIcon content={freeSet.cilPencil} size="xl" />
+                      </CButton>
+                    ) : (
+                      item.UrlImage && (
+                        <CButton
+                          color="info"
+                          onClick={() => {
+                            const { publicURL } = getUrlImage(item.UrlImage);
+                            saveAs(publicURL, `${moment().unix()}.jpg`);
+                          }}
+                        >
+                          <CIcon content={freeSet.cilCloudDownload} size="xl" />
+                        </CButton>
+                      )
+                    )}
                   </CCol>
                 </CRow>
               </td>

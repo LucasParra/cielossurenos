@@ -18,7 +18,7 @@ const _nav = [
     name: <h5 style={{ fontWeight: "bold" }}>General</h5>,
     to: "/admin",
     icon: "cil-chart-pie",
-    users: [8],
+    users: [8, 7],
   },
   {
     _tag: "CSidebarNavItem",
@@ -50,7 +50,7 @@ const _nav = [
   },
   {
     _tag: "CSidebarNavItem",
-    name: <h5>Tareas</h5>,
+    name: <h5>Mis Tareas</h5>,
     to: "/menu/tareas",
     icon: "cil-task",
     users: [8, 7, 1],

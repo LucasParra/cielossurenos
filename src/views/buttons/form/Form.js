@@ -56,6 +56,7 @@ const initUser = {
   BajaTec: new Date(),
   A_FE_REPAC: new Date(),
   Conections: 0,
+  Business: false,
 };
 const initAddress = [
   {

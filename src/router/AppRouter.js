@@ -28,9 +28,8 @@ const AppRouter = () => {
     return () => a.data.unsubscribe();
   };
   useEffect(componentDidMount, []);
-
-  return session === null ? null : (
-    <Router basename="/cielossurenos/build">
+  return (
+    <Router basename="/cielossurenos/">
       <Switch>
         <PublicRoute
           exact

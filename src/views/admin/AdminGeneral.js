@@ -12,18 +12,25 @@ import {
 import React, { useEffect, useState } from "react";
 import { getAddressByUserID } from "src/state/querys/Address";
 import { getTaskPending } from "src/state/querys/Tasks";
-import { getClientsCount, getClientsCountOffice } from "src/state/querys/Users";
+import {
+  getClientsAll,
+  getClientsCount,
+  getClientsCountOffice,
+  getUserStates,
+} from "src/state/querys/Users";
 import _ from "lodash";
 import { getOffices } from "src/state/querys/Office";
 import { freeSet } from "@coreui/icons";
 import { CChartDoughnut } from "@coreui/react-chartjs";
 import { useKeySelector } from "src/hook/general";
+import { nameStateSpanish } from "src/utils";
 
 const fields = ["ID", "Tipo", "fecha_agendada", "cliente"];
 
 const AdminGeneral = () => {
   const { colors } = useKeySelector(["colors"]);
   const [countClient, setCountClient] = useState(0);
+  const [clients, setClients] = useState([]);
   const [countClientInactive, setCountClientInactive] = useState(0);
   const [offices, setOffices] = useState([]);
   const [tasks, setTasks] = useState({});
@@ -43,52 +50,59 @@ const AdminGeneral = () => {
 
   const componentDidMount = () => {
     setLoading(true);
-    Promise.all([
-      getClientsCount(1),
-      getClientsCount(2),
-      getOffices(),
-      getTaskPending().then((tasks) =>
-        Promise.all(
-          tasks.map((task) =>
-            getAddressByUserID(task.ClientID.ID).then((Address) => ({
-              ...Address[0],
-              zoneID: Address[0].Address.AddressZoneID,
-              ...task,
-              Tipo: task.TypeID.Name,
-              fecha_agendada: task.DeadLine,
-              Cliente: `${task.ClientID.Names} ${task.ClientID.LastName}`,
-            }))
-          )
-        )
-      ),
-    ]).then((response) => {
-      const numberClient = response[0];
-      const numberClientInactive = response[1];
-      const offices = response[2];
-      const tasksZones = response[3];
-
+    getUserStates().then((states) =>
       Promise.all(
-        offices.map((office) =>
-          Promise.all([
-            getClientsCountOffice(office.ID, 1),
-            getClientsCountOffice(office.ID, 2),
-            office.Name,
-          ])
-        )
-      ).then((clientsOffices) => {
-        setOffices(
-          clientsOffices.map((clientsOffice) => ({
-            Name: clientsOffice[2],
-            active: clientsOffice[0],
-            inactive: clientsOffice[1],
-          }))
-        );
-        setCountClient(numberClient);
-        setCountClientInactive(numberClientInactive);
-        setTasks(_.groupBy(tasksZones, "zoneID"));
-        setLoading(false);
-      });
-    });
+        states.map((state) => getClientsCount(state.ID, state.Name))
+      ).then(setClients)
+    );
+    setLoading(false);
+
+    // Promise.all([
+    //   getClientsCount(1),
+    //   getClientsCount(2),
+    //   getOffices(),
+    //   getTaskPending().then((tasks) =>
+    //     Promise.all(
+    //       tasks.map((task) =>
+    //         getAddressByUserID(task.ClientID.ID).then((Address) => ({
+    //           ...Address[0],
+    //           zoneID: Address[0].Address.AddressZoneID,
+    //           ...task,
+    //           Tipo: task.TypeID.Name,
+    //           fecha_agendada: task.DeadLine,
+    //           Cliente: `${task.ClientID.Names} ${task.ClientID.LastName}`,
+    //         }))
+    //       )
+    //     )
+    //   ),
+    // ]).then((response) => {
+    //   const numberClient = response[0];
+    //   const numberClientInactive = response[1];
+    //   const offices = response[2];
+    //   const tasksZones = response[3];
+
+    //   Promise.all(
+    //     offices.map((office) =>
+    //       Promise.all([
+    //         getClientsCountOffice(office.ID, 1),
+    //         getClientsCountOffice(office.ID, 2),
+    //         office.Name,
+    //       ])
+    //     )
+    //   ).then((clientsOffices) => {
+    //     setOffices(
+    //       clientsOffices.map((clientsOffice) => ({
+    //         Name: clientsOffice[2],
+    //         active: clientsOffice[0],
+    //         inactive: clientsOffice[1],
+    //       }))
+    //     );
+    //     setCountClient(numberClient);
+    //     setCountClientInactive(numberClientInactive);
+    //     setTasks(_.groupBy(tasksZones, "zoneID"));
+    //     setLoading(false);
+    //   });
+    // });
   };
   useEffect(componentDidMount, []);
   return (
@@ -110,7 +124,7 @@ const AdminGeneral = () => {
           </h1>
           <CRow>
             <CCol xs="12" sm="6" lg="12">
-              <CCard>
+              <CCard style={{ borderRadius: 24 }}>
                 <CCardHeader
                   align="center"
                   style={{
@@ -125,11 +139,20 @@ const AdminGeneral = () => {
                   <CChartDoughnut
                     datasets={[
                       {
-                        backgroundColor: ["#41B883", "#E46651"],
-                        data: [countClient, countClientInactive],
+                        backgroundColor: [
+                          "#41B883",
+                          "red",
+                          "#FA8900",
+                          "#28D2ED",
+                          "#ffce56",
+                          "#038BA1",
+                        ],
+                        data: clients.map((client) => client.count),
                       },
                     ]}
-                    labels={["Activos", "Inactivos"]}
+                    labels={clients.map((client) =>
+                      nameStateSpanish(client.stateID)
+                    )}
                     options={{
                       tooltips: {
                         enabled: true,
@@ -140,7 +163,7 @@ const AdminGeneral = () => {
               </CCard>
             </CCol>
           </CRow>
-          <h1 className="pt-3" align="center">
+          {/* <h1 className="pt-3" align="center">
             CLIENTES POR SUCURSAL
           </h1>
           <CRow>
@@ -176,8 +199,8 @@ const AdminGeneral = () => {
                 </CCard>
               </CCol>
             ))}
-          </CRow>
-          <h1 className="pt-3" align="center">
+          </CRow> */}
+          {/* <h1 className="pt-3" align="center">
             TAREAS PENDIENTES POR ZONA
           </h1>
           <CRow>
@@ -284,7 +307,7 @@ const AdminGeneral = () => {
                 </CCol>
               );
             })}
-          </CRow>
+          </CRow> */}
         </>
       )}
     </>
