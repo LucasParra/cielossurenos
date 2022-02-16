@@ -39,7 +39,7 @@ const generateBill = (user, charges) => {
       netUnitValue: charge.value,
       quantity: 1,
       code: "pts",
-      comment: charge.label,
+      comment: charge.name,
       discount: 0,
     })),
   });

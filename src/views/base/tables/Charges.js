@@ -31,7 +31,6 @@ import { saveAs } from "file-saver";
 import Select from "react-select";
 import {
   createTask,
-  createTaskforAdmin,
   finishTaskPending,
   getLastTaskByUserID,
 } from "src/state/querys/Tasks";
@@ -148,7 +147,8 @@ const Charges = ({ userID, type, client }) => {
                   .filter(({ State }) => !State)
                   .map((charge) => ({
                     value: parseInt(charge.Charge),
-                    label: charge.cargo,
+                    name: charge.cargo,
+                    label: `${charge.cargo} | ${charge.monto} | ${charge.fecha}`,
                     ID: charge.ID,
                   }))}
                 className="basic-multi-select"
