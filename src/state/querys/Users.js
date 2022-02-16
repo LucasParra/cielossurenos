@@ -174,6 +174,7 @@ const getUserBySearch = (textSearch, limit = 1) =>
     .or(
       `Names.like.%${textSearch}%,LastName.like.%${textSearch}%,Rut.ilike.%${textSearch}%`
     )
+    .eq("RolID", 2)
     .limit(limit * 5 + 1)
     .then((snapshot) => snapshot.data)
     .catch(console.error);

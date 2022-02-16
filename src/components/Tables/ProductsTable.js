@@ -10,7 +10,13 @@ import {
 import React from "react";
 import { ButtonOptionTable } from "../buttons";
 
-const fields = ["ID", "nombre", "precio", "editar", "eliminar"];
+const fields = [
+  "ID",
+  { key: "Name", label: "nombre" },
+  { key: "BasePrice", label: "precio" },
+  "editar",
+  "eliminar",
+];
 
 const ProductsTable = ({
   products,

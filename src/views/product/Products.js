@@ -52,13 +52,7 @@ const Products = () => {
           )
         ).then((result) => {
           setProductChart(result);
-          setProducts(
-            data.map((product) => ({
-              ...product,
-              nombre: product.Name,
-              precio: product.BasePrice,
-            }))
-          );
+          setProducts(data);
           setLoading(false);
         })
       )
