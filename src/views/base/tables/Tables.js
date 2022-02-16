@@ -138,6 +138,7 @@ const Tables = () => {
     let refUser = supabase
       .from("User")
       .select("*,Address!inner(*)")
+      .eq("RolID", 2)
       .limit(limit * 5 + 1);
 
     if (stateFilterSelected !== 0) refUser.eq("StateID", stateFilterSelected);
