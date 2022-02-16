@@ -11,16 +11,17 @@ const generateBill = (user, charges) => {
     coinId: 1,
     emissionDate: moment().unix(),
     expirationDate: moment().unix(),
-    exchangeRate: 668.49,
     exportNetAmount: charges.reduce(
       (previousValue, currentValue) => previousValue + currentValue.value,
       0
     ),
     exportTaxAmount: 0,
-    exportTotalAmount: charges.reduce(
-      (previousValue, currentValue) => previousValue + currentValue.value,
-      0
-    ),
+    exportTotalAmount:
+      1000 +
+      charges.reduce(
+        (previousValue, currentValue) => previousValue + currentValue.value,
+        0
+      ),
     exportExemptAmount: charges.reduce(
       (previousValue, currentValue) => previousValue + currentValue.value,
       0
@@ -38,11 +39,8 @@ const generateBill = (user, charges) => {
       netUnitValue: charge.value,
       quantity: 1,
       code: "pts",
-      comment: charge.label,
+      comment: charge.name,
       discount: 0,
-      exportNetAmount: charge.value,
-      exportTaxAmount: 0,
-      exportTotalAmount: charge.value,
     })),
   });
   const requestOptions = {

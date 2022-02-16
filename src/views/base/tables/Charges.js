@@ -31,7 +31,6 @@ import { saveAs } from "file-saver";
 import Select from "react-select";
 import {
   createTask,
-  createTaskforAdmin,
   finishTaskPending,
   getLastTaskByUserID,
 } from "src/state/querys/Tasks";
@@ -44,16 +43,7 @@ import {
   getDetailsDocumentID,
 } from "src/state/querys/Bills";
 
-const fields = [
-  "ID",
-  "fecha",
-  "nombre",
-  "cargo",
-  "restante",
-  "estado",
-  "opciones",
-  "eliminar",
-];
+const fields = ["ID", "fecha", "cargo", "monto", "opciones", "eliminar"];
 
 const Charges = ({ userID, type, client }) => {
   const { user } = useKeySelector(["user"]);
@@ -86,8 +76,8 @@ const Charges = ({ userID, type, client }) => {
       setCharges(
         chargesApi.map((charge) => ({
           ID: charge.ID,
-          nombre: charge.ChargeTypeID.Name,
-          cargo: new Intl.NumberFormat("es-CL", {
+          cargo: charge.ChargeTypeID.Name,
+          monto: new Intl.NumberFormat("es-CL", {
             currency: "CLP",
             style: "currency",
           }).format(charge.Charge),
@@ -157,7 +147,8 @@ const Charges = ({ userID, type, client }) => {
                   .filter(({ State }) => !State)
                   .map((charge) => ({
                     value: parseInt(charge.Charge),
-                    label: charge.nombre,
+                    name: charge.cargo,
+                    label: `${charge.cargo} | ${charge.monto} | ${charge.fecha}`,
                     ID: charge.ID,
                   }))}
                 className="basic-multi-select"
@@ -287,7 +278,7 @@ const Charges = ({ userID, type, client }) => {
                     const nameFile = `${moment().unix()}.jpg`;
 
                     if (files[0]) uploadImage(nameFile, files[0]);
-                    console.log("charge", response.id);
+
                     return Promise.all([
                       chargesSelected.map((charge) =>
                         createPay(
@@ -387,22 +378,6 @@ const Charges = ({ userID, type, client }) => {
                     </CButton>
                   </CCol>
                 </CRow>
-              </td>
-            ),
-
-            estado: (item) => (
-              <td>
-                <CBadge color={item.State ? "success" : "danger"}>
-                  {item.State ? "Pagado" : "Deuda"}
-                </CBadge>
-              </td>
-            ),
-            restante: (item) => (
-              <td>
-                {new Intl.NumberFormat("es-CL", {
-                  currency: "CLP",
-                  style: "currency",
-                }).format(item.Remaining)}
               </td>
             ),
 
