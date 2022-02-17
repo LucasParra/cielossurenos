@@ -45,6 +45,7 @@ import { DeleteModal } from "src/components/Modals";
 import { finishTaskProcessUnSubscribe } from "src/state/querys/Tasks";
 import { nameStateSpanish } from "src/utils";
 import { getAddressNames } from "src/state/querys/Zones";
+import { useDispatch } from "react-redux";
 
 const fields = [
   "ID",
@@ -89,6 +90,7 @@ const fields = [
 
 const Tables = () => {
   const history = useHistory();
+  const dispatch = useDispatch();
   const { user: userSession, colors } = useKeySelector(["user", "colors"]);
   const [creatingUser, setCreatingUser] = useState(false);
   const [chargesAutomaticModal, setChargesAutomaticModal] = useState(false);
@@ -536,7 +538,27 @@ const Tables = () => {
           <CButton
             color="success"
             onClick={() =>
-              chargeAutomatic().then(() => setChargesAutomaticModal(false))
+              chargeAutomatic().then(() => {
+                dispatch({
+                  type: "SET_TOAS",
+                  payload: {
+                    show: true,
+                    type: "success",
+                    label: "Cobro Generado",
+                  },
+                });
+                setTimeout(() => {
+                  dispatch({
+                    type: "SET_TOAS",
+                    payload: {
+                      show: false,
+                      type: "",
+                      label: "",
+                    },
+                  });
+                }, 3000);
+                setChargesAutomaticModal(false);
+              })
             }
           >
             Aceptar

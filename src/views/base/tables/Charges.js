@@ -45,12 +45,17 @@ import {
 
 const fields = ["ID", "fecha", "cargo", "monto", "opciones", "eliminar"];
 
-const Charges = ({ userID, type, client }) => {
+const Charges = ({
+  userID,
+  type,
+  client,
+  setRefreshPayments,
+  refreshPayments,
+}) => {
   const { user } = useKeySelector(["user"]);
   const [charges, setCharges] = useState([]);
   const [noteTask, setNoteTask] = useState("");
   const [amount, setAmount] = useState(0);
-  const [ispayment, setIspayment] = useState(false);
   const [chargesSelected, setChargesSelected] = useState([]);
   const [chargesTypes, setChargesTypes] = useState([]);
   const [chargesTypeSelected, setChargesTypeSelected] = useState({});
@@ -107,6 +112,7 @@ const Charges = ({ userID, type, client }) => {
       State: false,
       Remaining: 0,
     }).then(() => {
+      setRefreshPayments(true);
       componentDidMount();
       setChargesTypeSelected({});
       setName(0);
@@ -130,7 +136,7 @@ const Charges = ({ userID, type, client }) => {
       setAmount(0);
       setEdit("");
     });
-  useEffect(componentDidMount, []);
+  useEffect(componentDidMount, [refreshPayments]);
   return (
     <>
       <CRow
@@ -395,7 +401,6 @@ const Charges = ({ userID, type, client }) => {
                               label: item.ChargeTypeID.Name,
                             });
 
-                          setIspayment(false);
                           setName(item.nombre);
                           setAmount(parseInt(item.Charge));
                           setEdit(item.ID);
