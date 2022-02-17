@@ -143,7 +143,7 @@ const Tables = () => {
       .eq("RolID", 2)
       .limit(limit * 5 + 1);
 
-    if (stateFilterSelected !== 0) refUser.eq("StateID", stateFilterSelected);
+    if (stateFilterSelected !== "0") refUser.eq("StateID", stateFilterSelected);
     if (addressName) refUser.eq("Address.AddressName", addressName);
 
     refUser
