@@ -42,7 +42,7 @@ const CreateClient = () => {
       AltaTec: new Date(),
       BajaTec: new Date(),
       A_FE_REPAC: new Date(),
-      Conections: 0,
+      Connections: 0,
       Birthday: new Date(),
       RolID: 2,
     },

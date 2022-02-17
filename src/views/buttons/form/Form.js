@@ -41,21 +41,21 @@ const initUser = {
   JobPhoneNumber: "",
   TechnicianID: 0,
   StateID: "1",
-  A_REPACTAD: 0,
-  A_RECONNCET: "",
-  A_FE_RECON: "",
-  A_CONDONAD: 0,
-  A_PROMOCIO: "",
-  A_FE_PROMO: "",
-  A_D_PLAZO: "",
-  D_8: "",
+  // A_REPACTAD: 0,
+  // A_RECONNCET: "",
+  // A_FE_RECON: "",
+  // A_CONDONAD: 0,
+  // A_PROMOCIO: "",
+  // A_FE_PROMO: "",
+  // A_D_PLAZO: "",
+  // D_8: "",
   FechCon: new Date(),
   AltaAdm: new Date(),
   BajaAdm: new Date(),
   AltaTec: new Date(),
   BajaTec: new Date(),
-  A_FE_REPAC: new Date(),
-  Conections: 0,
+  // A_FE_REPAC: new Date(),
+  Connections: 0,
   Business: false,
 };
 const initAddress = [
@@ -81,7 +81,7 @@ const Forms = () => {
   const handleCreateUser = () => {
     if (validatedRut) return;
 
-    const { Names, LastName, Rut, PhoneNumber, Conections } = formUser;
+    const { Names, LastName, Rut, PhoneNumber, Connections } = formUser;
     const { AddressName } = formsAddress;
 
     if (
@@ -89,7 +89,7 @@ const Forms = () => {
       LastName === "" ||
       Rut === "" ||
       PhoneNumber === "" ||
-      Conections === 0 ||
+      Connections === 0 ||
       AddressName === ""
     )
       return setValidated(true);
@@ -242,12 +242,12 @@ const Forms = () => {
                       id="D_8"
                       placeholder=""
                       required
-                      value={formUser.Conections}
+                      value={formUser.Connections}
                       onChange={({ target: { value } }) => {
                         if (value > 0 || value === "")
                           return setFormUser({
                             ...formUser,
-                            Conections: value,
+                            Connections: parseInt(value),
                           });
                       }}
                     />

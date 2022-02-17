@@ -57,27 +57,27 @@ const initUser = {
   Names: "",
   LastName: "",
   Rut: "",
-  JobID: "",
+  // JobID: "",
   Email: "",
   PhoneNumber: "",
   JobPhoneNumber: "",
   TechnicianID: 0,
   StateID: "1",
-  A_REPACTAD: 0,
-  A_RECONNCET: "",
-  A_FE_RECON: "",
-  A_CONDONAD: 0,
-  A_PROMOCIO: "",
-  A_FE_PROMO: "",
-  A_D_PLAZO: "",
-  D_8: "",
+  // A_REPACTAD: 0,
+  // A_RECONNCET: "",
+  // A_FE_RECON: "",
+  // A_CONDONAD: 0,
+  // A_PROMOCIO: "",
+  // A_FE_PROMO: "",
+  // A_D_PLAZO: "",
+  // D_8: "",
   FechCon: new Date(),
   AltaAdm: new Date(),
   BajaAdm: new Date(),
   AltaTec: new Date(),
   BajaTec: new Date(),
-  A_FE_REPAC: new Date(),
-  Conections: 0,
+  // A_FE_REPAC: new Date(),
+  Connections: 0,
   Birthday: new Date(),
   RolID: 2,
   Business: false,
@@ -110,10 +110,9 @@ const UserForm = ({ user, onClose }) => {
   const [userCreatorRolID, setUserCreatorRolID] = useState(false);
 
   const handleCreateUser = () => {
-    console.log("hola", !user.ID && validatedRut);
     if (!user.ID && validatedRut) return;
 
-    const { Names, LastName, Rut, PhoneNumber, Conections } = formUser;
+    const { Names, LastName, Rut, PhoneNumber, Connections } = formUser;
     const { AddressName } = formsAddress;
 
     if (
@@ -121,7 +120,7 @@ const UserForm = ({ user, onClose }) => {
       LastName === "" ||
       Rut === "" ||
       PhoneNumber === "" ||
-      Conections === 0 ||
+      Connections === 0 ||
       AddressName === ""
     )
       return setValidated(true);
@@ -223,7 +222,6 @@ const UserForm = ({ user, onClose }) => {
           ),
           createTask({
             TypeID: 1,
-            Priority: "Media",
             AssignedID: formUser.TechnicianID,
             // DeadLine:.toDate(),
             ClientID: newUserID,
@@ -235,7 +233,6 @@ const UserForm = ({ user, onClose }) => {
                 AddressID: newaddressID,
                 UserID: newUserID,
               });
-
               if (index + 1 === formsAddress.length) {
                 setFormUser(initUser);
                 setFormsAddress(initAddress);
@@ -404,9 +401,9 @@ const UserForm = ({ user, onClose }) => {
                       id="JobID"
                       placeholder=""
                       value={formUser.JobID}
-                      onChange={({ target: { value } }) =>
-                        setFormUser({ ...formUser, JobID: value })
-                      }
+                      // onChange={({ target: { value } }) =>
+                      //   setFormUser({ ...formUser, JobID: value })
+                      // }
                     />
                   </CCol>
                   <CCol style={{ marginBottom: 8 }} xs="12" sm="3">
@@ -438,12 +435,12 @@ const UserForm = ({ user, onClose }) => {
                       id="D_8"
                       placeholder=""
                       required
-                      value={formUser.Conections}
+                      value={formUser.Connections}
                       onChange={({ target: { value } }) => {
                         if (value > 0 || value === "")
                           return setFormUser({
                             ...formUser,
-                            Conections: value,
+                            Connections: parseInt(value),
                           });
                       }}
                     />
@@ -656,7 +653,7 @@ const UserForm = ({ user, onClose }) => {
                         value={data.AddressZoneID}
                         onChange={({ target: { value } }) => {
                           const newAddress = [..._.clone(formsAddress)];
-                          newAddress[index].AddressZoneID = value;
+                          newAddress[index].AddressZoneID = parseInt(value);
                           setFormsAddress(newAddress);
                         }}
                       >

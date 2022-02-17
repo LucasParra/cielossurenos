@@ -17,10 +17,10 @@ const updateOfficeToClient = (UserID, officeID) =>
     .then((snapshot) => snapshot.data)
     .catch(console.error);
 
-const createClientOffice = (UserID, officeID) =>
+const createClientOffice = (UserID, OfficeID) =>
   supabase
     .from("OfficeUser")
-    .insert({ OfficeID: officeID, UserID: UserID })
+    .insert({ OfficeID, UserID })
     .then((snapshot) => snapshot.data[0].ID);
 
 const getOffices = (limit = 1) =>
