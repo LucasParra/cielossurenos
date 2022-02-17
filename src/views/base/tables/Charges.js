@@ -42,6 +42,7 @@ import {
   generateBill,
   getDetailsDocumentID,
 } from "src/state/querys/Bills";
+import { getTechnicalZone } from "src/state/querys/Zones";
 
 const fields = ["ID", "fecha", "cargo", "monto", "opciones", "eliminar"];
 
@@ -54,7 +55,7 @@ const Charges = ({
 }) => {
   const { user } = useKeySelector(["user"]);
   const [charges, setCharges] = useState([]);
-  const [noteTask, setNoteTask] = useState("");
+  // const [noteTask, setNoteTask] = useState("");
   const [amount, setAmount] = useState(0);
   const [chargesSelected, setChargesSelected] = useState([]);
   const [chargesTypes, setChargesTypes] = useState([]);
@@ -91,17 +92,23 @@ const Charges = ({
         }))
       );
       setLoading(false);
+      setRefreshPayments(false);
     });
   };
   const handleAddCharge = () => {
     if (charges.filter(({ State }) => !State).length === 1) {
-      createTask({
-        TypeID: 4,
-        AssignedID: 12,
-        ClientID: userID,
-        StateID: 1,
-        Note: "desconectar a este usuario ya que paso a estado moroso",
-      });
+      getTechnicalZone(user?.ZoneID[0].AddressID.AddressZoneID).then(
+        (result) => {
+          const technical = result[_.random(0, result.length - 1)];
+          createTask({
+            TypeID: 4,
+            AssignedID: technical.User.ID,
+            ClientID: userID,
+            StateID: 1,
+            Note: "desconectar a este usuario ya que paso a estado moroso",
+          });
+        }
+      );
     }
 
     createCharge({
@@ -286,27 +293,33 @@ const Charges = ({
 
                     if (files[0]) uploadImage(nameFile, files[0]);
 
-                    return Promise.all([
+                    return Promise.all(
                       chargesSelected.map((charge) =>
                         createPay(
                           charge.ID,
                           files[0] ? nameFile : null,
                           response
                         )
-                      ),
-                    ]).then(() => {
+                      )
+                    ).then(() => {
                       if (charges.filter(({ State }) => !State).length === 1) {
                         getLastTaskByUserID(userID).then((taskPending) => {
                           if (taskPending.length > 0) {
                             finishTaskPending(taskPending[0].ID);
                           } else {
-                            // createTask({
-                            //   TypeID: 5,
-                            //   AssignedID: 12,
-                            //   ClientID: userID,
-                            //   StateID: 1,
-                            //   Note: "Conectar a este usuario ",
-                            // });
+                            getTechnicalZone(
+                              user?.ZoneID[0].AddressID.AddressZoneID
+                            ).then((result) => {
+                              const technical =
+                                result[_.random(0, result.length - 1)];
+                              createTask({
+                                TypeID: 5,
+                                AssignedID: technical.User.ID,
+                                ClientID: userID,
+                                StateID: 1,
+                                Note: "Conectar a este usuario ",
+                              });
+                            });
                           }
                         });
                       }
