@@ -420,7 +420,6 @@ const Tables = () => {
                               sm="2"
                               md="2"
                               className="mb-2 mb-xl-0"
-                              style={{ zIndex: 999 }}
                             >
                               <CButton
                                 color="danger"
@@ -445,7 +444,6 @@ const Tables = () => {
                               sm="2"
                               md="2"
                               className="mb-2 mb-xl-0"
-                              style={{ zIndex: 999 }}
                             >
                               <CButton
                                 color="success"
@@ -467,7 +465,6 @@ const Tables = () => {
                               sm="2"
                               md="2"
                               className="mb-2 mb-xl-0"
-                              style={{ zIndex: 999 }}
                             >
                               <CButton
                                 color="success"
