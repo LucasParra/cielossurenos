@@ -290,7 +290,7 @@ const Charges = ({
                         createPay(
                           charge.ID,
                           files[0] ? nameFile : null,
-                          response.id
+                          response
                         )
                       ),
                     ]).then(() => {
@@ -409,17 +409,32 @@ const Charges = ({
                         <CIcon content={freeSet.cilPencil} size="xl" />
                       </CButton>
                     ) : (
-                      item.UrlImage && (
-                        <CButton
-                          color="info"
-                          onClick={() => {
-                            const { publicURL } = getUrlImage(item.UrlImage);
-                            saveAs(publicURL, `${moment().unix()}.jpg`);
-                          }}
-                        >
-                          <CIcon content={freeSet.cilCloudDownload} size="xl" />
-                        </CButton>
-                      )
+                      <>
+                        {item.UrlImage && (
+                          <CButton
+                            color="info"
+                            onClick={() => {
+                              const { publicURL } = getUrlImage(item.UrlImage);
+                              saveAs(publicURL, `${moment().unix()}.jpg`);
+                            }}
+                          >
+                            <CIcon content={freeSet.cilFile} size="xl" />
+                          </CButton>
+                        )}
+                        {item.UrlDocument && (
+                          <CButton
+                            color="info"
+                            onClick={() =>
+                              window.open(item.UrlDocument, "_blank")
+                            }
+                          >
+                            <CIcon
+                              content={freeSet.cilCloudDownload}
+                              size="xl"
+                            />
+                          </CButton>
+                        )}
+                      </>
                     )}
                   </CCol>
                 </CRow>
