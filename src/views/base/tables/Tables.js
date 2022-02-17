@@ -309,6 +309,9 @@ const Tables = () => {
               <CCardBody>
                 <CRow alignHorizontal="end">
                   <CCol xs="12" lg="2">
+                    <CLabel style={{ fontWeight: "bold" }}>
+                      Filtrar por estado:
+                    </CLabel>
                     <CSelect
                       custom
                       name="select-user-states"
@@ -327,6 +330,9 @@ const Tables = () => {
                     </CSelect>
                   </CCol>
                   <CCol xs="12" lg="2">
+                    <CLabel style={{ fontWeight: "bold" }}>
+                      Filtrar por dirección:
+                    </CLabel>
                     <Select
                       className="basic-single"
                       classNamePrefix="select"
