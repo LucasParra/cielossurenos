@@ -45,12 +45,17 @@ import {
 
 const fields = ["ID", "fecha", "cargo", "monto", "opciones", "eliminar"];
 
-const Charges = ({ userID, type, client }) => {
+const Charges = ({
+  userID,
+  type,
+  client,
+  setRefreshPayments,
+  refreshPayments,
+}) => {
   const { user } = useKeySelector(["user"]);
   const [charges, setCharges] = useState([]);
   const [noteTask, setNoteTask] = useState("");
   const [amount, setAmount] = useState(0);
-  const [ispayment, setIspayment] = useState(false);
   const [chargesSelected, setChargesSelected] = useState([]);
   const [chargesTypes, setChargesTypes] = useState([]);
   const [chargesTypeSelected, setChargesTypeSelected] = useState({});
@@ -107,6 +112,7 @@ const Charges = ({ userID, type, client }) => {
       State: false,
       Remaining: 0,
     }).then(() => {
+      setRefreshPayments(true);
       componentDidMount();
       setChargesTypeSelected({});
       setName(0);
@@ -130,7 +136,7 @@ const Charges = ({ userID, type, client }) => {
       setAmount(0);
       setEdit("");
     });
-  useEffect(componentDidMount, []);
+  useEffect(componentDidMount, [refreshPayments]);
   return (
     <>
       <CRow
@@ -146,7 +152,8 @@ const Charges = ({ userID, type, client }) => {
                 options={charges
                   .filter(({ State }) => !State)
                   .map((charge) => ({
-                    value: parseInt(charge.Charge),
+                    value: charge.ID,
+                    amount: parseInt(charge.Charge),
                     name: charge.cargo,
                     label: `${charge.cargo} | ${charge.monto} | ${charge.fecha}`,
                     ID: charge.ID,
@@ -203,9 +210,9 @@ const Charges = ({ userID, type, client }) => {
             </CCol>
           </>
         )}
-        {user?.RolID?.ID === 7 && type === "pay" && (
+        {type === "pay" && (
           <>
-            <CCol xs="2">
+            {/* <CCol xs="2">
               <CFormGroup>
                 <CLabel htmlFor="priceBase">Nota para el administrador</CLabel>
                 <CTextarea
@@ -214,7 +221,7 @@ const Charges = ({ userID, type, client }) => {
                   onChange={({ target: { value } }) => setNoteTask(value)}
                 />
               </CFormGroup>
-            </CCol>
+            </CCol> */}
             <CCol xs="2">
               <CButton color="info">
                 <UploadFile
@@ -284,7 +291,7 @@ const Charges = ({ userID, type, client }) => {
                         createPay(
                           charge.ID,
                           files[0] ? nameFile : null,
-                          response.id
+                          response
                         )
                       ),
                     ]).then(() => {
@@ -384,8 +391,8 @@ const Charges = ({ userID, type, client }) => {
             opciones: (item) => (
               <td className="py-2">
                 <CRow className="align-items-center">
-                  <CCol col="2" xs="2" sm="2" md="2" className="mb-2 mb-xl-0">
-                    {type !== "pay" ? (
+                  {type !== "pay" ? (
+                    <CCol col="2" xs="2" sm="2" md="2" className="mb-2 mb-xl-0">
                       <CButton
                         color="info"
                         onClick={() => {
@@ -395,7 +402,6 @@ const Charges = ({ userID, type, client }) => {
                               label: item.ChargeTypeID.Name,
                             });
 
-                          setIspayment(false);
                           setName(item.nombre);
                           setAmount(parseInt(item.Charge));
                           setEdit(item.ID);
@@ -403,20 +409,51 @@ const Charges = ({ userID, type, client }) => {
                       >
                         <CIcon content={freeSet.cilPencil} size="xl" />
                       </CButton>
-                    ) : (
-                      item.UrlImage && (
-                        <CButton
-                          color="info"
-                          onClick={() => {
-                            const { publicURL } = getUrlImage(item.UrlImage);
-                            saveAs(publicURL, `${moment().unix()}.jpg`);
-                          }}
+                    </CCol>
+                  ) : (
+                    <>
+                      {item.UrlImage && (
+                        <CCol
+                          col="2"
+                          xs="2"
+                          sm="2"
+                          md="2"
+                          className="mb-2 mb-xl-0"
                         >
-                          <CIcon content={freeSet.cilCloudDownload} size="xl" />
-                        </CButton>
-                      )
-                    )}
-                  </CCol>
+                          <CButton
+                            color="info"
+                            onClick={() => {
+                              const { publicURL } = getUrlImage(item.UrlImage);
+                              saveAs(publicURL, `${moment().unix()}.jpg`);
+                            }}
+                          >
+                            <CIcon content={freeSet.cilFile} size="xl" />
+                          </CButton>
+                        </CCol>
+                      )}
+                      {item.UrlDocument && (
+                        <CCol
+                          col="2"
+                          xs="2"
+                          sm="2"
+                          md="2"
+                          className="mb-2 mb-xl-0"
+                        >
+                          <CButton
+                            color="info"
+                            onClick={() =>
+                              window.open(item.UrlDocument, "_blank")
+                            }
+                          >
+                            <CIcon
+                              content={freeSet.cilCloudDownload}
+                              size="xl"
+                            />
+                          </CButton>
+                        </CCol>
+                      )}
+                    </>
+                  )}
                 </CRow>
               </td>
             ),

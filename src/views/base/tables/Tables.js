@@ -45,6 +45,7 @@ import { DeleteModal } from "src/components/Modals";
 import { finishTaskProcessUnSubscribe } from "src/state/querys/Tasks";
 import { nameStateSpanish } from "src/utils";
 import { getAddressNames } from "src/state/querys/Zones";
+import { useDispatch } from "react-redux";
 
 const fields = [
   "ID",
@@ -89,6 +90,7 @@ const fields = [
 
 const Tables = () => {
   const history = useHistory();
+  const dispatch = useDispatch();
   const { user: userSession, colors } = useKeySelector(["user", "colors"]);
   const [creatingUser, setCreatingUser] = useState(false);
   const [chargesAutomaticModal, setChargesAutomaticModal] = useState(false);
@@ -141,7 +143,7 @@ const Tables = () => {
       .eq("RolID", 2)
       .limit(limit * 5 + 1);
 
-    if (stateFilterSelected !== 0) refUser.eq("StateID", stateFilterSelected);
+    if (stateFilterSelected !== "0") refUser.eq("StateID", stateFilterSelected);
     if (addressName) refUser.eq("Address.AddressName", addressName);
 
     refUser
@@ -307,6 +309,9 @@ const Tables = () => {
               <CCardBody>
                 <CRow alignHorizontal="end">
                   <CCol xs="12" lg="2">
+                    <CLabel style={{ fontWeight: "bold" }}>
+                      Filtrar por estado:
+                    </CLabel>
                     <CSelect
                       custom
                       name="select-user-states"
@@ -325,6 +330,9 @@ const Tables = () => {
                     </CSelect>
                   </CCol>
                   <CCol xs="12" lg="2">
+                    <CLabel style={{ fontWeight: "bold" }}>
+                      Filtrar por dirección:
+                    </CLabel>
                     <Select
                       className="basic-single"
                       classNamePrefix="select"
@@ -418,7 +426,6 @@ const Tables = () => {
                               sm="2"
                               md="2"
                               className="mb-2 mb-xl-0"
-                              style={{ zIndex: 999 }}
                             >
                               <CButton
                                 color="danger"
@@ -443,7 +450,6 @@ const Tables = () => {
                               sm="2"
                               md="2"
                               className="mb-2 mb-xl-0"
-                              style={{ zIndex: 999 }}
                             >
                               <CButton
                                 color="success"
@@ -465,7 +471,6 @@ const Tables = () => {
                               sm="2"
                               md="2"
                               className="mb-2 mb-xl-0"
-                              style={{ zIndex: 999 }}
                             >
                               <CButton
                                 color="success"
@@ -536,7 +541,27 @@ const Tables = () => {
           <CButton
             color="success"
             onClick={() =>
-              chargeAutomatic().then(() => setChargesAutomaticModal(false))
+              chargeAutomatic().then(() => {
+                dispatch({
+                  type: "SET_TOAS",
+                  payload: {
+                    show: true,
+                    type: "success",
+                    label: "Cobro Generado",
+                  },
+                });
+                setTimeout(() => {
+                  dispatch({
+                    type: "SET_TOAS",
+                    payload: {
+                      show: false,
+                      type: "",
+                      label: "",
+                    },
+                  });
+                }, 3000);
+                setChargesAutomaticModal(false);
+              })
             }
           >
             Aceptar

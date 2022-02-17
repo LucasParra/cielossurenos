@@ -6,7 +6,7 @@ const createTask = (taskData) =>
   supabase
     .from("Task")
     .insert({ ...taskData, Priority: "Media" })
-    .then((snapshot) => snapshot?.data[0].ID);
+    .then((snapshot) => snapshot?.data[0]?.ID);
 
 const getTypesTasks = () =>
   supabase
@@ -75,7 +75,7 @@ const createCommentTask = (commentData) =>
   supabase
     .from("TaskComments")
     .insert(commentData)
-    .then((snapshot) => snapshot?.data[0].ID);
+    .then((snapshot) => snapshot?.data[0]?.ID);
 
 export {
   createTask,

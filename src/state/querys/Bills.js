@@ -11,19 +11,21 @@ const generateBill = (user, charges) => {
     coinId: 1,
     emissionDate: moment().unix(),
     expirationDate: moment().unix(),
+    exchangeRate: charges.reduce(
+      (previousValue, currentValue) => previousValue + currentValue.amount,
+      0
+    ),
     exportNetAmount: charges.reduce(
-      (previousValue, currentValue) => previousValue + currentValue.value,
+      (previousValue, currentValue) => previousValue + currentValue.amount,
       0
     ),
     exportTaxAmount: 0,
-    exportTotalAmount:
-      1000 +
-      charges.reduce(
-        (previousValue, currentValue) => previousValue + currentValue.value,
-        0
-      ),
+    exportTotalAmount: charges.reduce(
+      (previousValue, currentValue) => previousValue + currentValue.amount,
+      0
+    ),
     exportExemptAmount: charges.reduce(
-      (previousValue, currentValue) => previousValue + currentValue.value,
+      (previousValue, currentValue) => previousValue + currentValue.amount,
       0
     ),
     client: {
@@ -36,11 +38,14 @@ const generateBill = (user, charges) => {
       isForeigner: 1,
     },
     details: charges.map((charge) => ({
-      netUnitValue: charge.value,
+      netUnitValue: charge.amount,
       quantity: 1,
       code: "pts",
       comment: charge.name,
       discount: 0,
+      exportNetAmount: charge.amount,
+      exportTaxAmount: 0,
+      exportTotalAmount: charge.amount,
     })),
   });
   const requestOptions = {

@@ -36,6 +36,7 @@ const User = () => {
   const history = useHistory();
   const { id } = useParams();
   const [modalTechnicians, setModalTechnicians] = useState(false);
+  const [refreshPayments, setRefreshPayments] = useState(false);
   const [types, setTypes] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [taskForm, setTaskForm] = useState({
@@ -154,7 +155,11 @@ const User = () => {
             <CLabel style={{ fontSize: 20, fontWeight: "bold" }}>Cargos</CLabel>
           </CCardHeader>
           <CCardBody>
-            <Charges userID={id} type="charge" />
+            <Charges
+              userID={id}
+              type="charge"
+              setRefreshPayments={setRefreshPayments}
+            />
           </CCardBody>
         </CCard>
       </CCol>
@@ -164,7 +169,12 @@ const User = () => {
             <CLabel style={{ fontSize: 20, fontWeight: "bold" }}>Pagos</CLabel>
           </CCardHeader>
           <CCardBody>
-            <Charges userID={id} type="pay" client={user} />
+            <Charges
+              userID={id}
+              type="pay"
+              client={user}
+              refreshPayments={refreshPayments}
+            />
           </CCardBody>
         </CCard>
       </CCol>

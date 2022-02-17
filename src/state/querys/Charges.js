@@ -81,10 +81,15 @@ const getAllChargeUserID = (UserID) =>
     .order("CreatedAt", { ascending: true })
     .then((snapshot) => snapshot.data);
 
-const createPay = (ID, UrlImage, DocumentID) =>
+const createPay = (ID, UrlImage, DocumentData) =>
   supabase
     .from("Charge")
-    .update({ State: true, UrlImage, DocumentID })
+    .update({
+      State: true,
+      UrlImage,
+      DocumentID: DocumentData.id,
+      UrlDocument: DocumentData.urlPublicView,
+    })
     .eq("ID", ID)
     .then((snapshot) => snapshot.data);
 
