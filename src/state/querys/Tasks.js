@@ -6,7 +6,7 @@ const createTask = (taskData) =>
   supabase
     .from("Task")
     .insert({ ...taskData, Priority: "Media" })
-    .then((snapshot) => snapshot?.data[0]?.ID);
+    .then((snapshot) => console.log(snapshot));
 
 const getTypesTasks = () =>
   supabase

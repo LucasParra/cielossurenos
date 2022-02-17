@@ -174,6 +174,7 @@ const User = () => {
               type="pay"
               client={user}
               refreshPayments={refreshPayments}
+              setRefreshPayments={setRefreshPayments}
             />
           </CCardBody>
         </CCard>
