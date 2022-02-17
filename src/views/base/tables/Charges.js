@@ -210,9 +210,9 @@ const Charges = ({
             </CCol>
           </>
         )}
-        {user?.RolID?.ID === 7 && type === "pay" && (
+        {type === "pay" && (
           <>
-            <CCol xs="2">
+            {/* <CCol xs="2">
               <CFormGroup>
                 <CLabel htmlFor="priceBase">Nota para el administrador</CLabel>
                 <CTextarea
@@ -221,7 +221,7 @@ const Charges = ({
                   onChange={({ target: { value } }) => setNoteTask(value)}
                 />
               </CFormGroup>
-            </CCol>
+            </CCol> */}
             <CCol xs="2">
               <CButton color="info">
                 <UploadFile
@@ -391,8 +391,8 @@ const Charges = ({
             opciones: (item) => (
               <td className="py-2">
                 <CRow className="align-items-center">
-                  <CCol col="2" xs="2" sm="2" md="2" className="mb-2 mb-xl-0">
-                    {type !== "pay" ? (
+                  {type !== "pay" ? (
+                    <CCol col="2" xs="2" sm="2" md="2" className="mb-2 mb-xl-0">
                       <CButton
                         color="info"
                         onClick={() => {
@@ -409,9 +409,17 @@ const Charges = ({
                       >
                         <CIcon content={freeSet.cilPencil} size="xl" />
                       </CButton>
-                    ) : (
-                      <>
-                        {item.UrlImage && (
+                    </CCol>
+                  ) : (
+                    <>
+                      {item.UrlImage && (
+                        <CCol
+                          col="2"
+                          xs="2"
+                          sm="2"
+                          md="2"
+                          className="mb-2 mb-xl-0"
+                        >
                           <CButton
                             color="info"
                             onClick={() => {
@@ -421,8 +429,16 @@ const Charges = ({
                           >
                             <CIcon content={freeSet.cilFile} size="xl" />
                           </CButton>
-                        )}
-                        {item.UrlDocument && (
+                        </CCol>
+                      )}
+                      {item.UrlDocument && (
+                        <CCol
+                          col="2"
+                          xs="2"
+                          sm="2"
+                          md="2"
+                          className="mb-2 mb-xl-0"
+                        >
                           <CButton
                             color="info"
                             onClick={() =>
@@ -434,10 +450,10 @@ const Charges = ({
                               size="xl"
                             />
                           </CButton>
-                        )}
-                      </>
-                    )}
-                  </CCol>
+                        </CCol>
+                      )}
+                    </>
+                  )}
                 </CRow>
               </td>
             ),
