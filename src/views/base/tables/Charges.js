@@ -152,7 +152,8 @@ const Charges = ({
                 options={charges
                   .filter(({ State }) => !State)
                   .map((charge) => ({
-                    value: parseInt(charge.Charge),
+                    value: charge.ID,
+                    amount: parseInt(charge.Charge),
                     name: charge.cargo,
                     label: `${charge.cargo} | ${charge.monto} | ${charge.fecha}`,
                     ID: charge.ID,
