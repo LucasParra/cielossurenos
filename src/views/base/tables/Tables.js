@@ -362,7 +362,7 @@ const Tables = () => {
                   loading={loading}
                   pagination
                   tableFilter={{
-                    placeholder: "nombre,rut o apellido",
+                    placeholder: "Nombre, Rut o Apellido",
                     label: "Filtrar",
                   }}
                   itemsPerPage={5}

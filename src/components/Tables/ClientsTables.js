@@ -48,7 +48,7 @@ const ClientsTable = ({ setClientID, ClientID }) => {
       fields={fields}
       itemsPerPage={5}
       tableFilter={{
-        placeholder: "nombre,rut o apellido",
+        placeholder: "Nombre, Rut o Apellido",
         label: "Filtrar",
       }}
       onPageChange={(number) => {
