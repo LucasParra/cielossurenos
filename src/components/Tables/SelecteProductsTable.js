@@ -28,12 +28,12 @@ const SelecteProductsTable = ({
     getProducts(limit).then((productsApi) => {
       setProducts(
         productsApi.map((product) => ({
+          ...product,
           Nombre: product.Name,
           Precio: new Intl.NumberFormat("es-CL", {
             currency: "CLP",
             style: "currency",
           }).format(product.BasePrice),
-          ID: product.ID,
         }))
       );
       setLoading(false);
@@ -61,7 +61,7 @@ const SelecteProductsTable = ({
                     setProductsSelected(
                       productsSelected.map((product) =>
                         product.ProductID === item.ID
-                          ? { ...product, Price: value }
+                          ? { ...product, Price: parseInt(value) }
                           : { ...product }
                       )
                     )
@@ -96,7 +96,8 @@ const SelecteProductsTable = ({
                             {
                               UserID: "",
                               ProductID: item.ID,
-                              Price: 0,
+                              Price: item.BasePrice,
+                              label: item.Nombre,
                             },
                           ])
                         : setProductsSelected(

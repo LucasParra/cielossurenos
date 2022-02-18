@@ -1,11 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import {
   CCard,
   CCardBody,
   CCardHeader,
   CCol,
-  CFormGroup,
   CInput,
   CLabel,
   CSelect,
@@ -17,7 +16,10 @@ import {
   CModalTitle,
   CModalBody,
   CModalFooter,
-  CInvalidFeedback,
+  CListGroup,
+  CListGroupItem,
+  CBadge,
+  CSwitch,
 } from "@coreui/react";
 import _ from "lodash";
 import SelecteProductsTable from "src/components/Tables/SelecteProductsTable";
@@ -27,35 +29,41 @@ import {
   createUserAddress,
   createUserProduct,
   getUserByRut,
+  updateUserAddress,
+  updateUserID,
+  updateUserProduct,
 } from "src/state/querys/Users";
 import moment from "moment";
-import { createAddress } from "src/state/querys/Address";
+import {
+  createAddress,
+  getAddressByUserID,
+  updateAddress,
+} from "src/state/querys/Address";
 import { clean, format } from "rut.js";
+import { useKeySelector } from "src/hook/general";
+import { createZone, getZones } from "src/state/querys/Zones";
+import { getProductByIDUser } from "src/state/querys/Product";
+import {
+  createClientOffice,
+  getOfficesToUserID,
+  updateOfficeToClient,
+} from "src/state/querys/Office";
+import { SelectOfficesTable } from "src/components/Tables";
+import { createTask } from "src/state/querys/Tasks";
 
 const initUser = {
   Names: "",
   LastName: "",
   Rut: "",
-  JobID: 0,
   PhoneNumber: "",
   JobPhoneNumber: "",
-  TechnicianID: 0,
   StateID: "1",
-  // A_REPACTAD: 0,
-  // A_RECONNCET: "",
-  // A_FE_RECON: "",
-  // A_CONDONAD: 0,
-  // A_PROMOCIO: "",
-  // A_FE_PROMO: "",
-  // A_D_PLAZO: "",
-  // D_8: "",
   FechCon: new Date(),
   AltaAdm: new Date(),
   BajaAdm: new Date(),
   AltaTec: new Date(),
   BajaTec: new Date(),
-  // A_FE_REPAC: new Date(),
-  Connections: 0,
+  Connections: null,
   Business: false,
 };
 const initAddress = [
@@ -65,24 +73,30 @@ const initAddress = [
     AddressBlockNumber: 0,
     AddressFloorNumber: 0,
     AddressApartmentNumber: 0,
-    AddressZoneID: 0,
+    AddressZoneID: null,
     AddressArea: "",
   },
 ];
-const Forms = () => {
+const FormUser = ({ user, onClose }) => {
+  const { colors, user: userSession } = useKeySelector(["colors", "user"]);
   const [formUser, setFormUser] = useState(initUser);
   const [formsAddress, setFormsAddress] = useState(initAddress);
   const [formsProducts, setFormsProducts] = useState([]);
   const [modalProduct, setModalProduct] = useState(false);
-  const [validated, setValidated] = useState(false);
+  const [modalOffice, setModalOffice] = useState(false);
   const [modalTechnicians, setModalTechnicians] = useState(false);
+  const [newZone, setNewZone] = useState("");
+  const [validated, setValidated] = useState(false);
   const [validatedRut, setValidatedRut] = useState(false);
+  const [office, setOffice] = useState("");
+  const [technician, setTechnician] = useState({});
+  const [zones, setZones] = useState([]);
 
   const handleCreateUser = () => {
     if (validatedRut) return;
 
     const { Names, LastName, Rut, PhoneNumber, Connections } = formUser;
-    const { AddressName } = formsAddress;
+    const { AddressName, AddressZoneID } = formsAddress;
 
     if (
       Names === "" ||
@@ -90,46 +104,177 @@ const Forms = () => {
       Rut === "" ||
       PhoneNumber === "" ||
       Connections === 0 ||
-      AddressName === ""
+      AddressName === "" ||
+      AddressZoneID === "" ||
+      (!user.ID ? !technician?.nombre : false) ||
+      formsProducts.length === 0
     )
       return setValidated(true);
 
-    createUser(formUser).then((newUserID) => {
-      Promise.all([
-        formsProducts.map((product) =>
-          createUserProduct({ ...product, UserID: newUserID })
-        ),
-        formsAddress.map((address, index) => {
-          createAddress(address).then((newaddressID) => {
-            createUserAddress({
-              AddressID: newaddressID,
-              UserID: newUserID,
+    if (user.ID) {
+      updateUserID(
+        _.omit(
+          { ...formUser, StateID: userSession.RolID.ID === 7 ? "4" : "1" },
+          "apellidos",
+          "nombres",
+          "contacto",
+          "Address"
+        )
+      ).then(() => {
+        Promise.all([
+          formsProducts.map((product) =>
+            product.ID
+              ? updateUserProduct(
+                  _.omit({ ...product, UserID: user.ID }, "label")
+                )
+              : createUserProduct(
+                  _.omit({ ...product, UserID: user.ID }, "label")
+                )
+          ),
+          updateOfficeToClient(user.ID, office.ID),
+          formsAddress.map((address, index) => {
+            address.ID
+              ? updateAddress(address).then((newaddressID) => {
+                  updateUserAddress({
+                    AddressID: newaddressID,
+                    UserID: user.ID,
+                  });
+
+                  if (index + 1 === formsAddress.length) {
+                    setFormsProducts([]);
+                    setTechnician({});
+                    setFormsAddress(initAddress);
+                    setOffice({});
+                    setValidated(false);
+                    onClose();
+                  }
+                })
+              : createAddress(address).then((newaddressID) => {
+                  createUserAddress({
+                    AddressID: newaddressID,
+                    UserID: user.ID,
+                  });
+
+                  if (index + 1 === formsAddress.length) {
+                    setFormsProducts([]);
+                    setTechnician({});
+                    setFormsAddress(initAddress);
+                    setOffice({});
+                    setValidated(false);
+                    onClose();
+                  }
+                });
+          }),
+        ]);
+      });
+    } else {
+      createUser({
+        ...formUser,
+        StateID: userSession.RolID.ID === 7 ? "4" : "1",
+      }).then((newUserID) =>
+        Promise.all([
+          formsProducts.map((product) =>
+            createUserProduct(
+              _.omit({ ...product, UserID: newUserID }, "label")
+            )
+          ),
+          createTask({
+            TypeID: 1,
+            AssignedID: technician.ID,
+            ClientID: newUserID,
+          }),
+          createClientOffice(newUserID, office.ID),
+          formsAddress.map((address, index) => {
+            createAddress(address).then((newaddressID) => {
+              createUserAddress({
+                AddressID: newaddressID,
+                UserID: newUserID,
+              });
+              if (index + 1 === formsAddress.length) {
+                setFormsProducts([]);
+                setTechnician({});
+                setFormsAddress(initAddress);
+                onClose();
+                setOffice({});
+                setValidated(false);
+              }
             });
+          }),
+        ])
+      );
+    }
+  };
+  const handleGetZones = () => getZones().then(setZones);
+  const userEffect = () => {
+    handleGetZones();
+    if (!user?.Names) {
+      setFormsProducts([]);
+      setTechnician({});
+      setFormsAddress(initAddress);
+      setOffice({});
+      setValidated(false);
+      return setFormUser(initUser);
+    }
+    getAddressByUserID(user?.ID).then((address) =>
+      address.length === 0
+        ? setFormsAddress(initAddress)
+        : setFormsAddress(address.map(({ Address }) => ({ ...Address })))
+    );
 
-            if (index + 1 === formsAddress.length) {
-              setFormUser(initUser);
-              setFormsAddress(initAddress);
-              setValidated(false);
-            }
-          });
-        }),
-      ]);
+    getProductByIDUser(user?.ID).then((products) =>
+      setFormsProducts(
+        products.map((product) => ({
+          UserID: user.ID,
+          ProductID: product.ProductID.ID,
+          ID: product.ID,
+          Price:
+            product.Price === 0 ? product.ProductID.BasePrice : product.Price,
+          label: product.ProductID.Name,
+        }))
+      )
+    );
+    getOfficesToUserID(user.ID).then((officeRef) => {
+      setOffice({
+        ID: officeRef.OfficeID.ID,
+        Name: officeRef.OfficeID.Name,
+        nombre: officeRef.OfficeID.Name,
+      });
     });
-
-    return null;
+    setFormUser(user);
   };
 
+  useEffect(userEffect, [user]);
   return (
     <>
       <CForm className={validated ? "was-validated" : ""}>
         <CRow>
           <CCol xs="12" sm="6">
             <CCard>
-              <CCardHeader>Usuario</CCardHeader>
+              <CCardHeader
+                style={{
+                  background: colors.primary,
+                  textAlign: "center",
+                }}
+              >
+                <CLabel
+                  style={{
+                    fontWeight: "bold",
+                    color: "#fff",
+                    fontSize: 16,
+                  }}
+                >
+                  Usuario
+                </CLabel>
+              </CCardHeader>
               <CCardBody>
                 <CRow>
                   <CCol style={{ marginBottom: 8 }} xs="12" sm="6">
-                    <CLabel htmlFor="Names">Nombres</CLabel>
+                    <CLabel
+                      style={{ fontSize: 14, fontWeight: "bold" }}
+                      htmlFor="Names"
+                    >
+                      Nombres
+                    </CLabel>
                     <CInput
                       id="Names"
                       value={formUser.Names}
@@ -141,7 +286,12 @@ const Forms = () => {
                     />
                   </CCol>
                   <CCol style={{ marginBottom: 8 }} xs="12" sm="6">
-                    <CLabel htmlFor="LastName">Apellidos</CLabel>
+                    <CLabel
+                      style={{ fontSize: 14, fontWeight: "bold" }}
+                      htmlFor="LastName"
+                    >
+                      Apellidos
+                    </CLabel>
                     <CInput
                       id="LastName"
                       value={formUser.LastName}
@@ -155,7 +305,11 @@ const Forms = () => {
                   <CCol style={{ marginBottom: 8 }} xs="12" sm="6">
                     <CLabel
                       htmlFor="Rut"
-                      style={{ color: validatedRut ? "red" : "#000" }}
+                      style={{
+                        color: validatedRut ? "red" : "#000",
+                        fontSize: 14,
+                        fontWeight: "bold",
+                      }}
                     >
                       {validatedRut
                         ? "Este rut ya existe en la base de datos"
@@ -163,7 +317,9 @@ const Forms = () => {
                     </CLabel>
                     <CInput
                       id="Rut"
-                      value={format(formUser.Rut)}
+                      value={
+                        format(formUser.Rut) === "-" ? "" : format(formUser.Rut)
+                      }
                       onBlur={() => {
                         getUserByRut(
                           `${clean(formUser.Rut).substr(
@@ -189,7 +345,12 @@ const Forms = () => {
                     />
                   </CCol>
                   <CCol style={{ marginBottom: 8 }} xs="12" sm="6">
-                    <CLabel htmlFor="JobID">Numero de telefono</CLabel>
+                    <CLabel
+                      style={{ fontSize: 14, fontWeight: "bold" }}
+                      htmlFor="JobID"
+                    >
+                      Numero de telefono
+                    </CLabel>
                     <CInput
                       id="PhoneNumber"
                       value={formUser.PhoneNumber}
@@ -201,7 +362,10 @@ const Forms = () => {
                     />
                   </CCol>
                   <CCol style={{ marginBottom: 8 }} xs="12" sm="6">
-                    <CLabel htmlFor="JobID">
+                    <CLabel
+                      style={{ fontSize: 14, fontWeight: "bold" }}
+                      htmlFor="JobID"
+                    >
                       Numero de telefono comercial
                     </CLabel>
                     <CInput
@@ -213,47 +377,33 @@ const Forms = () => {
                       }
                     />
                   </CCol>
+
                   <CCol style={{ marginBottom: 8 }} xs="12" sm="3">
-                    <CLabel htmlFor="JobID">Ocupacion</CLabel>
+                    <CLabel
+                      style={{ fontSize: 14, fontWeight: "bold" }}
+                      htmlFor="D_8"
+                    >
+                      Conexiones
+                    </CLabel>
                     <CInput
-                      id="JobID"
-                      placeholder=""
-                      value={formUser.JobID}
+                      id="D_8"
+                      required
+                      value={formUser.Connections}
                       onChange={({ target: { value } }) =>
-                        setFormUser({ ...formUser, JobID: parseInt(value) })
+                        setFormUser({
+                          ...formUser,
+                          Connections: value === "" ? 0 : parseInt(value),
+                        })
                       }
                     />
                   </CCol>
                   <CCol style={{ marginBottom: 8 }} xs="12" sm="3">
-                    <CLabel htmlFor="TechnicianID">Tecnico</CLabel>
-                    <CButton
-                      variant="outline"
-                      color="success"
-                      onClick={() => setModalTechnicians(true)}
-                      block
+                    <CLabel
+                      style={{ fontSize: 14, fontWeight: "bold" }}
+                      htmlFor="FechCon"
                     >
-                      Tecnicos
-                    </CButton>
-                  </CCol>
-
-                  <CCol style={{ marginBottom: 8 }} xs="12" sm="3">
-                    <CLabel htmlFor="D_8">Conexiones</CLabel>
-                    <CInput
-                      id="D_8"
-                      placeholder=""
-                      required
-                      value={formUser.Connections}
-                      onChange={({ target: { value } }) => {
-                        if (value > 0 || value === "")
-                          return setFormUser({
-                            ...formUser,
-                            Connections: parseInt(value),
-                          });
-                      }}
-                    />
-                  </CCol>
-                  <CCol style={{ marginBottom: 8 }} xs="12" sm="4">
-                    <CLabel htmlFor="FechCon">Fecha Contratacion</CLabel>
+                      Fecha Contratacion
+                    </CLabel>
 
                     <CInput
                       id="FechCon"
@@ -269,16 +419,235 @@ const Forms = () => {
                       }
                     />
                   </CCol>
-                  <CCol style={{ marginBottom: 8 }} xs="12" sm="12">
+                  <CCol style={{ marginBottom: 8 }} xs="12" sm="3">
+                    <CLabel
+                      style={{ fontSize: 14, fontWeight: "bold" }}
+                      htmlFor="FechCon"
+                    >
+                      Fecha de nacimiento
+                    </CLabel>
+                    <CInput
+                      id="FechCon"
+                      type="date"
+                      placeholder=""
+                      required
+                      value={moment(formUser.Birthday).format("YYYY-MM-DD")}
+                      onChange={({ target: { value } }) =>
+                        setFormUser({
+                          ...formUser,
+                          Birthday: moment(value).toDate(),
+                        })
+                      }
+                    />
+                  </CCol>
+                  <CCol xs="12" sm="2" style={{ paddingTop: 16 }}>
+                    <CLabel
+                      htmlFor="business"
+                      style={{ fontSize: 14, fontWeight: "bold" }}
+                    >
+                      Empresa :
+                    </CLabel>
+                  </CCol>
+                  <CCol xs="12" sm="7" style={{ paddingTop: 16 }}>
+                    <CSwitch
+                      className="mr-1"
+                      variant={"3d"}
+                      color={"success"}
+                      value={formUser.Business}
+                      shape="pill"
+                      onChange={({ target: { checked } }) =>
+                        setFormUser({
+                          ...formUser,
+                          Business: checked,
+                        })
+                      }
+                    />
+                  </CCol>
+
+                  <CCol
+                    style={{ marginBottom: 8 }}
+                    xs="12"
+                    sm={user.ID ? "6" : "4"}
+                  >
                     <CButton
                       variant="outline"
-                      color="info"
+                      style={{ backgroundColor: colors.primary }}
                       onClick={() => setModalProduct(!modalProduct)}
-                      size="lg"
                       block
                     >
-                      Seleccionar Productos
+                      <CLabel
+                        style={{
+                          fontSize: 16,
+                          fontWeight: "bold",
+                          margin: 0,
+                          color: "#fff",
+                        }}
+                      >
+                        Seleccionar Productos
+                      </CLabel>
                     </CButton>
+                  </CCol>
+                  {!user.ID && (
+                    <CCol style={{ marginBottom: 8 }} xs="12" sm="4">
+                      <CButton
+                        variant="outline"
+                        onClick={() => setModalTechnicians(true)}
+                        block
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        <CLabel
+                          style={{
+                            fontSize: 16,
+                            fontWeight: "bold",
+                            margin: 0,
+                            color: "#fff",
+                          }}
+                        >
+                          Seleccionar Tecnico
+                        </CLabel>
+                      </CButton>
+                    </CCol>
+                  )}
+                  <CCol
+                    style={{ marginBottom: 8 }}
+                    xs="12"
+                    sm={user.ID ? "6" : "4"}
+                  >
+                    <CButton
+                      variant="outline"
+                      style={{ backgroundColor: colors.primary }}
+                      onClick={() => setModalOffice(true)}
+                      block
+                    >
+                      <CLabel
+                        style={{
+                          fontSize: 16,
+                          fontWeight: "bold",
+                          margin: 0,
+                          color: "#fff",
+                        }}
+                      >
+                        Seleccionar Sucursal
+                      </CLabel>
+                    </CButton>
+                  </CCol>
+
+                  <CCol
+                    style={{ marginBottom: 8 }}
+                    xs="12"
+                    sm={user.ID ? "6" : "4"}
+                  >
+                    <CLabel
+                      style={{
+                        fontSize: 16,
+                        fontWeight: "bold",
+                        margin: 0,
+                        color: validated
+                          ? formsProducts.length === 0
+                            ? "red"
+                            : "#000"
+                          : "#000",
+                      }}
+                    >
+                      Productos :
+                    </CLabel>
+                    <CListGroup>
+                      {formsProducts.map((product) => (
+                        <CListGroupItem
+                          className="justify-content-between"
+                          key={product.ID}
+                        >
+                          <CLabel
+                            style={{
+                              fontSize: 14,
+                              fontWeight: "bold",
+                              margin: 0,
+                            }}
+                          >
+                            {product.label}
+                          </CLabel>
+                          <CBadge
+                            className="float-right"
+                            shape="pill"
+                            color="primary"
+                            style={{ backgroundColor: colors.primary }}
+                          >
+                            {new Intl.NumberFormat("es-CL", {
+                              currency: "CLP",
+                              style: "currency",
+                            }).format(product.Price)}
+                          </CBadge>
+                        </CListGroupItem>
+                      ))}
+                    </CListGroup>
+                  </CCol>
+                  {!user.ID && (
+                    <CCol style={{ marginBottom: 8 }} xs="12" sm="4">
+                      <CLabel
+                        style={{
+                          fontSize: 16,
+                          fontWeight: "bold",
+                          margin: 0,
+                          color: validated
+                            ? !technician?.nombre
+                              ? "red"
+                              : "#000"
+                            : "#000",
+                        }}
+                      >
+                        Tecnico :
+                      </CLabel>
+                      <CListGroup>
+                        {technician?.nombre && (
+                          <CListGroupItem className="justify-content-between">
+                            <CLabel
+                              style={{
+                                fontSize: 14,
+                                fontWeight: "bold",
+                                margin: 0,
+                              }}
+                            >
+                              {`${technician.nombre} ${technician.apellido}`}
+                            </CLabel>
+                          </CListGroupItem>
+                        )}
+                      </CListGroup>
+                    </CCol>
+                  )}
+                  <CCol
+                    style={{ marginBottom: 8 }}
+                    xs="12"
+                    sm={user.ID ? "6" : "4"}
+                  >
+                    <CLabel
+                      style={{
+                        fontSize: 16,
+                        fontWeight: "bold",
+                        margin: 0,
+                        color: validated
+                          ? !office?.Name
+                            ? "red"
+                            : "#000"
+                          : "#000",
+                      }}
+                    >
+                      Sucursal :
+                    </CLabel>
+                    <CListGroup>
+                      {office?.Name && (
+                        <CListGroupItem className="justify-content-between">
+                          <CLabel
+                            style={{
+                              fontSize: 14,
+                              fontWeight: "bold",
+                              margin: 0,
+                            }}
+                          >
+                            {office?.Name}
+                          </CLabel>
+                        </CListGroupItem>
+                      )}
+                    </CListGroup>
                   </CCol>
                 </CRow>
               </CCardBody>
@@ -286,7 +655,22 @@ const Forms = () => {
           </CCol>
           <CCol xs="12" sm="6">
             <CCard>
-              <CCardHeader>Direccion</CCardHeader>
+              <CCardHeader
+                style={{
+                  background: colors.primary,
+                  textAlign: "center",
+                }}
+              >
+                <CLabel
+                  style={{
+                    fontWeight: "bold",
+                    color: "#fff",
+                    fontSize: 16,
+                  }}
+                >
+                  Direccion
+                </CLabel>
+              </CCardHeader>
               <CCardBody
                 style={{
                   overflowY: "scroll",
@@ -297,10 +681,12 @@ const Forms = () => {
                 {formsAddress.map((data, index) => (
                   <CRow>
                     <CCol style={{ marginBottom: 8 }} xs="12" sm="9">
-                      <h3>Direccion {index + 1} : </h3>
-                    </CCol>
-                    <CCol style={{ marginBottom: 8 }} xs="12" sm="9">
-                      <CLabel htmlFor="AddressName">AddressName</CLabel>
+                      <CLabel
+                        htmlFor="AddressName"
+                        style={{ fontSize: 14, fontWeight: "bold" }}
+                      >
+                        Direccion
+                      </CLabel>
                       <CInput
                         id="AddressName"
                         placeholder=""
@@ -314,7 +700,12 @@ const Forms = () => {
                       />
                     </CCol>
                     <CCol style={{ marginBottom: 8 }} xs="12" sm="3">
-                      <CLabel htmlFor="AddressNumber">AddressNumber</CLabel>
+                      <CLabel
+                        htmlFor="AddressNumber"
+                        style={{ fontSize: 14, fontWeight: "bold" }}
+                      >
+                        Numero
+                      </CLabel>
                       <CInput
                         id="AddressNumber"
                         placeholder="0"
@@ -328,8 +719,11 @@ const Forms = () => {
                       />
                     </CCol>
                     <CCol style={{ marginBottom: 8 }} xs="12" sm="4">
-                      <CLabel htmlFor="AddressBlockNumber">
-                        AddressBlockNumber
+                      <CLabel
+                        htmlFor="AddressBlockNumber"
+                        style={{ fontSize: 14, fontWeight: "bold" }}
+                      >
+                        numero de block
                       </CLabel>
                       <CInput
                         id="AddressBlockNumber"
@@ -344,8 +738,11 @@ const Forms = () => {
                       />
                     </CCol>
                     <CCol style={{ marginBottom: 8 }} xs="12" sm="4">
-                      <CLabel htmlFor="AddressFloorNumber">
-                        AddressFloorNumber
+                      <CLabel
+                        htmlFor="AddressFloorNumber"
+                        style={{ fontSize: 14, fontWeight: "bold" }}
+                      >
+                        numero de piso
                       </CLabel>
                       <CInput
                         id="AddressFloorNumber"
@@ -360,8 +757,11 @@ const Forms = () => {
                       />
                     </CCol>
                     <CCol style={{ marginBottom: 8 }} xs="12" sm="4">
-                      <CLabel htmlFor="AddressApartmentNumber">
-                        AddressApartmentNumber
+                      <CLabel
+                        htmlFor="AddressApartmentNumber"
+                        style={{ fontSize: 14, fontWeight: "bold" }}
+                      >
+                        numero de Apartamento
                       </CLabel>
                       <CInput
                         id="AddressApartmentNumber"
@@ -376,19 +776,68 @@ const Forms = () => {
                       />
                     </CCol>
                     <CCol style={{ marginBottom: 8 }} xs="12" sm="12">
-                      <CLabel htmlFor="zone">Zona Horaria</CLabel>
-                      <CSelect custom name="zone" id="zone">
-                        <option value="0">Selecciona Zona o Localidad</option>
-                        <option value="1">Zone 1</option>
-                        <option value="2">Zone 2</option>
-                        <option value="3">Zone 3</option>
-                        <option value="4">Zone 4</option>
-                        <option value="5">Zone 5</option>
-                        <option value="6">Zone 6</option>
-                        <option value="7">Zone 7</option>
-                        <option value="8">Zone 8</option>
-                        <option value="9">Zone 9</option>
-                        <option value="10">Zone 10</option>
+                      <CLabel
+                        htmlFor="zone"
+                        style={{ fontSize: 14, fontWeight: "bold" }}
+                      >
+                        Crear una nueva zona (opcional)
+                      </CLabel>
+                      <CInput
+                        id="zone"
+                        placeholder="Escribe una nueva zona"
+                        value={newZone}
+                        onChange={({ target: { value } }) => setNewZone(value)}
+                        style={{ marginBottom: 8 }}
+                      />
+                      <CButton
+                        variant="outline"
+                        onClick={() =>
+                          newZone !== "" &&
+                          createZone({ Name: newZone }).then(() => {
+                            setNewZone("");
+                            handleGetZones();
+                          })
+                        }
+                        style={{
+                          marginBottom: 8,
+                          backgroundColor: colors.primary,
+                        }}
+                      >
+                        <CLabel
+                          style={{
+                            fontSize: 16,
+                            fontWeight: "bold",
+                            color: "#fff",
+                            margin: 0,
+                          }}
+                        >
+                          Crear zona
+                        </CLabel>
+                      </CButton>
+                      <br />
+                      <CLabel
+                        htmlFor="zone"
+                        style={{ fontSize: 14, fontWeight: "bold" }}
+                      >
+                        Selecciona la Zona
+                      </CLabel>
+                      <CSelect
+                        custom
+                        name="zone"
+                        id="zone"
+                        value={data.AddressZoneID}
+                        required
+                        onChange={({ target: { value } }) => {
+                          const newAddress = [..._.clone(formsAddress)];
+                          newAddress[index].AddressZoneID = parseInt(value);
+                          setFormsAddress(newAddress);
+                        }}
+                      >
+                        {zones.map((zone) => (
+                          <option
+                            value={zone.ID}
+                          >{`Zona ${zone.ID} | ${zone.Name}`}</option>
+                        ))}
                       </CSelect>
                     </CCol>
                   </CRow>
@@ -397,19 +846,24 @@ const Forms = () => {
             </CCard>
           </CCol>
           <CCol xs="12" sm="12">
-            <CCard>
-              <CCardBody>
-                <CButton
-                  variant="outline"
-                  color="success"
-                  onClick={(e) => handleCreateUser(e)}
-                  size="lg"
-                  block
-                >
-                  Crear
-                </CButton>
-              </CCardBody>
-            </CCard>
+            <CButton
+              variant="outline"
+              style={{ backgroundColor: colors.primary, borderRadius: 15 }}
+              onClick={(e) => handleCreateUser(e)}
+              size="lg"
+              block
+            >
+              <CLabel
+                style={{
+                  fontSize: 16,
+                  fontWeight: "bold",
+                  margin: 0,
+                  color: "#fff",
+                }}
+              >
+                {`${!user.ID ? "Crear" : "Editar"} Usuario`}
+              </CLabel>
+            </CButton>
           </CCol>
         </CRow>
       </CForm>
@@ -421,10 +875,9 @@ const Forms = () => {
         </CModalHeader>
         <CModalBody>
           <TechniciansTable
-            setTechnicianID={(value) =>
-              setFormUser({ ...formUser, TechnicianID: value })
-            }
-            TechnicianID={formUser.TechnicianID}
+            setTechnicianID={(value) => setTechnician(value)}
+            TechnicianID={technician}
+            isAllData={true}
           />
         </CModalBody>
         <CModalFooter>
@@ -453,8 +906,22 @@ const Forms = () => {
           </CButton>
         </CModalFooter>
       </CModal>
+      {/* modal Office */}
+      <CModal show={modalOffice} onClose={setModalOffice}>
+        <CModalHeader closeButton>
+          <CModalTitle>Selecciona la sucursal del usuario</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <SelectOfficesTable setOffice={setOffice} office={office} />
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="success" onClick={() => setModalOffice(false)}>
+            Aceptar
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </>
   );
 };
 
-export default Forms;
+export default FormUser;

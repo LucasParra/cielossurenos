@@ -46,6 +46,7 @@ import { finishTaskProcessUnSubscribe } from "src/state/querys/Tasks";
 import { nameStateSpanish } from "src/utils";
 import { getAddressNames } from "src/state/querys/Zones";
 import { useDispatch } from "react-redux";
+import FormUser from "src/views/buttons/form/Form";
 
 const fields = [
   "ID",
@@ -254,14 +255,18 @@ const Tables = () => {
           {creatingUser ? (
             <CButton
               color="primary"
-              style={{ marginBottom: 10 }}
+              style={{ marginBottom: 10, backgroundColor: colors.primary }}
               onClick={() => {
                 setUser({});
                 setCreatingUser(false);
               }}
             >
-              <CIcon color="white" name="cil-arrow-left" />
-              Volver
+              <CIcon
+                color="white"
+                name="cil-arrow-left"
+                size="lg"
+                height={20}
+              />
             </CButton>
           ) : (
             <CRow>
@@ -499,7 +504,7 @@ const Tables = () => {
             </CCard>
           </div>
           <div style={{ display: !creatingUser ? "none" : "block" }}>
-            <UserForm
+            <FormUser
               user={user}
               onClose={() => {
                 setUser({});
@@ -507,6 +512,14 @@ const Tables = () => {
                 setCreatingUser(false);
               }}
             />
+            {/* <UserForm
+              user={user}
+              onClose={() => {
+                setUser({});
+                userEffect();
+                setCreatingUser(false);
+              }}
+            /> */}
           </div>
         </CCol>
       </CRow>

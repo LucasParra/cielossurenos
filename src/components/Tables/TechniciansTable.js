@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { CCol, CDataTable, CRow, CSwitch } from "@coreui/react";
 import { getTechnicians } from "src/state/querys/Users";
 
-const TechniciansTable = ({ setTechnicianID, TechnicianID }) => {
+const TechniciansTable = ({ setTechnicianID, TechnicianID, isAllData }) => {
   const [technicians, setTechnicians] = useState([]);
   const [loading, setLoading] = useState(false);
   const fields = ["nombre", "apellido", "opciones"];
@@ -38,9 +38,17 @@ const TechniciansTable = ({ setTechnicianID, TechnicianID }) => {
                   className={"mx-1"}
                   variant={"3d"}
                   color={"success"}
-                  value={TechnicianID === item.ID}
-                  checked={TechnicianID === item.ID}
-                  onChange={() => setTechnicianID(item.ID)}
+                  value={
+                    isAllData
+                      ? TechnicianID?.ID === item.ID
+                      : TechnicianID === item.ID
+                  }
+                  checked={
+                    isAllData
+                      ? TechnicianID?.ID === item.ID
+                      : TechnicianID === item.ID
+                  }
+                  onChange={() => setTechnicianID(isAllData ? item : item.ID)}
                 />
               </CCol>
             </CRow>

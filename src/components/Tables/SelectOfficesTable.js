@@ -2,14 +2,16 @@ import React, { useEffect, useState } from "react";
 import { CCol, CDataTable, CRow, CSwitch } from "@coreui/react";
 import { getOffices } from "src/state/querys/Office";
 
-const SelectOfficesTable = ({ setOfficeID, officeID }) => {
+const SelectOfficesTable = ({ setOffice, office }) => {
   const [offices, setOffices] = useState([]);
   const [loading, setLoading] = useState(false);
   const fields = ["ID", "nombre", "opciones"];
   const officesEffects = () => {
     setLoading(true);
     getOffices().then((Offices) => {
-      setOffices(Offices.map((office) => ({ ...office, nombre: office.Name })));
+      setOffices(
+        Offices.map((officeApi) => ({ ...officeApi, nombre: officeApi.Name }))
+      );
       setLoading(false);
     });
   };
@@ -32,9 +34,9 @@ const SelectOfficesTable = ({ setOfficeID, officeID }) => {
                   className={"mx-1"}
                   variant={"3d"}
                   color={"success"}
-                  value={officeID === item.ID}
-                  checked={officeID === item.ID}
-                  onChange={() => setOfficeID(item.ID)}
+                  value={office?.ID === item.ID}
+                  checked={office?.ID === item.ID}
+                  onChange={() => setOffice(item)}
                 />
               </CCol>
             </CRow>

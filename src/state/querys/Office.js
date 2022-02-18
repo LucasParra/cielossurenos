@@ -33,9 +33,9 @@ const getOffices = (limit = 1) =>
 const getOfficesToUserID = (UserID) =>
   supabase
     .from("OfficeUser")
-    .select("*")
+    .select("*,OfficeID(*)")
     .eq("UserID", UserID)
-    .then((snapshot) => snapshot.data[0]?.OfficeID);
+    .then((snapshot) => snapshot.data[0]);
 
 const deleteOffice = (ID) => supabase.from("Office").delete().match({ ID });
 
