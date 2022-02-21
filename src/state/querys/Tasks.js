@@ -77,6 +77,12 @@ const createCommentTask = (commentData) =>
     .insert(commentData)
     .then((snapshot) => snapshot?.data[0]?.ID);
 
+const getStateTask = () =>
+  supabase
+    .from("TaskState")
+    .select("*,Task!inner(*)")
+    .then((snapshot) => snapshot.data);
+
 export {
   createTask,
   getTypesTasks,
@@ -89,4 +95,5 @@ export {
   finishTaskProcessUnSubscribe,
   getCommentsTask,
   createCommentTask,
+  getStateTask,
 };
