@@ -15,10 +15,11 @@ import {
   CModalTitle,
   CRow,
 } from "@coreui/react";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { freeSet } from "@coreui/icons";
 import { supabase } from "src/config/configSupabase";
 import { createZone, updateZone } from "src/state/querys/Zones";
+import _ from "lodash";
 
 const fields = ["ID", "nombre", "editar", "eliminar"];
 
@@ -30,6 +31,28 @@ const Zones = () => {
   const [edit, setEdit] = useState(false);
   const [name, setName] = useState("");
   const [validated, setValidated] = useState(false);
+  const [searchText, setSearchText] = useState("");
+
+  const handleSearchZones = (text, limit) => {
+    setSearchText(text);
+    if (text === undefined || text === "") return componentDidMount();
+    setLoading(true);
+    supabase
+      .from("Zones")
+      .select("*")
+      .or(`Name.ilike.%${text}%`)
+      .limit(limit * 5 + 1)
+      .then((snapshot) => {
+        setZones(
+          snapshot.data.map((zone) => ({
+            ...zone,
+            nombre: zone.Name,
+          }))
+        );
+        setLoading(false);
+      })
+      .catch(console.error);
+  };
 
   const componentDidMount = (limit = 1) => {
     setLoading(true);
@@ -75,6 +98,7 @@ const Zones = () => {
       setValidated(false);
     });
   useEffect(componentDidMount, []);
+  const debounceFilter = useCallback(_.debounce(handleSearchZones, 1000), []);
   return (
     <CForm className={validated ? "was-validated" : ""}>
       <CRow>
@@ -128,6 +152,15 @@ const Zones = () => {
                 itemsPerPage={5}
                 onPageChange={componentDidMount}
                 loading={loading}
+                tableFilter={{
+                  placeholder: "Nombre",
+                  label: "Filtrar",
+                }}
+                onPageChange={(number) => {
+                  if (!searchText !== "") return componentDidMount(number);
+                  else return handleSearchZones(searchText, number);
+                }}
+                onTableFilterChange={debounceFilter}
                 pagination
                 scopedSlots={{
                   editar: (item) => (
