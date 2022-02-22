@@ -5,6 +5,7 @@ import {
   CCardBody,
   CCardHeader,
   CCol,
+  CForm,
   CFormGroup,
   CInput,
   CLabel,
@@ -31,6 +32,7 @@ import { DeleteModal } from "src/components/Modals";
 const Offices = () => {
   const { colors } = useKeySelector(["colors"]);
   const [loading, setLoading] = useState(false);
+  const [validated, setValidated] = useState(false);
   const [offices, setOffices] = useState([]);
   const [charData, setCharData] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -70,17 +72,21 @@ const Offices = () => {
     });
 
   const handleCreateOffice = () => {
+    if (!office?.Name) return setValidated(true);
+
     if (!office.ID)
       return createOffice(office).then(() => {
         setOffice({});
         componentDidMount();
         setShowModal(false);
+        setValidated(false);
       });
 
     updateOffice(office.ID, _.omit({ ...office }, "ID", "nombre")).then(() => {
       setOffice({});
       componentDidMount();
       setShowModal(false);
+      setValidated(false);
     });
   };
 
@@ -188,7 +194,7 @@ const Offices = () => {
         <CModalBody>
           <CRow>
             <CCol xs="12">
-              <CFormGroup>
+              <CForm className={validated ? "was-validated" : ""}>
                 <CLabel
                   htmlFor="product"
                   style={{
@@ -206,7 +212,7 @@ const Offices = () => {
                   }
                   required
                 />
-              </CFormGroup>
+              </CForm>
             </CCol>
           </CRow>
         </CModalBody>

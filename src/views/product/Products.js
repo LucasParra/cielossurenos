@@ -5,6 +5,7 @@ import {
   CCardBody,
   CCardHeader,
   CCol,
+  CForm,
   CFormGroup,
   CInput,
   CLabel,
@@ -28,7 +29,7 @@ import { colorsChart } from "src/utils";
 
 const initProduct = {
   Name: "",
-  BasePrice: 0,
+  BasePrice: null,
   StateID: 1,
 };
 const Products = () => {
@@ -37,6 +38,7 @@ const Products = () => {
   const [noteTask, setNoteTask] = useState("");
   const [lastProduct, setLastProduct] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [validated, setValidated] = useState(false);
   const [productChart, setProductChart] = useState([]);
   const [product, setProduct] = useState(initProduct);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -59,6 +61,10 @@ const Products = () => {
       .catch(console.error);
   };
   const createProduct = () => {
+    if (product.Name === "" || product.BasePrice === null) {
+      return setValidated(true);
+    }
+
     if (user.RolID.ID === 7) {
       return createTaskforAdmin(user.ZoneID[0].AddressID.AddressZoneID, {
         TypeID: product.ID ? 6 : 7,
@@ -73,6 +79,7 @@ const Products = () => {
         setNoteTask("");
         setLastProduct(null);
         setProduct(initProduct);
+        setValidated(false);
       });
     }
 
@@ -85,6 +92,7 @@ const Products = () => {
           componentDidMount();
           setModalVisible(false);
           setProduct(initProduct);
+          setValidated(false);
         });
 
     setLoading(true);
@@ -96,6 +104,7 @@ const Products = () => {
         componentDidMount();
         setModalVisible(false);
         setProduct(initProduct);
+        setValidated(false);
       });
   };
   const deleteProduct = () =>
@@ -107,11 +116,13 @@ const Products = () => {
         setLoading(false);
         componentDidMount();
         setShowDeleteModal(false);
+        setProduct(initProduct);
+        setValidated(false);
       });
 
   useEffect(componentDidMount, []);
   return (
-    <>
+    <CForm className={validated ? "was-validated" : ""}>
       <CRow className="align-items-center" style={{ marginBottom: 16 }}>
         <CCol col="2" xs="2" sm="2" md="2" className="mb-3 mb-xl-0">
           <CButton
@@ -300,7 +311,7 @@ const Products = () => {
           </CRow>
         </CModalFooter>
       </CModal>
-    </>
+    </CForm>
   );
 };
 

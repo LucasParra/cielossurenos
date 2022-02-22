@@ -6,6 +6,7 @@ import {
   CCardHeader,
   CCol,
   CDataTable,
+  CForm,
   CInput,
   CLabel,
   CModal,
@@ -28,6 +29,7 @@ const Rol = () => {
   const [rols, setRols] = useState([]);
   const [edit, setEdit] = useState(false);
   const [name, setName] = useState("");
+  const [validated, setValidated] = useState(false);
 
   const componentDidMount = (limit = 1) => {
     setLoading(true);
@@ -56,23 +58,26 @@ const Rol = () => {
         setRolSelected();
         componentDidMount();
         setDeleteModal(false);
+        setValidated(false);
       });
 
   const handleCrateRol = () =>
     createRol({ Name: name }).then(() => {
       setName("");
       componentDidMount();
+      setValidated(false);
     });
   const handleUpdateRol = () =>
     updateRol(rolSelected.ID, { Name: name }).then(() => {
       setName("");
       setRolSelected({});
       componentDidMount();
+      setValidated(false);
       setEdit(false);
     });
   useEffect(componentDidMount, []);
   return (
-    <>
+    <CForm className={validated ? "was-validated" : ""}>
       <CRow>
         <CCol xs="12" lg="12">
           <CCard>
@@ -85,6 +90,7 @@ const Rol = () => {
                     id="name"
                     name="name"
                     value={name}
+                    required
                     onChange={({ target: { value } }) => setName(value)}
                   />
                 </CCol>
@@ -92,7 +98,11 @@ const Rol = () => {
                   <CButton
                     color={!edit ? "success" : "primary"}
                     onClick={() =>
-                      !edit ? handleCrateRol() : handleUpdateRol()
+                      name === ""
+                        ? setValidated(true)
+                        : !edit
+                        ? handleCrateRol()
+                        : handleUpdateRol()
                     }
                   >
                     {`${!edit ? "Crear" : "Editar"} Rol`}
@@ -201,7 +211,7 @@ const Rol = () => {
           </CButton>
         </CModalFooter>
       </CModal>
-    </>
+    </CForm>
   );
 };
 

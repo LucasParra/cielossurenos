@@ -6,15 +6,14 @@ import {
   CButton,
   CCol,
   CDataTable,
+  CForm,
   CFormGroup,
   CInput,
-  CInputFile,
   CInputGroup,
   CInputGroupPrepend,
   CInputGroupText,
   CLabel,
   CRow,
-  CTextarea,
 } from "@coreui/react";
 import { supabase } from "src/config/configSupabase";
 import _ from "lodash";
@@ -55,8 +54,8 @@ const Charges = ({
 }) => {
   const { user } = useKeySelector(["user"]);
   const [charges, setCharges] = useState([]);
-  // const [noteTask, setNoteTask] = useState("");
-  const [amount, setAmount] = useState(0);
+  const [validated, setValidated] = useState(false);
+  const [amount, setAmount] = useState(null);
   const [chargesSelected, setChargesSelected] = useState([]);
   const [chargesTypes, setChargesTypes] = useState([]);
   const [chargesTypeSelected, setChargesTypeSelected] = useState({});
@@ -145,7 +144,7 @@ const Charges = ({
     });
   useEffect(componentDidMount, [refreshPayments]);
   return (
-    <>
+    <CForm className={validated ? "was-validated" : ""}>
       <CRow
         style={{ margin: 10, marginBottom: 20 }}
         className="align-items-center"
@@ -153,9 +152,16 @@ const Charges = ({
         {type === "pay" ? (
           <>
             <CCol col="2">
+              <CLabel
+                htmlFor="charges"
+                style={{ color: validated ? "red" : "#000" }}
+              >
+                {!validated ? "cargos" : "Debe seleccionar almenos un cargo"}
+              </CLabel>
               <Select
                 isMulti
-                name="colors"
+                name="charges"
+                required
                 options={charges
                   .filter(({ State }) => !State)
                   .map((charge) => ({
@@ -193,13 +199,19 @@ const Charges = ({
                     onChange={({ target: { value } }) =>
                       setAmount(parseInt(value))
                     }
+                    required
                     value={amount}
                   />
                 </CInputGroup>
               </div>
             </CCol>
             <CCol col="2">
-              <CLabel htmlFor="amount">Tipo</CLabel>
+              <CLabel
+                htmlFor="amount"
+                style={{ color: validated ? "red" : "#000" }}
+              >
+                {!validated ? "Tipo" : "Debe seleccionar un tipo"}
+              </CLabel>
               <Select
                 name="colors"
                 options={chargesTypes.map((charge) => ({
@@ -207,6 +219,7 @@ const Charges = ({
                   label: charge.Name,
                   ID: charge.ID,
                 }))}
+                required
                 className="basic-multi-select"
                 classNamePrefix="select"
                 value={chargesTypeSelected}
@@ -244,47 +257,10 @@ const Charges = ({
           <CButton
             color={"success"}
             onClick={() => {
-              // if (user?.RolID?.ID === 7) {
-              //   const nameFile = `${moment().unix()}.jpg`;
-
-              //   if (files[0]) uploadImage(nameFile, files[0]);
-
-              //   return createTaskforAdmin(
-              //     user.ZoneID[0].AddressID.AddressZoneID,
-              //     {
-              //       TypeID: ispayment ? 12 : edit === "" ? 10 : 11,
-              //       ClientID: user.ID,
-              //       Note: noteTask,
-              //       Files: files[0].name ? nameFile : null,
-              //       Data: ispayment
-              //         ? chargesSelected
-              //         : edit === ""
-              //         ? {
-              //             ChargeTypeID: chargesTypeSelected.ID,
-              //             CreatedAt: moment().toDate(),
-              //             Charge: amount,
-              //             ClientID: userID,
-              //             State: false,
-              //             Remaining: 0,
-              //           }
-              //         : {
-              //             ChargeTypeID: chargesTypeSelected.ID,
-              //             Name: name,
-              //             Charge: amount,
-              //             ClientID: userID,
-              //             ID: edit,
-              //           },
-              //     }
-              //   ).then(() => {
-              //     componentDidMount();
-              //     setChargesTypeSelected({});
-              //     setName(0);
-              //     setAmount(0);
-              //     setNoteTask("");
-              //   });
-              // }
-
               if (type === "pay") {
+                if (chargesSelected.length === 0) {
+                  return setValidated(true);
+                }
                 return generateBill(client, chargesSelected).then(
                   (response) => {
                     window.open(response.urlPublicView, "_blank");
@@ -302,6 +278,7 @@ const Charges = ({
                         )
                       )
                     ).then(() => {
+                      setValidated(false);
                       if (charges.filter(({ State }) => !State).length === 1) {
                         getLastTaskByUserID(userID).then((taskPending) => {
                           if (taskPending.length > 0) {
@@ -331,11 +308,16 @@ const Charges = ({
                 );
               }
 
+              if (amount === null || chargesTypeSelected.length === 0) {
+                return setValidated(true);
+              }
+
               if (edit === "") {
                 handleAddCharge();
               } else {
                 handleEditcharge();
               }
+              setValidated(false);
             }}
           >
             {type !== "pay"
@@ -473,7 +455,7 @@ const Charges = ({
           }}
         />
       </CRow>
-    </>
+    </CForm>
   );
 };
 

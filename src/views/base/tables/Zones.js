@@ -6,6 +6,7 @@ import {
   CCardHeader,
   CCol,
   CDataTable,
+  CForm,
   CInput,
   CLabel,
   CModal,
@@ -28,6 +29,7 @@ const Zones = () => {
   const [zones, setZones] = useState([]);
   const [edit, setEdit] = useState(false);
   const [name, setName] = useState("");
+  const [validated, setValidated] = useState(false);
 
   const componentDidMount = (limit = 1) => {
     setLoading(true);
@@ -56,6 +58,7 @@ const Zones = () => {
         setZonesSelected();
         componentDidMount();
         setDeleteModal(false);
+        setValidated(false);
       });
 
   const handleCrateZone = () =>
@@ -69,10 +72,11 @@ const Zones = () => {
       setZonesSelected({});
       componentDidMount();
       setEdit(false);
+      setValidated(false);
     });
   useEffect(componentDidMount, []);
   return (
-    <>
+    <CForm className={validated ? "was-validated" : ""}>
       <CRow>
         <CCol xs="12" lg="12">
           <CCard>
@@ -85,6 +89,7 @@ const Zones = () => {
                     id="name"
                     name="name"
                     value={name}
+                    required
                     onChange={({ target: { value } }) => setName(value)}
                   />
                 </CCol>
@@ -92,7 +97,11 @@ const Zones = () => {
                   <CButton
                     color={!edit ? "success" : "primary"}
                     onClick={() =>
-                      !edit ? handleCrateZone() : handleUpdateZone()
+                      name === ""
+                        ? setValidated(true)
+                        : !edit
+                        ? handleCrateZone()
+                        : handleUpdateZone()
                     }
                   >
                     {`${!edit ? "Crear" : "Editar"} Zona`}
@@ -201,7 +210,7 @@ const Zones = () => {
           </CButton>
         </CModalFooter>
       </CModal>
-    </>
+    </CForm>
   );
 };
 
