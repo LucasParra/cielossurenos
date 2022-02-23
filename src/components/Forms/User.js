@@ -223,8 +223,8 @@ const UserForm = ({ user, onClose }) => {
           createTask({
             TypeID: 1,
             AssignedID: formUser.TechnicianID,
-            // DeadLine:.toDate(),
             ClientID: newUserID,
+            StateID: 3,
           }),
           createClientOffice(newUserID, officeID),
           formsAddress.map((address, index) => {
