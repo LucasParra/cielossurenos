@@ -57,6 +57,7 @@ const initUser = {
   Rut: "",
   PhoneNumber: "",
   JobPhoneNumber: "",
+  RolID: 2,
   StateID: "1",
   FechCon: new Date(),
   AltaAdm: new Date(),
