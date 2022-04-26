@@ -454,6 +454,28 @@ const Charges = ({
             ),
           }}
         />
+        {type !== "pay" && (
+          <CLabel
+            htmlFor="charges"
+            style={{
+              marginLeft: 18,
+              fontSize: 18,
+              fontWeight: "bold",
+            }}
+          >
+            {`Deuda Total : ${new Intl.NumberFormat("es-CL", {
+              currency: "CLP",
+              style: "currency",
+            }).format(
+              charges
+                .filter(({ State }) => State === false)
+                .reduce(
+                  (lastCharge, charge) => parseInt(charge.Charge) + lastCharge,
+                  0
+                )
+            )}`}
+          </CLabel>
+        )}
       </CRow>
     </CForm>
   );
