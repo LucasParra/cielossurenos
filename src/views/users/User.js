@@ -159,6 +159,7 @@ const User = () => {
               userID={id}
               type="charge"
               setRefreshPayments={setRefreshPayments}
+              refreshPayments={refreshPayments}
             />
           </CCardBody>
         </CCard>

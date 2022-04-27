@@ -78,6 +78,7 @@ const Charges = ({
       const chargesApi = response[0];
       const chargesTypeApi = response[1];
       setChargesTypes(chargesTypeApi);
+
       setCharges(
         chargesApi.map((charge) => ({
           ID: charge.ID,
@@ -119,6 +120,7 @@ const Charges = ({
       Remaining: 0,
     }).then(() => {
       setRefreshPayments(true);
+
       componentDidMount();
       setChargesTypeSelected({});
       setName(0);
@@ -303,6 +305,7 @@ const Charges = ({
                       setAmount(0);
                       setChargesSelected([]);
                       componentDidMount();
+                      setRefreshPayments(true);
                     });
                   }
                 );
