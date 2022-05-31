@@ -46,7 +46,7 @@ const Login = () => {
               <CCard className="p-4">
                 <CCardBody>
                   <CForm>
-                    <h1>Bienvenido!</h1>
+                    <h1>Bienvenido!!!</h1>
 
                     {error ? (
                       <p className="text-danger">
