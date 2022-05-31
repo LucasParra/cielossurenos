@@ -94,7 +94,7 @@ const Discounts = ({ userID }) => {
   const deleteDiscount = (ID) =>
     supabase.from("Discount").delete().match({ ID }).then(onFinish);
 
-  useEffect(componentDidMount, []);
+  useEffect(componentDidMount, [userID]);
   return (
     <>
       <CRow style={{ margin: 10, marginBottom: 20 }}>

@@ -40,7 +40,7 @@ const TaskPending = () => {
     }
   };
   useEffect(taskEffect, [filterTechnicalID]);
-  useEffect(componentDidMount, []);
+  useEffect(componentDidMount, [user?.ZoneID]);
   return (
     <>
       <CRow style={{ marginBottom: 22 }}>

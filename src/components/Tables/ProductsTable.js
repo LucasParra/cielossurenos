@@ -1,12 +1,5 @@
 import { freeSet } from "@coreui/icons";
-import CIcon from "@coreui/icons-react";
-import {
-  CButton,
-  CCard,
-  CCardBody,
-  CCardHeader,
-  CDataTable,
-} from "@coreui/react";
+import { CDataTable } from "@coreui/react";
 import React from "react";
 import { ButtonOptionTable } from "../buttons";
 

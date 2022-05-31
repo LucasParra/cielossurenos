@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   CButton,
-  CCallout,
   CCard,
   CCardBody,
   CCardHeader,
@@ -24,11 +23,7 @@ import CIcon from "@coreui/icons-react";
 import { freeSet } from "@coreui/icons";
 import { supabase } from "src/config/configSupabase";
 import TechniciansTable from "src/components/Tables/TechniciansTable";
-import {
-  createTask,
-  getTaskByUserID,
-  getTypesTasks,
-} from "src/state/querys/Tasks";
+import { createTask, getTypesTasks } from "src/state/querys/Tasks";
 import TasksTable from "src/components/Tables/TasksTable";
 import _ from "lodash";
 
@@ -67,7 +62,7 @@ const User = () => {
     getTypesTasks().then(setTypes);
   };
 
-  useEffect(componentDidMount, []);
+  useEffect(componentDidMount, [id]);
   const changeStateUser = (state, userID) =>
     supabase
       .from("User")
@@ -75,7 +70,7 @@ const User = () => {
       .eq("ID", userID)
       .then(() => history.goBack());
 
-  useEffect(componentDidMount, []);
+  useEffect(componentDidMount, [id]);
   return (
     <CRow>
       <CCol lg={4}>

@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { CRow } from "@coreui/react";
 import { supabase } from "src/config/configSupabase";
 import _ from "lodash";
 import { useKeySelector } from "src/hook/general";
@@ -27,7 +26,7 @@ const Tasks = () => {
       .catch(console.error);
   };
 
-  useEffect(componentDidMount, []);
+  useEffect(componentDidMount, [user.ID]);
   return (
     <>
       <TasksTable tasks={tasks} taskEffect={componentDidMount} />

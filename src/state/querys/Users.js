@@ -129,14 +129,14 @@ const createUserFinishTask = (user, products, address, officeID) => {
         ClientID: newUserID,
       }),
       createClientOffice(newUserID, officeID),
-      address.map((addres) => {
+      address.map((addres) =>
         createAddress(addres).then((newaddressID) => {
           createUserAddress({
             AddressID: newaddressID,
             UserID: newUserID,
           });
-        });
-      }),
+        })
+      ),
     ]);
   });
 };
@@ -149,7 +149,7 @@ const updateUserFinishTask = (user, products, address, officeID) =>
           : createUserProduct({ ...product, UserID: user.ID })
       ),
       updateOfficeToClient(user.ID, officeID),
-      address.map((addres) => {
+      address.map((addres) =>
         addres.ID
           ? updateAddress(addres).then((newaddressID) => {
               updateUserAddress({
@@ -162,8 +162,8 @@ const updateUserFinishTask = (user, products, address, officeID) =>
                 AddressID: newaddressID,
                 UserID: user.ID,
               });
-            });
-      }),
+            })
+      ),
     ]);
   });
 

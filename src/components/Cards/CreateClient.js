@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   CCard,
   CCardBody,
@@ -10,7 +10,6 @@ import {
 } from "@coreui/react";
 import { useFormik } from "formik";
 import moment from "moment";
-import _ from "lodash";
 
 import { useKeySelector } from "src/hook/general";
 

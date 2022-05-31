@@ -9,20 +9,15 @@ import {
   CRow,
   CButton,
   CModalFooter,
-  CFormGroup,
   CLabel,
-  CInput,
-  CModalBody,
   CModalTitle,
   CModalHeader,
   CModal,
-  CInputRadio,
   CSelect,
 } from "@coreui/react";
 
 // import users from "../../users/users";
 import { supabase } from "src/config/configSupabase";
-import { UserForm } from "src/components/Forms";
 import _ from "lodash";
 import Select from "react-select";
 import CIcon from "@coreui/icons-react";
@@ -31,9 +26,8 @@ import Discounts from "./Discounts";
 import Charges from "./Charges";
 import { useHistory } from "react-router";
 import { chargeAutomatic } from "src/state/querys/Charges";
-import { clean, format, getCheckDigit } from "rut.js";
+import { format } from "rut.js";
 import { useKeySelector } from "src/hook/general";
-import { CreateClient } from "src/components/Cards";
 import {
   getUserBySearch,
   getUserStates,
@@ -240,7 +234,9 @@ const Tables = () => {
     });
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debounceFilter = useCallback(_.debounce(handleSearchUser, 1000), []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debounceFilterAddress = useCallback(
     _.debounce(filterAddress, 1000),
     []

@@ -133,7 +133,7 @@ const FormUser = ({ user, onClose }) => {
                 )
           ),
           updateOfficeToClient(user.ID, office.ID),
-          formsAddress.map((address, index) => {
+          formsAddress.map((address, index) =>
             address.ID
               ? updateAddress(address).then((newaddressID) => {
                   updateUserAddress({
@@ -164,8 +164,8 @@ const FormUser = ({ user, onClose }) => {
                     setValidated(false);
                     onClose();
                   }
-                });
-          }),
+                })
+          ),
         ]);
       });
     } else {
@@ -185,7 +185,7 @@ const FormUser = ({ user, onClose }) => {
             ClientID: newUserID,
           }),
           createClientOffice(newUserID, office.ID),
-          formsAddress.map((address, index) => {
+          formsAddress.map((address, index) =>
             createAddress(address).then((newaddressID) => {
               createUserAddress({
                 AddressID: newaddressID,
@@ -199,8 +199,8 @@ const FormUser = ({ user, onClose }) => {
                 setOffice({});
                 setValidated(false);
               }
-            });
-          }),
+            })
+          ),
         ])
       );
     }

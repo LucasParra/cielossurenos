@@ -63,7 +63,7 @@ const TasksTable = ({ tasks, taskEffect }) => {
   const [technicalSelected, setTechnicalSelected] = useState({});
   const [chargesUserTask, setChargesUserTask] = useState([]);
   const [chargesSelected, setChargesSelected] = useState([]);
-  const [files, setFiles] = useState([]);
+  // const [files, setFiles] = useState([]);
 
   const deleteTask = () => {
     dispatch({
@@ -343,7 +343,7 @@ const TasksTable = ({ tasks, taskEffect }) => {
     ]).then(() => {
       taskEffect();
       setChargesSelected([]);
-      setFiles();
+      // setFiles();
       setShowTechnicalPaymentModal(false);
       setTaskSelected();
       dispatch({
@@ -1036,7 +1036,7 @@ const TasksTable = ({ tasks, taskEffect }) => {
                         },
                       });
                     }, 3000);
-                    setFiles(files);
+                    // setFiles(files);
                   }}
                 >
                   Subir Archivo

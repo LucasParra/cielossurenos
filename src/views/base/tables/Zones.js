@@ -98,6 +98,7 @@ const Zones = () => {
       setValidated(false);
     });
   useEffect(componentDidMount, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debounceFilter = useCallback(_.debounce(handleSearchZones, 1000), []);
   return (
     <CForm className={validated ? "was-validated" : ""}>
@@ -150,7 +151,6 @@ const Zones = () => {
                 items={zones}
                 fields={fields}
                 itemsPerPage={5}
-                onPageChange={componentDidMount}
                 loading={loading}
                 tableFilter={{
                   placeholder: "Nombre",

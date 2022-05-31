@@ -1,7 +1,6 @@
 import { CCard, CCardBody, CCardHeader, CCol, CRow } from "@coreui/react";
 import React, { useEffect, useState } from "react";
 import { getClientsCount, getUserStates } from "src/state/querys/Users";
-import _ from "lodash";
 import { CChartDoughnut } from "@coreui/react-chartjs";
 import { useKeySelector } from "src/hook/general";
 import { nameStateSpanish } from "src/utils";

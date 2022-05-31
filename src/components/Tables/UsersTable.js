@@ -1,9 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 
 import { freeSet } from "@coreui/icons";
-import CIcon from "@coreui/icons-react";
-import { CButton, CCol, CDataTable, CRow } from "@coreui/react";
-import { format } from "rut.js";
+import { CDataTable } from "@coreui/react";
 import _ from "lodash";
 
 import { getUsersClients } from "src/state/querys/Users";
@@ -31,7 +29,10 @@ const UsersTable = ({ handleClient }) => {
       setLoading(false);
     });
   };
-  const debounceFilter = useCallback(_.debounce(usersEffect, 1000), []);
+  const debounceFilter = useCallback(
+    (value, limit) => _.debounce(usersEffect(value, limit), 1000),
+    []
+  );
 
   useEffect(usersEffect, []);
   return (

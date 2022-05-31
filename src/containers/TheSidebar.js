@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   CCreateElement,
   CSidebar,
@@ -12,7 +12,6 @@ import {
 } from "@coreui/react";
 import _ from "lodash";
 
-// sidebar nav config
 import navigation from "./_nav";
 import { useKeySelector } from "src/hook/general";
 import { supabase } from "src/config/configSupabase";
@@ -33,7 +32,7 @@ const TheSidebar = () => {
       );
     }
   };
-  useEffect(componentDidMount, []);
+  useEffect(componentDidMount, [dispatch, user.length]);
 
   // if (!user.RolID) return;
   return (

@@ -2,12 +2,10 @@ import React, { useEffect, useState } from "react";
 import { freeSet } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
 import {
-  CBadge,
   CButton,
   CCol,
   CDataTable,
   CForm,
-  CFormGroup,
   CInput,
   CInputGroup,
   CInputGroupPrepend,
@@ -144,7 +142,7 @@ const Charges = ({
       setAmount(0);
       setEdit("");
     });
-  useEffect(componentDidMount, [refreshPayments]);
+  useEffect(componentDidMount, [refreshPayments, setRefreshPayments, userID]);
   return (
     <CForm className={validated ? "was-validated" : ""}>
       <CRow

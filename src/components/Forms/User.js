@@ -48,7 +48,6 @@ import {
   getOfficesToUserID,
   updateOfficeToClient,
 } from "src/state/querys/Office";
-import Zones from "src/views/base/tables/Zones";
 import { createZone, getAdminZone, getZones } from "src/state/querys/Zones";
 import { supabase } from "src/config/configSupabase";
 import { useKeySelector } from "src/hook/general";
@@ -180,7 +179,7 @@ const UserForm = ({ user, onClose }) => {
               : createUserProduct({ ...product, UserID: user.ID })
           ),
           updateOfficeToClient(user.ID, officeID),
-          formsAddress.map((address, index) => {
+          formsAddress.map((address, index) =>
             address.ID
               ? updateAddress(address).then((newaddressID) => {
                   updateUserAddress({
@@ -207,8 +206,8 @@ const UserForm = ({ user, onClose }) => {
                     onClose();
                     setValidated(false);
                   }
-                });
-          }),
+                })
+          ),
         ]);
       });
     } else
@@ -227,7 +226,7 @@ const UserForm = ({ user, onClose }) => {
             StateID: 3,
           }),
           createClientOffice(newUserID, officeID),
-          formsAddress.map((address, index) => {
+          formsAddress.map((address, index) =>
             createAddress(address).then((newaddressID) => {
               createUserAddress({
                 AddressID: newaddressID,
@@ -239,8 +238,8 @@ const UserForm = ({ user, onClose }) => {
                 onClose();
                 setValidated(false);
               }
-            });
-          }),
+            })
+          ),
         ]);
       });
   };

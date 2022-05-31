@@ -1,18 +1,8 @@
 import React from "react";
-import { useSelector, useDispatch } from "react-redux";
-import {
-  CHeader,
-  CToggler,
-  CHeaderBrand,
-  CHeaderNav,
-  CButton,
-} from "@coreui/react";
+import { useDispatch } from "react-redux";
+import { CHeader, CToggler, CHeaderNav, CButton } from "@coreui/react";
 import CIcon from "@coreui/icons-react";
 
-// routes config
-import routes from "../routes";
-
-import { TheHeaderDropdown } from "./index";
 import { freeSet } from "@coreui/icons";
 import { useKeySelector } from "src/hook/general";
 import { supabase } from "src/config/configSupabase";
