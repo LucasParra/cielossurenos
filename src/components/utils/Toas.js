@@ -21,7 +21,7 @@ const Toas = () => {
         <CToaster position="right" key="toaster">
           <CToast
             key="toast"
-            show={toas.show}
+            show={true}
             style={{
               borderRadius: 12,
               backgroundColor: "#f2f2f3",

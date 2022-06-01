@@ -172,7 +172,9 @@ const getUserBySearch = (textSearch, limit = 1) =>
     .from("User")
     .select("*,Address(*)")
     .or(
-      `Names.ilike.%${textSearch}%,LastName.ilike.%${textSearch}%,Rut.ilike.%${textSearch}%`
+      `Names.ilike.%${textSearch}%,LastName.ilike.%${textSearch}%,Rut.ilike.%${textSearch}%
+      ${!isNaN(textSearch) && `,ID.gte.${parseInt(textSearch)}`}
+      `
     )
     .eq("RolID", 2)
     .limit(limit * 5 + 1)

@@ -15,18 +15,18 @@ import {
   CModal,
   CSelect,
 } from "@coreui/react";
-
-// import users from "../../users/users";
-import { supabase } from "src/config/configSupabase";
-import _ from "lodash";
 import Select from "react-select";
 import CIcon from "@coreui/icons-react";
 import { freeSet } from "@coreui/icons";
+import { useHistory } from "react-router";
+import _ from "lodash";
+
 import Discounts from "./Discounts";
 import Charges from "./Charges";
-import { useHistory } from "react-router";
-import { chargeAutomatic } from "src/state/querys/Charges";
+import { supabase } from "src/config/configSupabase";
+
 import { format } from "rut.js";
+import { chargeAutomatic } from "src/state/querys/Charges";
 import { useKeySelector } from "src/hook/general";
 import {
   getUserBySearch,
@@ -47,36 +47,7 @@ const fields = [
   "nombres",
   "apellidos",
   "Rut",
-  // "JobID",
-  // "AddressName",
-  // "AddressNumber",
-  // "AddressBlockNumber",
-  // "AddressFloorNumber",
-  // "AddressApartmentNumber",
   "contacto",
-  // "JobPhoneNumber",
-  // "AddressZoneID",
-  // "AddressArea",
-  // "UnsuscribeReason",
-  // "SellerID",
-  // "TechnicianID",
-  // "A_N_BOCAS",
-  // "A_COEFICIE",
-  // "StateID",
-  // "A_REPACTAD",
-  // "A_RECONNCET",
-  // "A_FE_RECON",
-  // "A_CONDONAD",
-  // "A_PROMOCIO",
-  // "A_FE_PROMO",
-  // "A_D_PLAZO",
-  // "D_8",
-  // "FechCon",
-  // "AltaAdm",
-  // "BajaAdm",
-  // "AltaTec",
-  // "BajaTec",
-  // "A_FE_REPAC",
   { key: "estado" },
   "editar",
   "datos",
@@ -115,7 +86,6 @@ const Tables = () => {
     );
     if (value === undefined || value === "") return userEffect();
     setLoading(true);
-
     getUserBySearch(value, limit).then((usersApi) => {
       setUsers(
         usersApi

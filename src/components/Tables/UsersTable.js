@@ -15,6 +15,7 @@ const UsersTable = ({ handleClient }) => {
   const [searchText, setSearchText] = useState("");
 
   const usersEffect = (value = "", limit = 1) => {
+    console.log("holi");
     setLoading(true);
     setSearchText(value);
     getUsersClients(limit, value).then((usersResponse) => {
@@ -29,10 +30,8 @@ const UsersTable = ({ handleClient }) => {
       setLoading(false);
     });
   };
-  const debounceFilter = useCallback(
-    (value, limit) => _.debounce(usersEffect(value, limit), 1000),
-    []
-  );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debounceFilter = useCallback(_.debounce(usersEffect, 1000), []);
 
   useEffect(usersEffect, []);
   return (

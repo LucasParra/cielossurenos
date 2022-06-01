@@ -50,6 +50,7 @@ import {
 } from "src/state/querys/Office";
 import { SelectOfficesTable } from "src/components/Tables";
 import { createTask } from "src/state/querys/Tasks";
+import { useDispatch } from "react-redux";
 
 const initUser = {
   Names: "",
@@ -79,6 +80,7 @@ const initAddress = [
   },
 ];
 const FormUser = ({ user, onClose }) => {
+  const dispatch = useDispatch();
   const { colors, user: userSession } = useKeySelector(["colors", "user"]);
   const [formUser, setFormUser] = useState(initUser);
   const [formsAddress, setFormsAddress] = useState(initAddress);
@@ -192,6 +194,14 @@ const FormUser = ({ user, onClose }) => {
                 UserID: newUserID,
               });
               if (index + 1 === formsAddress.length) {
+                dispatch({
+                  type: "SET_TOAS",
+                  payload: {
+                    show: true,
+                    type: "success",
+                    label: `nuemero de usuario : ${newUserID}`,
+                  },
+                });
                 setFormsProducts([]);
                 setTechnician({});
                 setFormsAddress(initAddress);
