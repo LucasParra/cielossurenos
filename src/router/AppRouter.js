@@ -29,7 +29,7 @@ const AppRouter = () => {
   };
   useEffect(componentDidMount, []);
   return (
-    <Router basename="/cielossurenos/">
+    <Router>
       <Switch>
         <PublicRoute
           exact
