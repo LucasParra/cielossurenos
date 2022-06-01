@@ -12,6 +12,7 @@ const getTypesTasks = () =>
   supabase
     .from("TaskType")
     .select("*")
+
     .then(({ data }) => data);
 
 const getTaskByUserID = (UserID) =>

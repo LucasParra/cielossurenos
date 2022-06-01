@@ -77,7 +77,11 @@ const Typography = React.lazy(() =>
 );
 const Widgets = React.lazy(() => import("./views/widgets/Widgets"));
 const Users = React.lazy(() => import("./views/users/Users"));
-const User = React.lazy(() => import("./views/users/User"));
+
+// const User = React.lazy(() => import("./views/users/User"));
+const User = React.lazy(() =>
+  import("./views/clientInformation/ClientInformation")
+);
 
 const routes = [
   { path: "/", exact: true, name: "Home" },

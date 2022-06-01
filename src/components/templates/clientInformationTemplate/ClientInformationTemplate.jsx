@@ -16,8 +16,6 @@ import {
   CTextarea,
 } from "@coreui/react";
 import { useHistory, useParams } from "react-router";
-import Discounts from "../base/tables/Discounts";
-import Charges from "../base/tables/Charges";
 import { getUserByID } from "src/state/querys/Users";
 import CIcon from "@coreui/icons-react";
 import { freeSet } from "@coreui/icons";
@@ -27,8 +25,12 @@ import { createTask, getTypesTasks } from "src/state/querys/Tasks";
 import TasksTable from "src/components/Tables/TasksTable";
 import _ from "lodash";
 import { TaskHistoryTable } from "src/components/organisms/taskHistoryTable";
+import Charges from "src/views/base/tables/Charges";
+import Discounts from "src/views/base/tables/Discounts";
 
-const User = () => {
+const ClientInformationTemplate = (props) => {
+  const { tasksHistory } = props;
+
   const history = useHistory();
   const { id } = useParams();
   const [modalTechnicians, setModalTechnicians] = useState(false);
@@ -261,7 +263,7 @@ const User = () => {
           </CCardBody>
         </CCard>
       </CCol>
-      <TaskHistoryTable />
+      <TaskHistoryTable tasks={tasksHistory} />
       <CModal
         show={modalTechnicians}
         onClose={setModalTechnicians}
@@ -288,4 +290,4 @@ const User = () => {
   );
 };
 
-export default User;
+export default ClientInformationTemplate;
