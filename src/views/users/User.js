@@ -26,7 +26,7 @@ import TechniciansTable from "src/components/Tables/TechniciansTable";
 import { createTask, getTypesTasks } from "src/state/querys/Tasks";
 import TasksTable from "src/components/Tables/TasksTable";
 import _ from "lodash";
-import { TaskHistoryTable } from "src/components/organisms/taskHistoryTable";
+import { TaskHistoryTable } from "src/components/molecules/taskHistoryTable";
 
 const User = () => {
   const history = useHistory();

@@ -6,10 +6,10 @@ const useClientInformationTemplate = () => {
   const { id: clientID } = useParams();
 
   const { useGetTaskByUserID } = useTask();
-  const [tasksHistory, loadingTasksHistory] = useGetTaskByUserID(clientID);
+  const [tasks, loadingTasksHistory] = useGetTaskByUserID(clientID);
 
   const isLoading = !loadingTasksHistory;
-  return { isLoading, tasksHistory };
+  return { isLoading, tasks };
 };
 
 export default useClientInformationTemplate;

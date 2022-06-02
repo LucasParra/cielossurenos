@@ -18,7 +18,9 @@ const getTypesTasks = () =>
 const getTaskByUserID = (UserID) =>
   supabase
     .from("Task")
-    .select("*,TypeID(Name)")
+    .select(
+      "*,TypeID(Name,ID),AssignedID!inner(*),ClientID!inner(*,Address:UserAddress!inner(AddressID(AddressName,AddressNumber)))"
+    )
     .order("ID", { ascending: false })
     .eq("ClientID", UserID)
     .then((snapshot) => snapshot.data)

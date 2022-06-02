@@ -22,21 +22,22 @@ import { freeSet } from "@coreui/icons";
 import { supabase } from "src/config/configSupabase";
 import TechniciansTable from "src/components/Tables/TechniciansTable";
 import { createTask, getTypesTasks } from "src/state/querys/Tasks";
-import TasksTable from "src/components/Tables/TasksTable";
-import _ from "lodash";
-import { TaskHistoryTable } from "src/components/organisms/taskHistoryTable";
+// import TasksTable from "src/components/Tables/TasksTable";
+// import _ from "lodash";
+import { TaskHistoryTable } from "src/components/molecules/taskHistoryTable";
 import Charges from "src/views/base/tables/Charges";
 import Discounts from "src/views/base/tables/Discounts";
+import { TasksTableNew } from "src/components/molecules/tasksTable";
 
 const ClientInformationTemplate = (props) => {
-  const { tasksHistory } = props;
+  const { tasksHistory, tasksProcess } = props;
 
   const history = useHistory();
   const { id } = useParams();
   const [modalTechnicians, setModalTechnicians] = useState(false);
   const [refreshPayments, setRefreshPayments] = useState(false);
   const [types, setTypes] = useState([]);
-  const [tasks, setTasks] = useState([]);
+  // const [tasks, setTasks] = useState([]);
   const [taskForm, setTaskForm] = useState({
     TypeID: "",
     AssignedID: "",
@@ -49,18 +50,18 @@ const ClientInformationTemplate = (props) => {
 
   const componentDidMount = () => {
     getUserByID(id).then(setUser);
-    supabase
-      .from("Task")
-      .select(
-        "*,TypeID(Name,ID),AssignedID!inner(*),ClientID!inner(*,Address:UserAddress!inner(AddressID(AddressName,AddressNumber)))"
-      )
-      .order("ID", { ascending: false })
-      .or("StateID.eq.2,StateID.eq.3")
-      .eq("ClientID.ID", id)
-      .then((snapshot) => {
-        setTasks(_.groupBy(snapshot.data, "Priority"));
-      })
-      .catch(console.error);
+    // supabase
+    //   .from("Task")
+    //   .select(
+    //     "*,TypeID(Name,ID),AssignedID!inner(*),ClientID!inner(*,Address:UserAddress!inner(AddressID(AddressName,AddressNumber)))"
+    //   )
+    //   .order("ID", { ascending: false })
+    //   .or("StateID.eq.2,StateID.eq.3")
+    //   .eq("ClientID.ID", id)
+    //   .then((snapshot) => {
+    //     setTasks(_.groupBy(snapshot.data, "Priority"));
+    //   })
+    //   .catch(console.error);
 
     getTypesTasks().then(setTypes);
   };
@@ -253,16 +254,9 @@ const ClientInformationTemplate = (props) => {
           </CCardBody>
         </CCard>
       </CCol>
-      <CCol lg={12}>
-        <CCard>
-          <CCardHeader>
-            <CLabel style={{ fontSize: 20, fontWeight: "bold" }}>Tareas</CLabel>
-          </CCardHeader>
-          <CCardBody>
-            <TasksTable tasks={tasks} taskEffect={componentDidMount} />
-          </CCardBody>
-        </CCard>
-      </CCol>
+
+      <TasksTableNew tasks={tasksProcess} />
+
       <TaskHistoryTable tasks={tasksHistory} />
       <CModal
         show={modalTechnicians}
