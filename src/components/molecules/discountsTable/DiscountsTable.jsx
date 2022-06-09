@@ -15,7 +15,7 @@ const DiscountsTable = (props) => {
   const { discounts } = props;
 
   return (
-    <Card titleHeader="Descuentos">
+    <Card header="Descuentos">
       <CDataTable
         items={discounts}
         fields={fieldsDiscountsTable}

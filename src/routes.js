@@ -26,6 +26,12 @@ const GeneralAdmin = React.lazy(() => import("./views/admin/AdminGeneral"));
 const UsersProductsAdmin = React.lazy(() =>
   import("./views/admin/UsersProducts")
 );
+
+// secretary
+
+const SecretaryGeneral = React.lazy(() =>
+  import("./views/secretaryGeneral/SecretaryGeneral")
+);
 // views
 const Products = React.lazy(() => import("./views/product/Products"));
 const ChargesPay = React.lazy(() => import("./views/chargePay/ChargesPay"));
@@ -87,6 +93,12 @@ const routes = [
   { path: "/", exact: true, name: "Home" },
   { path: "/dashboard", name: "Dashboard", component: Dashboard },
   { path: "/admin", name: "General", component: GeneralAdmin, exact: true },
+  {
+    path: "/secretary",
+    name: "General",
+    component: SecretaryGeneral,
+    exact: true,
+  },
   {
     path: "/admin/productos",
     name: "usuarios productos",

@@ -34,7 +34,6 @@ const TheSidebar = () => {
   };
   useEffect(componentDidMount, [dispatch, user.length]);
 
-  // if (!user.RolID) return;
   return (
     <CSidebar
       show={sidebarShow}

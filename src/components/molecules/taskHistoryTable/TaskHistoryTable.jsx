@@ -12,7 +12,7 @@ const fieldsTaskHistoryTable = [
 const TaskHistoryTable = (props) => {
   const { tasks } = props;
   return (
-    <Card titleHeader="Historial de tareas">
+    <Card header="Historial de tareas">
       <CDataTable
         items={tasks}
         fields={fieldsTaskHistoryTable}

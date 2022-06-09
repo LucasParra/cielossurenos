@@ -7,7 +7,7 @@ import TasksTable from "src/components/Tables/TasksTable";
 const TasksTableNew = (props) => {
   const { tasks } = props;
   return (
-    <Card titleHeader="Tareas en proceso">
+    <Card header="Tareas en proceso">
       <CCol>
         <TasksTable tasks={tasks} taskEffect={() => {}} />
       </CCol>
