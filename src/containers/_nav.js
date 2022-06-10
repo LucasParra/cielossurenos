@@ -29,6 +29,13 @@ const _nav = [
   },
   {
     _tag: "CSidebarNavItem",
+    name: <h5 style={{ fontWeight: "bold" }}>Report</h5>,
+    to: "/reportSecretary",
+    icon: "cil-chart-pie",
+    users: [7],
+  },
+  {
+    _tag: "CSidebarNavItem",
     name: <h5>productos de clientes</h5>,
     to: "/admin/productos",
     icon: "cil-user",

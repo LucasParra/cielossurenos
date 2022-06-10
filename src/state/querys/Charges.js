@@ -81,6 +81,13 @@ const getAllChargeUserID = (UserID) =>
     .order("CreatedAt", { ascending: true })
     .then((snapshot) => snapshot.data);
 
+const getAllChargeToday = () =>
+  supabase
+    .from("Charge")
+    .select("*,ChargeTypeID(*)")
+    .order("CreatedAt", { ascending: true })
+    .then((snapshot) => snapshot.data);
+
 const createPay = (ID, UrlImage, DocumentData) =>
   supabase
     .from("Charge")
@@ -138,4 +145,5 @@ export {
   getCharges,
   deleteChargeType,
   countChargeAssigned,
+  getAllChargeToday,
 };

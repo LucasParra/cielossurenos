@@ -4,7 +4,7 @@ import { getStateTask, getTaskByUserID } from "src/state/querys/Tasks";
 
 const useTask = () => {
   const useGetTaskByUserID = (userID) => {
-    const [task, setTask] = useState({});
+    const [task, setTask] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -19,7 +19,7 @@ const useTask = () => {
   };
 
   const useGetTasksOfState = () => {
-    const [task, setTask] = useState({});
+    const [task, setTask] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {

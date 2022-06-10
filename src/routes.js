@@ -28,7 +28,9 @@ const UsersProductsAdmin = React.lazy(() =>
 );
 
 // secretary
-
+const ReportSecretary = React.lazy(() =>
+  import("./views/reportSecretary/ReportSecretary")
+);
 const SecretaryGeneral = React.lazy(() =>
   import("./views/secretaryGeneral/SecretaryGeneral")
 );
@@ -97,6 +99,12 @@ const routes = [
     path: "/secretary",
     name: "General",
     component: SecretaryGeneral,
+    exact: true,
+  },
+  {
+    path: "/reportSecretary",
+    name: "General",
+    component: ReportSecretary,
     exact: true,
   },
   {
